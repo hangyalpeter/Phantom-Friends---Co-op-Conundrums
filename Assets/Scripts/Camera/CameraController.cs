@@ -76,6 +76,8 @@ public class CameraController : MonoBehaviour
 
     private Vector2 GetCenterPointOfChildAndGhost()
     {
-        return new Vector2((childTransform.position.x + ghostTransform.position.x) / 2, (childTransform.position.y + ghostTransform.position.y) / 2);
+        //return new Vector2((childTransform.position.x + ghostTransform.position.x) / 2, (childTransform.position.y + ghostTransform.position.y) / 2);
+       return ((childTransform.position + ghostTransform.position) / 2f);
+
     }
 }
