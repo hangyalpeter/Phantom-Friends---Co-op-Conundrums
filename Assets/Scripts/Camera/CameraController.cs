@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
@@ -11,6 +9,8 @@ public class CameraController : MonoBehaviour
 
     private Camera camera;
 
+    [SerializeField] private float zoomSpeed = 2.0f;
+    [SerializeField] private float minCameraSize = 5f;
 
     [SerializeField] private float distanceOffset1 = 25;
     [SerializeField] private float distanceOffset2 = 35;
@@ -33,9 +33,20 @@ public class CameraController : MonoBehaviour
     private void Update()
     {
         CameraFollowChildAndGhost();
+        UpdateCameraSize();
 
-        UpdateCameraSizeAccordingToChildAndGhostDistance();
+    }
 
+    private void UpdateCameraSize()
+    {
+        float distance = Vector3.Distance(childTransform.position, ghostTransform.position);
+
+        float targetCameraSize = distance / 2.0f;
+
+        targetCameraSize = Mathf.Max(targetCameraSize, minCameraSize);
+
+        float newCameraSize = Mathf.Lerp(camera.orthographicSize, targetCameraSize, Time.deltaTime * zoomSpeed);
+        camera.orthographicSize = newCameraSize;
     }
 
     private void CameraFollowChildAndGhost()
@@ -76,7 +87,6 @@ public class CameraController : MonoBehaviour
 
     private Vector2 GetCenterPointOfChildAndGhost()
     {
-        //return new Vector2((childTransform.position.x + ghostTransform.position.x) / 2, (childTransform.position.y + ghostTransform.position.y) / 2);
        return ((childTransform.position + ghostTransform.position) / 2f);
 
     }
