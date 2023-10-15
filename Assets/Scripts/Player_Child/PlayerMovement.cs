@@ -69,4 +69,12 @@ public class PlayerMovement : MonoBehaviour
     {
         return Physics2D.BoxCast(bc.bounds.center, bc.bounds.size, 0f, Vector2.down, .1f, LayerMask.GetMask("Ground"));
     }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player_Ghost"))
+        {
+            Physics2D.IgnoreCollision(collision.collider, bc);
+        }
+    }   
 }

@@ -2,13 +2,17 @@ using UnityEngine;
 
 public class GhostController : MonoBehaviour
 {
-   private Rigidbody2D rb;
+
+    [SerializeField] private Transform secondPlayer;
+    [SerializeField] private float maxDistanceFromSecondPlayer = 10f; 
+    
+    private Rigidbody2D rb;
     private SpriteRenderer sr;
     private Animator anim;
     private float dirX = 0f;
     private float dirY = 0f;
     private float moveSpeed = 7f;
-    
+
     private enum MovementState { idle, moving}
     void Start()
     {
@@ -20,7 +24,15 @@ public class GhostController : MonoBehaviour
 
     void Update()
     {
-        dirX= Input.GetAxisRaw("Horizontal_Ghost");
+        float distance = Vector2.Distance(transform.position, secondPlayer.position);
+
+        if (distance > maxDistanceFromSecondPlayer)
+        {
+            Vector2 direction = (transform.position - secondPlayer.position).normalized;
+            transform.position = secondPlayer.position + new Vector3(direction.x, direction.y, 0) * maxDistanceFromSecondPlayer;
+        }
+
+        dirX = Input.GetAxisRaw("Horizontal_Ghost");
         dirY = Input.GetAxisRaw("Vertical_Ghost");
         rb.velocity = new Vector2(dirX * moveSpeed, dirY * moveSpeed);
         
