@@ -9,9 +9,10 @@ public class LevelFinish : MonoBehaviour
     [SerializeField] private TMPro.TextMeshProUGUI timerText;
 
     [SerializeField] private GameObject endLevelPanel;
+    [SerializeField] private AudioSource levelFinishSound;
     Coroutine timerCoroutine;
     private Stopwatch stopwatch;
-
+    
     void Start()
     {
         stopwatch = new Stopwatch();
@@ -43,6 +44,7 @@ public class LevelFinish : MonoBehaviour
     {
         if (collision.gameObject.tag == "Player_Child")
         {
+            levelFinishSound.Play();
             endLevelPanel.SetActive(true);
             StopTimer();
             Time.timeScale = 0f;
