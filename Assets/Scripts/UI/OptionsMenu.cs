@@ -6,7 +6,7 @@ using UnityEngine.Audio;
 public class OptionsMenu : MonoBehaviour
 {
     [SerializeField] private GameObject settingsPanel;
-    [SerializeField] private GameObject mainMenuPanel;
+    [SerializeField] private GameObject pausePanel;
     [SerializeField] private TMPro.TMP_Dropdown resolutionDropdown;
     [SerializeField] private AudioMixer masterAudioMixer;
     [SerializeField] private AudioMixer musicAudioMixer;
@@ -36,21 +36,35 @@ public class OptionsMenu : MonoBehaviour
         QualitySettings.SetQualityLevel(5);
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            if (settingsPanel.activeSelf)
+            {
+                settingsPanel.SetActive(false);
+                if (pausePanel != null)
+                {
+                    pausePanel.SetActive(true);
+                }
+            }
+        }
+    }
+
     public void SetResolution(int resolutionIndex)
     {
         Resolution resolution = resolutions[resolutionIndex];
         Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
     }
-    public void OnSettings()
-    {
-        settingsPanel.SetActive(true);
-        mainMenuPanel.SetActive(false);
-    }
 
     public void Back()
     {
-        gameObject.SetActive(false);
-        mainMenuPanel.SetActive(true);
+
+        settingsPanel.SetActive(false);
+        if (pausePanel != null)
+        {
+            pausePanel.SetActive(true);
+        }
     }
 
     public void SetQuality(int qualityIndex)
@@ -70,6 +84,11 @@ public class OptionsMenu : MonoBehaviour
     public void SetMusicVolume(float volume)
     {
         musicAudioMixer.SetFloat("volume", volume);
+    }
+    
+    public void OpenOptions()
+    {
+        settingsPanel.SetActive(true);
     }
  
 }

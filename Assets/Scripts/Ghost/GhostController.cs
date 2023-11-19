@@ -24,6 +24,11 @@ public class GhostController : MonoBehaviour
 
     void Update()
     {
+        if (float.Equals(Time.timeScale, 0f))
+        {
+            return;
+        }
+
         float distance = Vector2.Distance(transform.position, secondPlayer.position);
 
         if (distance > maxDistanceFromSecondPlayer)

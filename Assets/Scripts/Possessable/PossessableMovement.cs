@@ -23,7 +23,7 @@ public class PosessableMovement : MonoBehaviour
 
     void Update()
     {
-        if (isPossessed)
+        if (isPossessed && !float.Equals(Time.timeScale, 0f))
         {
             Move();
         }

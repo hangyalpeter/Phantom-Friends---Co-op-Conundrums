@@ -25,7 +25,7 @@ public class LevelFinish : MonoBehaviour
             int minutes = (int)(elapsedTime / 60);
             int seconds = (int)(elapsedTime % 60);
             int milliseconds = (int)((elapsedTime * 1000) % 1000);
-            timerText.text = string.Format("Time: {0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds);
+            timerText.text = string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds);
 
         }
     }
