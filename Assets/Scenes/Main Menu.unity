@@ -417,6 +417,14 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2496734553493019695, guid: c84a93e3b7f3eec49a61245da8c5734e, type: 3}
+      propertyPath: musicVolumeSlider
+      value: 
+      objectReference: {fileID: 412919606}
+    - target: {fileID: 2496734553493019695, guid: c84a93e3b7f3eec49a61245da8c5734e, type: 3}
+      propertyPath: masterVolumeSlider
+      value: 
+      objectReference: {fileID: 412919607}
     - target: {fileID: 3011807164270432109, guid: c84a93e3b7f3eec49a61245da8c5734e, type: 3}
       propertyPath: m_AnchorMax.x
       value: 1
@@ -534,6 +542,28 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c84a93e3b7f3eec49a61245da8c5734e, type: 3}
+--- !u!114 &412919606 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5205718992834885048, guid: c84a93e3b7f3eec49a61245da8c5734e, type: 3}
+  m_PrefabInstance: {fileID: 412919605}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &412919607 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3889811205736263016, guid: c84a93e3b7f3eec49a61245da8c5734e, type: 3}
+  m_PrefabInstance: {fileID: 412919605}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &550338873
 GameObject:
   m_ObjectHideFlags: 0
@@ -3177,6 +3207,8 @@ MonoBehaviour:
   resolutionDropdown: {fileID: 0}
   masterAudioMixer: {fileID: 24100000, guid: 3e750bf53112b90429d861d8d6af6c7d, type: 2}
   musicAudioMixer: {fileID: 24100000, guid: 244a1e80de7a7444abc96eb57e0b8a3a, type: 2}
+  masterVolumeSlider: {fileID: 0}
+  musicVolumeSlider: {fileID: 0}
 --- !u!1 &1823634286
 GameObject:
   m_ObjectHideFlags: 0
@@ -3297,7 +3329,7 @@ GameObject:
   - component: {fileID: 2014883597}
   - component: {fileID: 2014883596}
   - component: {fileID: 2014883595}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}

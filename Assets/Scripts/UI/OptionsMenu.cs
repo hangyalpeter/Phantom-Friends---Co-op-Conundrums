@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.UI;
 
 public class OptionsMenu : MonoBehaviour
 {
@@ -10,14 +11,18 @@ public class OptionsMenu : MonoBehaviour
     [SerializeField] private TMPro.TMP_Dropdown resolutionDropdown;
     [SerializeField] private AudioMixer masterAudioMixer;
     [SerializeField] private AudioMixer musicAudioMixer;
+    [SerializeField] private Slider masterVolumeSlider;
+    [SerializeField] private Slider musicVolumeSlider;
 
     Resolution[] resolutions;
 
     private void Start()
     {
+        masterVolumeSlider.value = PlayerPrefs.GetFloat("MasterVolume", 0f);
+        musicVolumeSlider.value = PlayerPrefs.GetFloat("MusicVolume", 0f);
+
         resolutions = Screen.resolutions;
         resolutionDropdown.ClearOptions();
-        // Loop through the resolutions and add them to the dropdown
         List<string> options = new List<string>();
         int currentResolutionIndex = 0;
         for(int i = 0; i < resolutions.Length; i++)
@@ -80,10 +85,14 @@ public class OptionsMenu : MonoBehaviour
     public void SetMasterVolume(float volume)
     {
         masterAudioMixer.SetFloat("volume", volume);
+        PlayerPrefs.SetFloat("MasterVolume", volume);
+        PlayerPrefs.Save();
     }
     public void SetMusicVolume(float volume)
     {
         musicAudioMixer.SetFloat("volume", volume);
+        PlayerPrefs.SetFloat("MusicVolume", volume);
+        PlayerPrefs.Save();
     }
     
     public void OpenOptions()

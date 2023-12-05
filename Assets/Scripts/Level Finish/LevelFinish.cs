@@ -39,11 +39,13 @@ public class LevelFinish : MonoBehaviour
             if (elapsedTime < bestCompletionTime)
             {
                 PlayerPrefs.SetFloat(currentLevelName + "_BestCompletionTime", elapsedTime);
+                PlayerPrefs.Save();
             }
         }
         else
         {
             PlayerPrefs.SetFloat(currentLevelName + "_BestCompletionTime", elapsedTime);
+            PlayerPrefs.Save();
         }
     }
 
