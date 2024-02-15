@@ -6,6 +6,7 @@ public class TrampolineJump : MonoBehaviour
     private Animator anim;
     [SerializeField] private float jumpForce = 20f;
     [SerializeField] private GameObject playerGameObject;
+    [SerializeField] private AudioSource trampolineSound;
     private Rigidbody2D rb;
     void Start()
     {
@@ -17,6 +18,7 @@ public class TrampolineJump : MonoBehaviour
     {
         if (collision.gameObject.name == "Player_Child")
         {
+            trampolineSound.Play();
             anim.SetTrigger("jump");
             JumpPlayer();
         }

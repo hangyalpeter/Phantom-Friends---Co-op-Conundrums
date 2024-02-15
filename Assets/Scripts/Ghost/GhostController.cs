@@ -13,6 +13,8 @@ public class GhostController : MonoBehaviour
     private float dirY = 0f;
     private float moveSpeed = 7f;
 
+    public bool isPossessed = false;
+
     private enum MovementState { idle, moving}
     void Start()
     {
@@ -24,6 +26,11 @@ public class GhostController : MonoBehaviour
 
     void Update()
     {
+        if (float.Equals(Time.timeScale, 0f))
+        {
+            return;
+        }
+
         float distance = Vector2.Distance(transform.position, secondPlayer.position);
 
         if (distance > maxDistanceFromSecondPlayer)
