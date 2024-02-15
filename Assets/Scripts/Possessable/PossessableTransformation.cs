@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -12,7 +13,7 @@ public class PossessableTransformation : MonoBehaviour
 
     private Rigidbody2D rbGhost;
     private Rigidbody2D rb;
-    
+
     public UnityEvent OnPossess;
     public UnityEvent OnDePossess;
 
@@ -29,12 +30,12 @@ public class PossessableTransformation : MonoBehaviour
     private void Update()
     {
 
-        if (isPossessed && Input.GetKeyDown(KeyCode.R))
+        if (isPossessed && Input.GetKeyDown(KeyCode.R) && rbGhost.GetComponent<GhostController>().isPossessed)
         {
             UnPossess();
         }
 
-        if (isWithinTransformationRange() && !isPossessed && Input.GetKeyDown(KeyCode.E))
+        if (isWithinTransformationRange() && !isPossessed && Input.GetKeyDown(KeyCode.E) && !rbGhost.GetComponent<GhostController>().isPossessed)
         {
             Possess();
         }
@@ -71,7 +72,7 @@ public class PossessableTransformation : MonoBehaviour
         isPossessed = false;
         rbGhost.GetComponent<SpriteRenderer>().enabled = true;
         rb.constraints = RigidbodyConstraints2D.FreezeAll;
-        OnDePossess.Invoke();
+        OnDePossess?.Invoke();
 
         if (possessionTimer != null)
         {
@@ -80,6 +81,7 @@ public class PossessableTransformation : MonoBehaviour
         }
 
         timerText.gameObject.SetActive(false);
+        rbGhost.GetComponent<GhostController>().isPossessed = false;
     }
 
     private bool isWithinTransformationRange() 
@@ -106,7 +108,8 @@ public class PossessableTransformation : MonoBehaviour
 
         timerText.gameObject.SetActive(true);
         StartPossessionTimer();
-        OnPossess.Invoke();
+        OnPossess?.Invoke();
+        rbGhost.GetComponent<GhostController>().isPossessed = true;
     }
 
 }

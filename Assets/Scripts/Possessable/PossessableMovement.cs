@@ -14,7 +14,6 @@ public class PosessableMovement : MonoBehaviour
     private Rigidbody2D rb;
 
     private bool isPossessed = false;
-    
 
     void Start()
     {
@@ -23,7 +22,7 @@ public class PosessableMovement : MonoBehaviour
 
     void Update()
     {
-        if (isPossessed && !float.Equals(Time.timeScale, 0f))
+        if (isPossessed && !Equals(Time.timeScale, 0f))
         {
             Move();
         }

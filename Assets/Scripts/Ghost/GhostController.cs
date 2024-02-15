@@ -13,6 +13,8 @@ public class GhostController : MonoBehaviour
     private float dirY = 0f;
     private float moveSpeed = 7f;
 
+    public bool isPossessed = false;
+
     private enum MovementState { idle, moving}
     void Start()
     {
