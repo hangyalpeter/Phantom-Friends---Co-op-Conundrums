@@ -84,7 +84,6 @@ public class PossessableTransformation : MonoBehaviour
         }
 
         timerText.gameObject.SetActive(false);
-        //rbGhost.GetComponent<GhostController>().isPossessed = false;
         OnDePossessEvent?.Invoke();
     }
 
@@ -114,7 +113,6 @@ public class PossessableTransformation : MonoBehaviour
         StartPossessionTimer();
         OnPossess?.Invoke();
         OnPossessEvent?.Invoke();
-        //rbGhost.GetComponent<GhostController>().isPossessed = true;
     }
 
 }
