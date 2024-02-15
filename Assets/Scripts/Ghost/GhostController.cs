@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class GhostController : MonoBehaviour
@@ -13,9 +14,32 @@ public class GhostController : MonoBehaviour
     private float dirY = 0f;
     private float moveSpeed = 7f;
 
-    public bool isPossessed = false;
+    public bool IsPossessed { get; private set; }
 
     private enum MovementState { idle, moving}
+
+    private void OnEnable()
+    {
+        PossessableTransformation.OnPossessEvent += SetPossessedTrue;
+        PossessableTransformation.OnDePossessEvent += SetPossessedFalse;
+    }
+
+    private void SetPossessedFalse()
+    {
+        this.IsPossessed = false;
+    }
+
+    private void SetPossessedTrue()
+    {
+        this.IsPossessed = true;
+    }
+
+    private void OnDisable()
+    {
+        PossessableTransformation.OnPossessEvent -= SetPossessedTrue;
+        PossessableTransformation.OnDePossessEvent -= SetPossessedFalse;
+    }   
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -26,7 +50,7 @@ public class GhostController : MonoBehaviour
 
     void Update()
     {
-        if (float.Equals(Time.timeScale, 0f))
+        if (Equals(Time.timeScale, 0f))
         {
             return;
         }
