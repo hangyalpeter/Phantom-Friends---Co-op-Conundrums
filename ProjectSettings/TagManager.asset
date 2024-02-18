@@ -8,6 +8,7 @@ TagManager:
   - Player_Ghost
   - Trap
   - Player_Child
+  - Ground
   layers:
   - Default
   - TransparentFX

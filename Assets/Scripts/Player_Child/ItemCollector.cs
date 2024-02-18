@@ -1,23 +1,45 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class ItemCollector : MonoBehaviour
 {
+
+    public static ItemCollector Instance { get; private set; }
+
     private int appplesCount = 0;
     [SerializeField] private TextMeshProUGUI applesCountText;
     [SerializeField] private AudioSource appleSound;
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
 
-        if (collision.gameObject.CompareTag("Apple"))
+    private void OnEnable()
+    {
+        CollectibleApple.OnCollected += CollectApple;
+    }
+
+    private void OnDisable()
+    {
+        CollectibleApple.OnCollected -= CollectApple;
+    }
+
+    private void CollectApple()
+    {
+        appplesCount++;
+        appleSound.Play();
+        applesCountText.text = "Apples: " + appplesCount.ToString();
+    }
+
+    private void Awake()
+    {
+        if (Instance == null)
         {
-            appleSound.Play();
-            Destroy(collision.gameObject);
-            appplesCount++;
-            applesCountText.text = "Apples: " + appplesCount;
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
         }
     }
+
+
+    
 }
 

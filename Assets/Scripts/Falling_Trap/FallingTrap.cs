@@ -19,12 +19,6 @@ public class FallingTrap : MonoBehaviour
         isAlreadyTriggered = true;
     }
 
-    private IEnumerator DestroyFallingTrap()
-    {
-        yield return new WaitForSeconds(1.5f);
-        Destroy(gameObject);
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         
@@ -35,7 +29,16 @@ public class FallingTrap : MonoBehaviour
                 return;
             }
             StartCoroutine(FallingTrapCoroutine());
-            StartCoroutine(DestroyFallingTrap());
         }
     }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player_Child") || collision.gameObject.CompareTag("Ground"))
+        {
+            bc.enabled = false;
+            Destroy(gameObject);
+        }
+    }
+
 }
