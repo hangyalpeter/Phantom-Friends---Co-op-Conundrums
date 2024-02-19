@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="settings-container" style="flex-grow: 1; overflow: visible; width: 100%; height: 100%; display: flex; border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-right-radius: 20px; border-bottom-left-radius: 20px; border-top-width: 20px; border-right-width: 20px; border-bottom-width: 20px; border-left-width: 20px; border-left-color: rgb(70, 209, 60); border-right-color: rgb(70, 209, 60); border-top-color: rgb(70, 209, 60); border-bottom-color: rgb(70, 209, 60); align-items: center; justify-content: center; align-self: auto; flex-wrap: nowrap; margin-bottom: 10px; flex-shrink: 0;">
+        <ui:VisualElement name="header-container" style="flex-grow: 0; height: 20%; width: 100%; flex-direction: row-reverse; justify-content: center; align-items: stretch; flex-shrink: 0;">
+            <ui:Button parse-escape-sequences="true" display-tooltip-when-elided="true" name="back-button" text="X" class="back-button" style="flex-direction: column; justify-content: flex-start; align-self: flex-start;" />
+            <ui:Label tabindex="-1" text="Settings" parse-escape-sequences="true" display-tooltip-when-elided="true" name="settings-label" style="align-items: auto; justify-content: center; align-self: center; font-size: 30px; color: rgb(0, 0, 0); margin-top: 0; margin-right: auto; margin-bottom: 0; margin-left: auto;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="settings-body-container" style="flex-grow: 1; display: flex; width: 100%; height: 80%;">
+            <ui:Slider picking-mode="Ignore" value="0" high-value="0" name="master-volume" low-value="-80" style="align-items: auto; background-image: none; flex-wrap: nowrap; flex-direction: row-reverse; width: 50%; align-self: center;">
+                <ui:Label tabindex="-1" parse-escape-sequences="true" display-tooltip-when-elided="true" style="background-image: url(&apos;project://database/Assets/2D%20Casual%20UI/Sprite/GUI.png?fileID=21300086&amp;guid=1eaee135ce037439d925cee5e41ce026&amp;type=3#GUI_48&apos;); justify-content: flex-start; align-self: flex-start; width: 10%;" />
+            </ui:Slider>
+            <ui:Slider picking-mode="Ignore" value="0" high-value="0" name="music-volume" low-value="-80" style="align-self: center; align-items: center; width: 50%; flex-direction: row-reverse;">
+                <ui:Label tabindex="-1" parse-escape-sequences="true" display-tooltip-when-elided="true" style="flex-direction: row-reverse; background-image: url(&apos;project://database/Assets/2D%20Casual%20UI/Sprite/GUI.png?fileID=21300084&amp;guid=1eaee135ce037439d925cee5e41ce026&amp;type=3#GUI_47&apos;); width: 10%; height: 100%;" />
+            </ui:Slider>
+            <ui:DropdownField label="Resolution" index="-1" choices="System.Collections.Generic.List`1[System.String]" name="resolution-dropdown" style="width: 50%; align-self: center;" />
+            <ui:DropdownField label="Quality" index="-1" choices="System.Collections.Generic.List`1[System.String]" name="quality-dropdown" style="width: 50%; align-self: center;" />
+            <ui:Toggle label="Fullscreen" name="fullscreen-toggle" style="align-self: center; margin-top: 60px; justify-content: flex-start; align-items: auto;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
