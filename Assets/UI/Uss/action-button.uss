@@ -1,0 +1,8 @@
+.action-buttons {
+    background-color: rgb(91, 231, 82);
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+    align-self: center;
+}

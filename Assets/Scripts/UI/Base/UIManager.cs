@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -10,6 +11,7 @@ public class UIManager : MonoBehaviour
 
     UIScreen m_MainMenuScreen;
     UIScreen m_SettingsScreen;
+    UIScreen m_PauseScreen;
 
     UIScreen m_CurrentScreen;
 
@@ -39,6 +41,7 @@ public class UIManager : MonoBehaviour
         VisualElement root = m_Document.rootVisualElement;
         m_MainMenuScreen = new MainMenuScreen(root.Q<VisualElement>("MainMenuScreen"));
         m_SettingsScreen = new SettingsScreen(root.Q<VisualElement>("SettingsScreen"));
+        m_PauseScreen = new PauseScreen(root.Q<VisualElement>("PauseScreen"));
 
         RegisterUIScreens();
         HideScreens();
@@ -54,8 +57,8 @@ public class UIManager : MonoBehaviour
         UIScreenEvents.MainMenuShown += UIScreenEvents_MainMenuShown;
         UIScreenEvents.SettingsShown += UIScreenEvents_SettingsShown;
         UIScreenEvents.ScreenClosed += UIScreenEvents_ScreenClosed;
-        UIScreenEvents.GameStarted += HideScreens;
-        UIScreenEvents.SettingsShownInPlayMode += UIScreenEvents_SettingsShownInPlayMode;
+        UIScreenEvents.OnGameStart += HideScreens;
+        UIScreenEvents.PauseShown += UIScreenEvents_PauseShown;
     }
 
     private void UnsubscribeFromEvents()
@@ -63,16 +66,17 @@ public class UIManager : MonoBehaviour
         UIScreenEvents.MainMenuShown -= UIScreenEvents_MainMenuShown;
         UIScreenEvents.SettingsShown -= UIScreenEvents_SettingsShown;
         UIScreenEvents.ScreenClosed -= UIScreenEvents_ScreenClosed;
-        UIScreenEvents.GameStarted -= HideScreens;
-        UIScreenEvents.SettingsShownInPlayMode -= UIScreenEvents_SettingsShownInPlayMode;
+        UIScreenEvents.OnGameStart -= HideScreens;
+        UIScreenEvents.PauseShown -= UIScreenEvents_PauseShown;
     }
 
-    private void RegisterUIScreens()
+     private void RegisterUIScreens()
     {
         m_Screens = new List<UIScreen>()
         {
             m_MainMenuScreen,
-            m_SettingsScreen
+            m_SettingsScreen,
+            m_PauseScreen
         };
     }
 
@@ -91,28 +95,20 @@ public class UIManager : MonoBehaviour
         if (m_History.Count != 0)
         {
             Show(m_History.Pop(), false);
-        } else
+        }
+        else
         {
-           m_CurrentScreen.HideImmediately(); 
+            if (m_CurrentScreen == m_PauseScreen)
+            {
+                UIScreenEvents.PauseClosed?.Invoke();
+            }
+            m_CurrentScreen.HideImmediately();
         }
     }
 
     private void UIScreenEvents_SettingsShown()
     {
         Show(m_SettingsScreen);
-    }
-
-    // TODO: this will be used for pause menu, this is just a test if this works
-    private void UIScreenEvents_SettingsShownInPlayMode(bool playMode)
-    {
-        if (playMode)
-        {
-            Show(m_SettingsScreen, false);
-        }
-        else
-        {
-            Show(m_SettingsScreen);
-        }
     }
 
     private void HideScreens()
@@ -145,6 +141,11 @@ public class UIManager : MonoBehaviour
         m_CurrentScreen = screen;
         Debug.Log("Current Screen: " + m_CurrentScreen.ToString());
         Debug.Log("History Count: " + m_History.Count);
+    }
+
+   private void UIScreenEvents_PauseShown()
+    {
+        Show(m_PauseScreen, false);
     }
 
     public void Show(UIScreen screen)

@@ -25,7 +25,7 @@ public class PauseMenu : MonoBehaviour
             else
             {
                 Pause();
-                UIScreenEvents.SettingsShownInPlayMode?.Invoke(true);
+                UIScreenEvents.PauseShown?.Invoke();
             }
        }
 
