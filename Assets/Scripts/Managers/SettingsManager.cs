@@ -33,16 +33,18 @@ public class SettingsManager : MonoBehaviour
     private void SettingsEvents_OnMasterVolumeChanged(float volume)
     {
         SettingsModel.Instance.MasterAudioMixer.SetFloat("masterVolume", DecibelConverter.ConvertLinearToDecibel(volume));
+        PlayerPrefs.SetFloat("masterVolume", volume);
     }
 
     private void SettingsEvents_OnSoundEffectsVolumeChanged(float volume)
     {
         SettingsModel.Instance.MasterAudioMixer.SetFloat("sfxVolume", DecibelConverter.ConvertLinearToDecibel(volume));
+        PlayerPrefs.SetFloat("sfxVolume", volume);
     }
 
     private void SettingsEvents_OnMusicVolumeChanged(float volume)
     {
         SettingsModel.Instance.MasterAudioMixer.SetFloat("musicVolume", DecibelConverter.ConvertLinearToDecibel(volume));
-        Debug.Log("Music volume changed to " + volume);
+        PlayerPrefs.SetFloat("musicVolume", volume);
     }
 }
