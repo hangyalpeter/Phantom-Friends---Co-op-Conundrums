@@ -43,6 +43,7 @@ public class UIManager : MonoBehaviour
         RegisterUIScreens();
         HideScreens();
 
+        Debug.Log("UI Manager Initialized");
         m_CurrentScreen = m_MainMenuScreen;
         m_History.Push(m_MainMenuScreen);
         m_MainMenuScreen.ShowImmediately();
@@ -53,6 +54,8 @@ public class UIManager : MonoBehaviour
         UIScreenEvents.MainMenuShown += UIScreenEvents_MainMenuShown;
         UIScreenEvents.SettingsShown += UIScreenEvents_SettingsShown;
         UIScreenEvents.ScreenClosed += UIScreenEvents_ScreenClosed;
+        UIScreenEvents.GameStarted += HideScreens;
+        UIScreenEvents.SettingsShownInPlayMode += UIScreenEvents_SettingsShownInPlayMode;
     }
 
     private void UnsubscribeFromEvents()
@@ -60,6 +63,8 @@ public class UIManager : MonoBehaviour
         UIScreenEvents.MainMenuShown -= UIScreenEvents_MainMenuShown;
         UIScreenEvents.SettingsShown -= UIScreenEvents_SettingsShown;
         UIScreenEvents.ScreenClosed -= UIScreenEvents_ScreenClosed;
+        UIScreenEvents.GameStarted -= HideScreens;
+        UIScreenEvents.SettingsShownInPlayMode -= UIScreenEvents_SettingsShownInPlayMode;
     }
 
     private void RegisterUIScreens()
@@ -86,12 +91,28 @@ public class UIManager : MonoBehaviour
         if (m_History.Count != 0)
         {
             Show(m_History.Pop(), false);
+        } else
+        {
+           m_CurrentScreen.HideImmediately(); 
         }
     }
 
     private void UIScreenEvents_SettingsShown()
     {
         Show(m_SettingsScreen);
+    }
+
+    // TODO: this will be used for pause menu, this is just a test if this works
+    private void UIScreenEvents_SettingsShownInPlayMode(bool playMode)
+    {
+        if (playMode)
+        {
+            Show(m_SettingsScreen, false);
+        }
+        else
+        {
+            Show(m_SettingsScreen);
+        }
     }
 
     private void HideScreens()
@@ -122,6 +143,8 @@ public class UIManager : MonoBehaviour
 
         screen.ShowImmediately();
         m_CurrentScreen = screen;
+        Debug.Log("Current Screen: " + m_CurrentScreen.ToString());
+        Debug.Log("History Count: " + m_History.Count);
     }
 
     public void Show(UIScreen screen)

@@ -42,6 +42,15 @@ public class EventRegistry : IDisposable
         m_UnregisterActions += () => bindableElement.UnregisterCallback(eventCallback);
     }
 
+    public void RegisterDropdownValueChangedCallback(BindableElement bindableElement, Action<string> callback) 
+    {
+        EventCallback<ChangeEvent<string>> eventCallback = new EventCallback<ChangeEvent<string>>(evt => callback(evt.newValue));
+        bindableElement.RegisterCallback(eventCallback);
+
+        m_UnregisterActions += () => bindableElement.UnregisterCallback(eventCallback);
+    }
+
+
     // Unregisters all callbacks by invoking each stored unregister action, then sets the common delegate to null.
     // Call this method from the client when all the registered callbacks are no longer needed (e.g.,
     // in the client's OnDisable).

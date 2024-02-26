@@ -27,7 +27,7 @@ public class MainMenuScreen : UIScreen
 
     private void RegisterCallbacks()
     {
-        m_EventRegistry.RegisterCallback<ClickEvent>(m_StartButton, evt => SceneManager.LoadScene("Level 1"));
+        m_EventRegistry.RegisterCallback<ClickEvent>(m_StartButton, evt => { UIScreenEvents.GameStarted?.Invoke(); SceneManager.LoadScene("Level 1"); });
         m_EventRegistry.RegisterCallback<ClickEvent>(m_SettingsButton, evt => UIScreenEvents.SettingsShown?.Invoke());
         m_EventRegistry.RegisterCallback<ClickEvent>(m_QuitButton, evt => Application.Quit());
     }
