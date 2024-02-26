@@ -17,12 +17,17 @@ public class SettingsPresenter : MonoBehaviour
         SettingsEvents.MasterVolumeSliderChanged += SettingsEvents_MasterVolumeSliderChanged;
         SettingsEvents.MusicVolumeSliderChanged += SettingsEvents_MusicVolumeSliderChanged;
         SettingsEvents.SoundEffectsVolumeSliderChanged += SettingsEvents_SoundEffectsVolumeSliderChanged;
+        SettingsEvents.FullScreenToggleChanged += SettingsEvents_FullScreenToggleChanged;
     }
 
 
     private void OnDisable()
     {
         SettingsEvents.ResolutionDropdownChanged -= SettingsEvents_ResolutionDropdownChanged;
+        SettingsEvents.MasterVolumeSliderChanged -= SettingsEvents_MasterVolumeSliderChanged;
+        SettingsEvents.MusicVolumeSliderChanged -= SettingsEvents_MusicVolumeSliderChanged;
+        SettingsEvents.SoundEffectsVolumeSliderChanged -= SettingsEvents_SoundEffectsVolumeSliderChanged;
+        SettingsEvents.FullScreenToggleChanged -= SettingsEvents_FullScreenToggleChanged;
     }
 
   
@@ -30,6 +35,7 @@ public class SettingsPresenter : MonoBehaviour
     {
         InitializeResolution();
         InitializeAudio();
+        InitializeFullScreen();
 
     }
 
@@ -48,6 +54,11 @@ public class SettingsPresenter : MonoBehaviour
         SettingsEvents.MasterVolumeSliderSet?.Invoke(masterVolume);
         SettingsEvents.MusicVolumeSliderSet?.Invoke(musicVolume);
         SettingsEvents.SoundEffectsVolumeSliderSet?.Invoke(sfxVolume);
+    }
+
+    private void InitializeFullScreen()
+    {
+        SettingsEvents.FullScreenToggleSet?.Invoke(SettingsModel.Instance.IsFullScreen);
     }
 
     private void SettingsEvents_ResolutionDropdownChanged(int index)
@@ -71,5 +82,10 @@ public class SettingsPresenter : MonoBehaviour
     {
         float volume = value / 100f;
         SettingsEvents.MasterVolumeChanged?.Invoke(volume);
+    }
+
+    private void SettingsEvents_FullScreenToggleChanged(bool newValue)
+    {
+        SettingsEvents.FullScreenChanged?.Invoke(newValue);
     }
 }

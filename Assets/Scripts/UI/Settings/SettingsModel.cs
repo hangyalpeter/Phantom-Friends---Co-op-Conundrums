@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -55,6 +56,7 @@ public class SettingsModel : MonoBehaviour
 
         InitializeAudioSettings();
         InitializeResolutionSettings();
+        InitializeFullScreen();
 
     }
 
@@ -119,12 +121,26 @@ public class SettingsModel : MonoBehaviour
 
     }
 
+    private void InitializeFullScreen()
+    {
+        if (PlayerPrefs.HasKey("FullScreen"))
+        {
+            m_IsFullScreen = Convert.ToBoolean(PlayerPrefs.GetInt("FullScreen"));
+        }
+        else
+        {
+            m_IsFullScreen = k_IsFullScreen;
+            PlayerPrefs.SetInt("FullScreen", Convert.ToInt32(m_IsFullScreen));
+        }
+    }
+
     private void OnEnable()
     {
         SettingsEvents.MasterVolumeChanged += SettingsEvents_MasterVolumeChanged;
         SettingsEvents.MusicVolumeChanged += SettingsEvents_MusicVolumeChanged;
         SettingsEvents.SoundEffectsVolumeChanged += SettingsEvents_SoundEffectsVolumeChanged;
         SettingsEvents.ResolutionChanged += SettingsEvents_ResolutionChanged;
+        SettingsEvents.FullScreenChanged += SettingsEvents_FullScreenChanged;
     }
 
     private void OnDisable()
@@ -133,6 +149,12 @@ public class SettingsModel : MonoBehaviour
         SettingsEvents.MusicVolumeChanged -= SettingsEvents_MusicVolumeChanged;
         SettingsEvents.SoundEffectsVolumeChanged -= SettingsEvents_SoundEffectsVolumeChanged;
         SettingsEvents.ResolutionChanged -= SettingsEvents_ResolutionChanged;
+        SettingsEvents.FullScreenChanged -= SettingsEvents_FullScreenChanged;
+    }
+
+    private void SettingsEvents_FullScreenChanged(bool newValue)
+    {
+        m_IsFullScreen = newValue;
     }
 
     private void SettingsEvents_ResolutionChanged(int index)

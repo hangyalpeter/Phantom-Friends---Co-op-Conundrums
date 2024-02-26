@@ -11,6 +11,7 @@ public class SettingsScreen : UIScreen
     private Slider m_SFXVolumeSlider;
 
     private DropdownField m_ResolutionDropdown;
+    private Toggle m_fullScreenToggle;
 
     public SettingsScreen(VisualElement parentElement) : base(parentElement)
     {
@@ -33,12 +34,23 @@ public class SettingsScreen : UIScreen
         SettingsEvents.MasterVolumeSliderSet += MasterVolumeSliderSetHandler;
         SettingsEvents.MusicVolumeSliderSet += MusicVolumeSliderSetHandler;
         SettingsEvents.SoundEffectsVolumeSliderSet += SoundEffectsVolumeSliderSetHandler;
+        SettingsEvents.FullScreenToggleSet += FullScreenToggleSetHandler;
     }
     private void UnsubscribeFromEvents()
     {
         SettingsEvents.ResolutionDropdownOptionsSet -= ResolutionDropdownOptionsSetHandler;
         SettingsEvents.ResolutionDropdownIndexSet -= ResolutionDropdownIndexSetHandler;
+        SettingsEvents.MasterVolumeSliderSet -= MasterVolumeSliderSetHandler;
+        SettingsEvents.MusicVolumeSliderSet -= MusicVolumeSliderSetHandler;
+        SettingsEvents.SoundEffectsVolumeSliderSet -= SoundEffectsVolumeSliderSetHandler;
+        SettingsEvents.FullScreenToggleSet -= FullScreenToggleSetHandler;
     }
+
+    private void FullScreenToggleSetHandler(bool newValue)
+    {
+        m_fullScreenToggle.value = newValue;
+    }
+
     private void SetVisualElements()
     {
         m_BackButton = m_RootElement.Q<Button>("back-button");
@@ -46,6 +58,7 @@ public class SettingsScreen : UIScreen
         m_MusicVolumeSlider = m_RootElement.Q<Slider>("music-volume-slider");
         m_SFXVolumeSlider = m_RootElement.Q<Slider>("sfx-volume-slider");
         m_ResolutionDropdown = m_RootElement.Q<DropdownField>("resolution-dropdown");
+        m_fullScreenToggle = m_RootElement.Q<Toggle>("fullscreen-toggle");
     }
     private void RegisterCallbacks()
     {
@@ -55,6 +68,7 @@ public class SettingsScreen : UIScreen
         m_EventRegistry.RegisterValueChangedCallback<float>(m_MasterVolumeSlider, MasterVolumeChangeHandler);
         m_EventRegistry.RegisterValueChangedCallback<float>(m_SFXVolumeSlider, SFXVolumeChangeHandler);
         m_EventRegistry.RegisterValueChangedCallback<float>(m_MusicVolumeSlider, MusicVolumeChangeHandler);
+        m_EventRegistry.RegisterValueChangedCallback<bool>(m_fullScreenToggle, FullScreenToggleChangeHandler);
     }
     private void SoundEffectsVolumeSliderSetHandler(float volume)
     {
@@ -99,5 +113,10 @@ public class SettingsScreen : UIScreen
     private void ResolutionDropdownIndexSetHandler(int index)
     {
         m_ResolutionDropdown.index = index;
+    }
+
+    private void FullScreenToggleChangeHandler(bool newValue)
+    {
+        SettingsEvents.FullScreenToggleChanged?.Invoke(newValue);
     }
 }

@@ -12,6 +12,7 @@ public class SettingsManager : MonoBehaviour
         SettingsEvents.SoundEffectsVolumeChanged += SettingsEvents_OnSoundEffectsVolumeChanged;
         SettingsEvents.MasterVolumeChanged += SettingsEvents_OnMasterVolumeChanged;
         SettingsEvents.ResolutionChanged += SettingsEvents_OnResolutionChanged;
+        SettingsEvents.FullScreenChanged += SettingsEvents_OnFullScreenChanged;
     }
 
     private void OnDisable()
@@ -20,6 +21,12 @@ public class SettingsManager : MonoBehaviour
         SettingsEvents.SoundEffectsVolumeChanged -= SettingsEvents_OnSoundEffectsVolumeChanged;
         SettingsEvents.MasterVolumeChanged -= SettingsEvents_OnMasterVolumeChanged;
         SettingsEvents.ResolutionChanged -= SettingsEvents_OnResolutionChanged;
+        SettingsEvents.FullScreenChanged -= SettingsEvents_OnFullScreenChanged;
+    }
+
+    private void SettingsEvents_OnFullScreenChanged(bool isFullScreen)
+    {
+        Screen.fullScreen = isFullScreen;
     }
 
     private void SettingsEvents_OnResolutionChanged(int index)
