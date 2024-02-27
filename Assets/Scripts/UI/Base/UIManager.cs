@@ -12,6 +12,7 @@ public class UIManager : MonoBehaviour
     UIScreen m_MainMenuScreen;
     UIScreen m_SettingsScreen;
     UIScreen m_PauseScreen;
+    UIScreen m_LevelFinishScreen;
 
     UIScreen m_CurrentScreen;
 
@@ -42,6 +43,7 @@ public class UIManager : MonoBehaviour
         m_MainMenuScreen = new MainMenuScreen(root.Q<VisualElement>("MainMenuScreen"));
         m_SettingsScreen = new SettingsScreen(root.Q<VisualElement>("SettingsScreen"));
         m_PauseScreen = new PauseScreen(root.Q<VisualElement>("PauseScreen"));
+        m_LevelFinishScreen = new LevelFinishScreen(root.Q<VisualElement>("LevelFinishScreen"));
 
         RegisterUIScreens();
         HideScreens();
@@ -59,6 +61,7 @@ public class UIManager : MonoBehaviour
         UIScreenEvents.ScreenClosed += UIScreenEvents_ScreenClosed;
         UIScreenEvents.OnGameStart += HideScreens;
         UIScreenEvents.PauseShown += UIScreenEvents_PauseShown;
+        UIScreenEvents.LevelFinishShown += UIScreenEvents_LevelFinishShown;
     }
 
     private void UnsubscribeFromEvents()
@@ -68,15 +71,17 @@ public class UIManager : MonoBehaviour
         UIScreenEvents.ScreenClosed -= UIScreenEvents_ScreenClosed;
         UIScreenEvents.OnGameStart -= HideScreens;
         UIScreenEvents.PauseShown -= UIScreenEvents_PauseShown;
+        UIScreenEvents.LevelFinishShown -= UIScreenEvents_LevelFinishShown;
     }
 
-     private void RegisterUIScreens()
+    private void RegisterUIScreens()
     {
         m_Screens = new List<UIScreen>()
         {
             m_MainMenuScreen,
             m_SettingsScreen,
-            m_PauseScreen
+            m_PauseScreen,
+            m_LevelFinishScreen
         };
     }
 
@@ -146,6 +151,11 @@ public class UIManager : MonoBehaviour
    private void UIScreenEvents_PauseShown()
     {
         Show(m_PauseScreen, false);
+    }
+
+    private void UIScreenEvents_LevelFinishShown()
+    {
+        Show(m_LevelFinishScreen, false);
     }
 
     public void Show(UIScreen screen)

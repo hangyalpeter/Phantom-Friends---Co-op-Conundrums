@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -67,8 +68,10 @@ public class GameManager : MonoBehaviour
         UIScreenEvents.MainMenuClicked += OnMainMenuClicked;
         UIScreenEvents.PauseClosed += PauseClosed;
         UIScreenEvents.PauseShown += PauseShown;
+        UIScreenEvents.OnNextLevel += OnNextLevel;
 
         GameEvents.OnLevelRestart += OnLevelRestartClicked;
+        GameEvents.LevelFinished += OnLevelFinished;
     }
 
     private void UnsubscribeFromEvents()
@@ -78,9 +81,30 @@ public class GameManager : MonoBehaviour
         UIScreenEvents.MainMenuClicked -= OnMainMenuClicked;
         UIScreenEvents.PauseClosed -= PauseClosed;
         UIScreenEvents.PauseShown -= PauseShown;
+        UIScreenEvents.OnNextLevel -= OnNextLevel;
 
         GameEvents.OnLevelRestart -= OnLevelRestartClicked;
+        GameEvents.LevelFinished -= OnLevelFinished;
 
+    }
+
+    private void OnNextLevel()
+    {
+        StartCoroutine(LoadNextLevel());
+    }
+
+    private IEnumerator LoadNextLevel()
+    {
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
+
+        while (!asyncLoad.isDone)
+        {
+            yield return null;
+        }
+        UIScreenEvents.ScreenClosed?.Invoke();
+        Time.timeScale = 1f;
+        isLevelPlaying = true;
+        elapsedTime = 0f;
     }
 
     private void PauseShown()
@@ -150,4 +174,35 @@ public class GameManager : MonoBehaviour
 
         StartCoroutine(LoadMainMenu());
     }
+
+
+    private void OnLevelFinished()
+    {
+        Time.timeScale = 0f;
+
+        isLevelPlaying = false;
+        
+        int minutes = (int)(elapsedTime / 60);
+        int seconds = (int)(elapsedTime % 60);
+        int milliseconds = (int)((elapsedTime * 1000) % 1000);
+
+        GameEvents.LevelFinishedWithTime?.Invoke(string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds));
+        UIScreenEvents.LevelFinishShown?.Invoke();
+        var currentLevelName = SceneManager.GetActiveScene().name;
+        if (PlayerPrefs.HasKey(currentLevelName + "_BestCompletionTime"))
+        {
+            var bestCompletionTime = PlayerPrefs.GetFloat(currentLevelName + "_BestCompletionTime");
+            if (elapsedTime < bestCompletionTime)
+            {
+                PlayerPrefs.SetFloat(currentLevelName + "_BestCompletionTime", elapsedTime);
+                PlayerPrefs.Save();
+            }
+        }
+        else
+        {
+            PlayerPrefs.SetFloat(currentLevelName + "_BestCompletionTime", elapsedTime);
+            PlayerPrefs.Save();
+        }
+    }
+
 }
