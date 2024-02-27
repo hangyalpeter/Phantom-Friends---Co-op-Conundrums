@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -99,12 +100,24 @@ public class GameManager : MonoBehaviour
         isPaused = false;
     }
 
-    private void OnGameStartClicked()
+    private IEnumerator LoadFirstLevel()
     {
-        SceneManager.LoadScene("Level 1");
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("Level 1");
+
+        while (!asyncLoad.isDone)
+        {
+            yield return null;
+        }
         Time.timeScale = 1f;
         isLevelPlaying = true;
         elapsedTime = 0f;
+
+
+    }
+
+    private void OnGameStartClicked()
+    {
+        StartCoroutine(LoadFirstLevel());
     }
 
     private void OnLevelRestartClicked()
@@ -116,13 +129,25 @@ public class GameManager : MonoBehaviour
         elapsedTime = 0f;
     }
 
-    private void OnMainMenuClicked()
+    private IEnumerator LoadMainMenu()
     {
-        SceneManager.LoadScene("Main Menu");
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("Main Menu");
+
+        while (!asyncLoad.isDone)
+        {
+            yield return null;
+        }
 
         UIScreenEvents.ScreenClosed?.Invoke();
         UIScreenEvents.MainMenuShown?.Invoke();
         elapsedTime = 0f;
         isLevelPlaying = false;
+
+    }
+
+    private void OnMainMenuClicked()
+    {
+
+        StartCoroutine(LoadMainMenu());
     }
 }
