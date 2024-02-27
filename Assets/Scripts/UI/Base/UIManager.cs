@@ -13,6 +13,7 @@ public class UIManager : MonoBehaviour
     UIScreen m_SettingsScreen;
     UIScreen m_PauseScreen;
     UIScreen m_LevelFinishScreen;
+    UIScreen m_LevelSelectScreen;
 
     UIScreen m_CurrentScreen;
 
@@ -44,6 +45,7 @@ public class UIManager : MonoBehaviour
         m_SettingsScreen = new SettingsScreen(root.Q<VisualElement>("SettingsScreen"));
         m_PauseScreen = new PauseScreen(root.Q<VisualElement>("PauseScreen"));
         m_LevelFinishScreen = new LevelFinishScreen(root.Q<VisualElement>("LevelFinishScreen"));
+        m_LevelSelectScreen = new LevelSelectScreen(root.Q<VisualElement>("LevelSelectScreen"));
 
         RegisterUIScreens();
         HideScreens();
@@ -62,6 +64,8 @@ public class UIManager : MonoBehaviour
         UIScreenEvents.OnGameStart += HideScreens;
         UIScreenEvents.PauseShown += UIScreenEvents_PauseShown;
         UIScreenEvents.LevelFinishShown += UIScreenEvents_LevelFinishShown;
+        UIScreenEvents.LevelSelectShown += UIScreenEvents_LevelSelectShown;
+        UIScreenEvents.OnLevelSelected += UIScreenEvents_LevelSelected;
     }
 
     private void UnsubscribeFromEvents()
@@ -72,6 +76,8 @@ public class UIManager : MonoBehaviour
         UIScreenEvents.OnGameStart -= HideScreens;
         UIScreenEvents.PauseShown -= UIScreenEvents_PauseShown;
         UIScreenEvents.LevelFinishShown -= UIScreenEvents_LevelFinishShown;
+        UIScreenEvents.LevelSelectShown -= UIScreenEvents_LevelSelectShown;
+        UIScreenEvents.OnLevelSelected -= UIScreenEvents_LevelSelected;
     }
 
     private void RegisterUIScreens()
@@ -81,7 +87,8 @@ public class UIManager : MonoBehaviour
             m_MainMenuScreen,
             m_SettingsScreen,
             m_PauseScreen,
-            m_LevelFinishScreen
+            m_LevelFinishScreen,
+            m_LevelSelectScreen
         };
     }
 
@@ -156,6 +163,16 @@ public class UIManager : MonoBehaviour
     private void UIScreenEvents_LevelFinishShown()
     {
         Show(m_LevelFinishScreen, false);
+    }
+
+    private void UIScreenEvents_LevelSelectShown()
+    {
+        Show(m_LevelSelectScreen);
+    }
+
+    private void UIScreenEvents_LevelSelected(string obj)
+    {
+        HideScreens();
     }
 
     public void Show(UIScreen screen)
