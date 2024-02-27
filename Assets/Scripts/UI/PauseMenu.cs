@@ -20,10 +20,12 @@ public class PauseMenu : MonoBehaviour
             if (isPaused)
             {
                 Resume();
+                UIScreenEvents.ScreenClosed?.Invoke();
             }
             else
             {
                 Pause();
+                UIScreenEvents.PauseShown?.Invoke();
             }
        }
 

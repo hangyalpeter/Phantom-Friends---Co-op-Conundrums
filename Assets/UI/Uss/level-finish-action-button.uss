@@ -1,0 +1,8 @@
+.action-button {
+    transition-timing-function: ease-in-out;
+    background-color: rgb(91, 231, 82);
+}
+
+.action-button:hover {
+    scale: 1.05 1.05;
+}

@@ -32,6 +32,7 @@ public class PlayerChildLife : MonoBehaviour
     private void Reset()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        GameEvents.OnLevelRestart?.Invoke();
 
     }
 

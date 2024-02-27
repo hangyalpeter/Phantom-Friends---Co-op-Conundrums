@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Uss/level-finish-action-button.uss?fileID=7433441132597879392&amp;guid=21bfdb5d234092e4cb3df0b55a28cf42&amp;type=3#level-finish-action-button" />
+    <ui:VisualElement name="VisualElement" style="flex-grow: 1; background-color: rgba(62, 62, 62, 0.5); justify-content: center; opacity: 1;">
+        <ui:VisualElement name="VisualElement" style="flex-grow: 0; justify-content: flex-start; background-color: rgba(0, 0, 0, 0.5); width: 50%; height: 50%; align-items: auto; align-self: center;">
+            <ui:VisualElement name="outer-container" style="flex-grow: 1; justify-content: space-between; width: 100%; height: 100%; align-self: center; align-items: auto; background-color: rgba(193, 205, 185, 0.2); opacity: 1;">
+                <ui:VisualElement name="inner-container" style="flex-grow: 0; border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-right-radius: 20px; border-bottom-left-radius: 20px; width: 100%; height: 100%; border-left-color: rgb(91, 231, 82); border-right-color: rgb(91, 231, 82); border-top-color: rgb(91, 231, 82); border-bottom-color: rgb(91, 231, 82); border-top-width: 20px; border-right-width: 20px; border-bottom-width: 20px; border-left-width: 20px; justify-content: flex-start; align-self: center; background-color: rgba(0, 0, 0, 0); align-items: auto;">
+                    <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: flex-start; align-items: auto; align-self: center;">
+                        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="elapsed-time-label" style="-unity-text-align: upper-left; justify-content: space-between; align-self: auto; align-items: auto; flex-grow: 0; margin-right: 0; margin-left: auto;" />
+                    </ui:VisualElement>
+                    <ui:VisualElement style="flex-grow: 0; flex-direction: row; justify-content: center; align-self: flex-start; align-items: auto; -unity-text-align: lower-left; height: 100%; width: 100%;">
+                        <ui:Button text="Restart" parse-escape-sequences="true" display-tooltip-when-elided="true" name="restart-button" class="action-button" style="justify-content: space-around; align-self: center;" />
+                        <ui:Button text="Main Menu" parse-escape-sequences="true" display-tooltip-when-elided="true" name="main-menu-button" class="action-buttons action-button" style="align-self: center;" />
+                        <ui:Button text="Next level" parse-escape-sequences="true" display-tooltip-when-elided="true" name="next-level-button" enable-rich-text="false" class="action-buttons action-button" style="align-self: center;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
