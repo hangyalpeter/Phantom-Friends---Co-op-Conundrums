@@ -9,6 +9,8 @@ public class GameManager : MonoBehaviour
     private bool isPaused = false;
     float elapsedTime = 0f;
 
+    public float ElapsedTime => elapsedTime;
+
     private void Awake()
     {
         if (Instance == null)
@@ -23,7 +25,6 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        Time.timeScale = 0f;
         elapsedTime = 0f;
         isLevelPlaying = false;
     }
@@ -65,6 +66,8 @@ public class GameManager : MonoBehaviour
         UIScreenEvents.MainMenuClicked += OnMainMenuClicked;
         UIScreenEvents.PauseClosed += PauseClosed;
         UIScreenEvents.PauseShown += PauseShown;
+
+        GameEvents.OnLevelRestart += OnLevelRestartClicked;
     }
 
     private void UnsubscribeFromEvents()
@@ -74,6 +77,8 @@ public class GameManager : MonoBehaviour
         UIScreenEvents.MainMenuClicked -= OnMainMenuClicked;
         UIScreenEvents.PauseClosed -= PauseClosed;
         UIScreenEvents.PauseShown -= PauseShown;
+
+        GameEvents.OnLevelRestart -= OnLevelRestartClicked;
 
     }
 
