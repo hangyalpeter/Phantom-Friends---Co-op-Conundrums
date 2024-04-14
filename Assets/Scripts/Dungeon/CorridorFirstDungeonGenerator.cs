@@ -1,10 +1,11 @@
+using Assets.Scripts.Dungeon;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class CorridorFirstDungeonGenerator : MonoBehaviour
+public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
 {
     [SerializeField]
     private RandomWalkDungeonGenerator randomWalkDungeonGenerator;
@@ -19,7 +20,7 @@ public class CorridorFirstDungeonGenerator : MonoBehaviour
     [SerializeField]
     private float roomPercent = 0.8f;
 
-    public void RunProceduralGeneration()
+    public override void RunProceduralGeneration()
     {
         tilemapVisualizer.Clear();
         CorridorFirstDungeonGeneration();
@@ -31,7 +32,7 @@ public class CorridorFirstDungeonGenerator : MonoBehaviour
         HashSet<Vector2Int> floorPositions = new HashSet<Vector2Int>();
         HashSet<Vector2Int> potentialRoomPositions = new HashSet<Vector2Int>();
 
-      List<List<Vector2Int>> corridors = CreateCorridors(floorPositions, potentialRoomPositions);
+        List<List<Vector2Int>> corridors = CreateCorridors(floorPositions, potentialRoomPositions);
 
         HashSet<Vector2Int> roomPositions = CreateRooms(potentialRoomPositions);
 
@@ -51,16 +52,16 @@ public class CorridorFirstDungeonGenerator : MonoBehaviour
         WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
     }
 
-    private List<Vector2Int> WidenCorridor(List<Vector2Int> vector2Ints)
+    private List<Vector2Int> WidenCorridor(List<Vector2Int> corridors)
     {
         List<Vector2Int> widenedCorridor = new List<Vector2Int>();
-        for (int i = 0;i < vector2Ints.Count; i++)
+        for (int i = 0;i < corridors.Count; i++)
         {
             for (int j = 0; j < 3; j++)
             {
                 for (int k = 0; k < 3; k++)
                 {
-                    widenedCorridor.Add(new Vector2Int(vector2Ints[i].x + j - 1, vector2Ints[i].y + k - 1));
+                    widenedCorridor.Add(new Vector2Int(corridors[i].x + j - 1, corridors[i].y + k - 1));
                 }
             }
         }
@@ -138,7 +139,7 @@ public class CorridorFirstDungeonGenerator : MonoBehaviour
         List<List<Vector2Int>> corridors = new List<List<Vector2Int>>();
         for (int i = 0; i < count; i++)
         {
-            List<Vector2Int> path = ProceduralGenerationAlgorithms.RandomWalkCorridor(current, length);
+            List<Vector2Int> path = ProceduralGenerationUtilityAlgorithms.RandomWalkCorridor(current, length);
             corridors.Add(path);
             current = path[path.Count - 1];
             potentialRoomPositions.Add(current);
@@ -148,5 +149,3 @@ public class CorridorFirstDungeonGenerator : MonoBehaviour
         return corridors;
     }
 }
-
-//TODO - > Idea, refactor to use the Strategy Pattern to allow for different generation algorithms to be used like this: have a base class that has a Generate method, and then have a class for each generation algorithm that inherits from the base class and implements the Generate method. Then, have a field in the DungeonGenerator class that holds a reference to the generation algorithm to use. This way, you can easily switch between different generation algorithms by changing the reference in the inspector.

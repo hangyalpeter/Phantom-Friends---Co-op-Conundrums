@@ -1,10 +1,11 @@
+using Assets.Scripts.Dungeon;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class RandomWalkDungeonGenerator : MonoBehaviour
+public class RandomWalkDungeonGenerator : DungeonGeneratorStrategy
 {
     private Vector2Int start = Vector2Int.zero;
 
@@ -17,7 +18,7 @@ public class RandomWalkDungeonGenerator : MonoBehaviour
 
     [SerializeField]
     private TilemapVisualizer tilemapVisualizer;
-    public void RunProceduralGeneration()
+    public override void RunProceduralGeneration()
     {
         HashSet<Vector2Int> floorPositions = RunRandomWalk(start);
         tilemapVisualizer.Clear();
@@ -31,7 +32,7 @@ public class RandomWalkDungeonGenerator : MonoBehaviour
         HashSet<Vector2Int> floorPositions = new HashSet<Vector2Int>();
         for (int i = 0; i < iterations; i++)
         {
-            HashSet<Vector2Int> path = ProceduralGenerationAlgorithms.RandomWalk(current, length);
+            HashSet<Vector2Int> path = ProceduralGenerationUtilityAlgorithms.RandomWalk(current, length);
             floorPositions.UnionWith(path);
 
             if (randomizeStart)

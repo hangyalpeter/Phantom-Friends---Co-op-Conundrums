@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class ProceduralGenerationAlgorithms
+public static class ProceduralGenerationUtilityAlgorithms
 {
     public static HashSet<Vector2Int> RandomWalk(Vector2Int start, int length)
     {
