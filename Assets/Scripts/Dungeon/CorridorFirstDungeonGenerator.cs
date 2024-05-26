@@ -12,7 +12,7 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
 
     [SerializeField]
     private TilemapVisualizer tilemapVisualizer;
-    private Vector2Int start = Vector2Int.zero;
+    private Vector3Int start = Vector3Int.zero;
     [SerializeField]
     private int length = 15;
     [SerializeField]
@@ -29,14 +29,14 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
 
     private void CorridorFirstDungeonGeneration()
     {
-        HashSet<Vector2Int> floorPositions = new HashSet<Vector2Int>();
-        HashSet<Vector2Int> potentialRoomPositions = new HashSet<Vector2Int>();
+        HashSet<Vector3Int> floorPositions = new HashSet<Vector3Int>();
+        HashSet<Vector3Int> potentialRoomPositions = new HashSet<Vector3Int>();
 
-        List<List<Vector2Int>> corridors = CreateCorridors(floorPositions, potentialRoomPositions);
+        List<List<Vector3Int>> corridors = CreateCorridors(floorPositions, potentialRoomPositions);
 
-        HashSet<Vector2Int> roomPositions = CreateRooms(potentialRoomPositions);
+        HashSet<Vector3Int> roomPositions = CreateRooms(potentialRoomPositions);
 
-        List<Vector2Int> deadEnds = FindAllDeadEnds(floorPositions);
+        List<Vector3Int> deadEnds = FindAllDeadEnds(floorPositions);
 
         CreateRoomsAtDeadEnds(deadEnds, roomPositions);
 
@@ -48,20 +48,20 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
             floorPositions.UnionWith(corridors[i]);
         }
 
-        tilemapVisualizer.PaintFloorTiles(floorPositions);
+        tilemapVisualizer.PaintFloorTiles(floorPositions, null);
         WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
     }
 
-    private List<Vector2Int> WidenCorridor(List<Vector2Int> corridors)
+    private List<Vector3Int> WidenCorridor(List<Vector3Int> corridors)
     {
-        List<Vector2Int> widenedCorridor = new List<Vector2Int>();
+        List<Vector3Int> widenedCorridor = new List<Vector3Int>();
         for (int i = 0;i < corridors.Count; i++)
         {
             for (int j = 0; j < 3; j++)
             {
                 for (int k = 0; k < 3; k++)
                 {
-                    widenedCorridor.Add(new Vector2Int(corridors[i].x + j - 1, corridors[i].y + k - 1));
+                    widenedCorridor.Add(new Vector3Int(corridors[i].x + j - 1, corridors[i].y + k - 1));
                 }
             }
         }
@@ -69,7 +69,7 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
 
     }
 
-    private void CreateRoomsAtDeadEnds(List<Vector2Int> deadEnds, HashSet<Vector2Int> floors)
+    private void CreateRoomsAtDeadEnds(List<Vector3Int> deadEnds, HashSet<Vector3Int> floors)
     {
         foreach (var position in deadEnds)
         {
@@ -81,9 +81,9 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
         }
     }
 
-    private List<Vector2Int> FindAllDeadEnds(HashSet<Vector2Int> floorPositions)
+    private List<Vector3Int> FindAllDeadEnds(HashSet<Vector3Int> floorPositions)
     {
-        List<Vector2Int> deadEnds = new List<Vector2Int>();
+        List<Vector3Int> deadEnds = new List<Vector3Int>();
         foreach (var position in floorPositions)
         {
             if (IsDeadEnd(position, floorPositions))
@@ -94,14 +94,14 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
         return deadEnds;
     }
 
-    private bool IsDeadEnd(Vector2Int position, HashSet<Vector2Int> floorPositions)
+    private bool IsDeadEnd(Vector3Int position, HashSet<Vector3Int> floorPositions)
     {
-        var directions = new Vector2Int[]
+        var directions = new Vector3Int[]
         {
-            Vector2Int.up,
-            Vector2Int.down,
-            Vector2Int.left,
-            Vector2Int.right
+            Vector3Int.up,
+            Vector3Int.down,
+            Vector3Int.left,
+            Vector3Int.right
         };
         int neighbourCount = 0;
         foreach (var direction in directions )
@@ -118,11 +118,11 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
         return false;
     }
 
-    private HashSet<Vector2Int> CreateRooms(HashSet<Vector2Int> potentialRoomPositions)
+    private HashSet<Vector3Int> CreateRooms(HashSet<Vector3Int> potentialRoomPositions)
     {
-        HashSet<Vector2Int> roomPositions = new HashSet<Vector2Int>();
+        HashSet<Vector3Int> roomPositions = new HashSet<Vector3Int>();
         int roomCount = Mathf.RoundToInt(potentialRoomPositions.Count * roomPercent);
-        List<Vector2Int> roomsToCreate = potentialRoomPositions.OrderBy(x => Guid.NewGuid()).Take(roomCount).ToList();
+        List<Vector3Int> roomsToCreate = potentialRoomPositions.OrderBy(x => Guid.NewGuid()).Take(roomCount).ToList();
         foreach (var roomPosition in roomsToCreate)
         {
             var room = randomWalkDungeonGenerator.RunRandomWalk(roomPosition);
@@ -132,14 +132,14 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
         return roomPositions;
     }
 
-    private List<List<Vector2Int>> CreateCorridors(HashSet<Vector2Int> floorPositions, HashSet<Vector2Int> potentialRoomPositions)
+    private List<List<Vector3Int>> CreateCorridors(HashSet<Vector3Int> floorPositions, HashSet<Vector3Int> potentialRoomPositions)
     {
         var current = start;
         potentialRoomPositions.Add(current);
-        List<List<Vector2Int>> corridors = new List<List<Vector2Int>>();
+        List<List<Vector3Int>> corridors = new List<List<Vector3Int>>();
         for (int i = 0; i < count; i++)
         {
-            List<Vector2Int> path = ProceduralGenerationUtilityAlgorithms.RandomWalkCorridor(current, length);
+            List<Vector3Int> path = ProceduralGenerationUtilityAlgorithms.RandomWalkCorridor(current, length);
             corridors.Add(path);
             current = path[path.Count - 1];
             potentialRoomPositions.Add(current);

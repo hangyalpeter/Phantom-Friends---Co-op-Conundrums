@@ -817,6 +817,56 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   secondPlayer: {fileID: 1946791529}
   maxDistanceFromSecondPlayer: 35
+--- !u!1 &849193264
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 849193266}
+  - component: {fileID: 849193265}
+  m_Layer: 0
+  m_Name: BinarySpacePartitioningGenerator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &849193265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 849193264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7ba4bc315afe0842a5dd11b9cb8ba2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minWidth: 10
+  minHeight: 10
+  dungeonWidth: 72
+  dungeonHeight: 72
+  roomWidthOffset: 2
+  tilemapVisualizer: {fileID: 1030782645}
+--- !u!4 &849193266
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 849193264}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &1000028902 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6604993605832065609, guid: 0d7095fed53c56f478efdff2b29a7c76, type: 3}
@@ -959,6 +1009,8 @@ MonoBehaviour:
   floorTilemap: {fileID: 1944762850}
   wallTilemap: {fileID: 72761405}
   floorTile: {fileID: 11400000, guid: 8bfa19f3f18f0884584ac729291f7329, type: 2}
+  corridorTile: {fileID: 11400000, guid: 95cc53fe56b8fa8479a1aeae35808f21, type: 2}
+  doorTile: {fileID: 11400000, guid: 8a832380f98512144bc4b6fb62032d4a, type: 2}
   wallTop: {fileID: 11400000, guid: d3bee51299cd8f44795c1ffc9a2e6331, type: 2}
 --- !u!4 &1030782646
 Transform:
@@ -1321,7 +1373,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1499020629
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1524,7 +1576,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db570f5a17607cb49a5fdb6a9356c438, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dungeonGenerator: {fileID: 632211499}
+  dungeonGenerator: {fileID: 849193265}
 --- !u!4 &1808054176
 Transform:
   m_ObjectHideFlags: 0
@@ -2566,3 +2618,4 @@ SceneRoots:
   - {fileID: 1030782646}
   - {fileID: 632211500}
   - {fileID: 1808054176}
+  - {fileID: 849193266}

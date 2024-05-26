@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class RandomWalkDungeonGenerator : DungeonGeneratorStrategy
 {
-    private Vector2Int start = Vector2Int.zero;
+    private Vector3Int start = Vector3Int.zero;
 
     [SerializeField]
     private int length = 100;
@@ -20,19 +20,19 @@ public class RandomWalkDungeonGenerator : DungeonGeneratorStrategy
     private TilemapVisualizer tilemapVisualizer;
     public override void RunProceduralGeneration()
     {
-        HashSet<Vector2Int> floorPositions = RunRandomWalk(start);
+        HashSet<Vector3Int> floorPositions = RunRandomWalk(start);
         tilemapVisualizer.Clear();
-        tilemapVisualizer.PaintFloorTiles(floorPositions);
+        tilemapVisualizer.PaintFloorTiles(floorPositions, null);
         WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
     }
 
-    public HashSet<Vector2Int> RunRandomWalk(Vector2Int position)
+    public HashSet<Vector3Int> RunRandomWalk(Vector3Int position)
     {
         var current = position;
-        HashSet<Vector2Int> floorPositions = new HashSet<Vector2Int>();
+        HashSet<Vector3Int> floorPositions = new HashSet<Vector3Int>();
         for (int i = 0; i < iterations; i++)
         {
-            HashSet<Vector2Int> path = ProceduralGenerationUtilityAlgorithms.RandomWalk(current, length);
+            HashSet<Vector3Int> path = ProceduralGenerationUtilityAlgorithms.RandomWalk(current, length);
             floorPositions.UnionWith(path);
 
             if (randomizeStart)

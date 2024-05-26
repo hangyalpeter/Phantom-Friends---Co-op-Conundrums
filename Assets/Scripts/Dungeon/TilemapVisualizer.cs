@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UIElements;
 
 public class TilemapVisualizer : MonoBehaviour
 {
@@ -13,10 +14,19 @@ public class TilemapVisualizer : MonoBehaviour
     private Tilemap wallTilemap;
 
     [SerializeField]
-    private TileBase floorTile;
+    private Tile floorTile;
 
     [SerializeField]
-    private TileBase wallTop;
+    private Tile corridorTile;
+
+    [SerializeField]
+    private Tile doorTile;
+
+    [SerializeField]
+    private Tile wallTop;
+
+    public Tilemap FloorTilemap => floorTilemap;
+    public Tilemap WallTilemap => wallTilemap;
     void Start()
     {
 
@@ -26,33 +36,54 @@ public class TilemapVisualizer : MonoBehaviour
     {
         
     }
-    public void PaintFloorTiles(IEnumerable<Vector2Int> floorPositions)
+    public void PaintFloorTiles(IEnumerable<Vector3Int> floorPositions, UnityEngine.Color? color)
     {
-        PaintTiles(floorPositions, floorTilemap, floorTile);
+        PaintTiles(floorPositions, floorTilemap, floorTile, color);
+    }
+    public void PaintCorridorTiles(IEnumerable<Vector3Int> floorPositions, Color? color)
+    {
+        PaintTiles(floorPositions, floorTilemap, corridorTile, color);
     }
 
-    private void PaintTiles(IEnumerable<Vector2Int> positions, Tilemap tilemap, TileBase tile)
+    private void PaintTiles(IEnumerable<Vector3Int> positions, Tilemap tilemap, Tile tile, Color? color)
     {
         foreach (var position in positions)
         {
-            PaintSingleTile(tilemap, tile, position);
+            //var tilePosition2 = tilemap.WorldToCell((Vector3Int)position);
+            PaintSingleTile(tilemap, tile, position, color);
         }
     }
 
-    private void PaintSingleTile(Tilemap tilemap, TileBase tile, Vector2Int position)
+    private void PaintSingleTile(Tilemap tilemap, Tile tile, Vector3Int position, Color? color)
     {
-        var tilePosition = tilemap.WorldToCell((Vector3Int)position);
-        tilemap.SetTile(tilePosition, tile);
+
+        var tilePosition2 = tilemap.WorldToCell(Vector3Int.RoundToInt(position));
+        //var tilePosition2 = position;
+        //tilemap.SetTile(tilePosition, tile);
+
+        //tilemap.SetTile(Vector3Int.RoundToInt(position), tile);
+        tilemap.SetTile(tilePosition2, tile);
+        tilemap.SetTileFlags(tilePosition2, TileFlags.None);
+        if (color != null)
+        {
+            tilemap.SetColor(tilePosition2, (Color)color);
+        }
     }
-    
+
     public void Clear()
     {
         floorTilemap.ClearAllTiles();
         wallTilemap.ClearAllTiles();
     }
 
-    internal void PaintSingleWall(Vector2Int wallPosition)
+    internal void PaintSingleWall(Vector3Int wallPosition, Color? color)
     {
-        PaintSingleTile(wallTilemap, wallTop, wallPosition);
+        PaintSingleTile(wallTilemap, wallTop, wallPosition, color);
     }
-}
+
+    internal void PaintDoorTile(Vector3Int position, Color color)
+    {
+        PaintSingleTile(floorTilemap, doorTile, position, color);
+    }
+
+ }
