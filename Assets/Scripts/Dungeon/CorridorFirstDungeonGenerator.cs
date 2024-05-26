@@ -20,6 +20,11 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
     [SerializeField]
     private float roomPercent = 0.8f;
 
+    private HashSet<Vector3Int> floorPositions = new HashSet<Vector3Int>();
+
+    private HashSet<Vector3Int> potentialRoomPositions = new HashSet<Vector3Int>();
+
+    List<List<Vector3Int>> corridors = new List<List<Vector3Int>>();
     public override void RunProceduralGeneration()
     {
         tilemapVisualizer.Clear();
@@ -29,10 +34,12 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
 
     private void CorridorFirstDungeonGeneration()
     {
-        HashSet<Vector3Int> floorPositions = new HashSet<Vector3Int>();
-        HashSet<Vector3Int> potentialRoomPositions = new HashSet<Vector3Int>();
+        floorPositions.Clear();
+        potentialRoomPositions.Clear();
 
-        List<List<Vector3Int>> corridors = CreateCorridors(floorPositions, potentialRoomPositions);
+        corridors = new List<List<Vector3Int>>();
+
+        corridors = CreateCorridors(floorPositions, potentialRoomPositions);
 
         HashSet<Vector3Int> roomPositions = CreateRooms(potentialRoomPositions);
 
@@ -50,7 +57,93 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
 
         tilemapVisualizer.PaintFloorTiles(floorPositions, null);
         WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
+        //PlaceDoors();
     }
+
+ 
+    void PlaceDoors()
+    {
+        var visited = new HashSet<Vector3Int>();
+        var queue = new Queue<Vector3Int>();
+
+        var corridorsFlat = new HashSet<Vector3Int>();
+        foreach (var corridor in corridors)
+        {
+            corridorsFlat.UnionWith(corridor);
+        }
+
+
+        var startPosition = new Vector3Int();
+
+        foreach (var flooTile in floorPositions)
+        {
+            startPosition = flooTile;
+            break;
+            
+        }
+
+        queue.Enqueue(startPosition);
+        visited.Add(startPosition);
+
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+
+            if (IsRoomPosition(current))
+            {
+                Debug.Log("Current is room position: " + current);
+                foreach (var neighbor in GetNeighbors(current))
+                {
+                    if (corridorsFlat.Contains(neighbor))
+                    {
+                        Debug.Log("Placing door at: " + current);
+                        PlaceDoor(current);
+                    }
+                }
+            }
+
+            foreach (var neighbor in GetNeighbors(current))
+            {
+                if (floorPositions.Contains(neighbor) && !visited.Contains(neighbor))
+                {
+                    visited.Add(neighbor);
+                    queue.Enqueue(neighbor);
+                }
+            }
+        }
+    }
+    bool IsRoomPosition(Vector3Int position)
+    {
+        var corridorsFlat = new HashSet<Vector3Int>();
+        foreach (var corridor in corridors)
+        {
+            corridorsFlat.UnionWith(corridor);
+        }
+
+        if (floorPositions.Contains(position) && !corridorsFlat.Contains(position))
+        {
+            return true;
+        }
+        return false;
+
+    }
+
+    void PlaceDoor(Vector3Int position)
+    {
+        tilemapVisualizer.PaintDoorTile(position, null);
+    }
+
+    List<Vector3Int> GetNeighbors(Vector3Int position)
+    {
+        return new List<Vector3Int>
+        {
+            position + Vector3Int.up,
+            position + Vector3Int.down,
+            position + Vector3Int.left,
+            position + Vector3Int.right
+        };
+    }
+
 
     private List<Vector3Int> WidenCorridor(List<Vector3Int> corridors)
     {

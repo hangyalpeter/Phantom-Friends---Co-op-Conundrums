@@ -120,11 +120,9 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     
     void PlaceDoors()
     {
-        // Perform BFS to traverse all positions
         var visited = new HashSet<Vector3Int>();
         var queue = new Queue<Vector3Int>();
 
-        // Start BFS from any floor position
 
         var startPosition = floorPositions.First();
 
