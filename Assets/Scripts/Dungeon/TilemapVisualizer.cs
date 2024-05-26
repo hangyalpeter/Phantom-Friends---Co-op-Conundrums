@@ -1,9 +1,6 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using UnityEngine.UIElements;
 
 public class TilemapVisualizer : MonoBehaviour
 {
@@ -14,29 +11,20 @@ public class TilemapVisualizer : MonoBehaviour
     private Tilemap wallTilemap;
 
     [SerializeField]
-    private Tile floorTile;
+    private TileBase floorTile;
 
     [SerializeField]
-    private Tile corridorTile;
+    private TileBase corridorTile;
 
     [SerializeField]
-    private Tile doorTile;
+    private TileBase doorTile;
 
     [SerializeField]
-    private Tile wallTop;
+    private TileBase wallTop;
 
     public Tilemap FloorTilemap => floorTilemap;
     public Tilemap WallTilemap => wallTilemap;
-    void Start()
-    {
-
-    }
-
-    void Update()
-    {
-        
-    }
-    public void PaintFloorTiles(IEnumerable<Vector3Int> floorPositions, UnityEngine.Color? color)
+    public void PaintFloorTiles(IEnumerable<Vector3Int> floorPositions, Color? color)
     {
         PaintTiles(floorPositions, floorTilemap, floorTile, color);
     }
@@ -45,7 +33,7 @@ public class TilemapVisualizer : MonoBehaviour
         PaintTiles(floorPositions, floorTilemap, corridorTile, color);
     }
 
-    private void PaintTiles(IEnumerable<Vector3Int> positions, Tilemap tilemap, Tile tile, Color? color)
+    private void PaintTiles(IEnumerable<Vector3Int> positions, Tilemap tilemap, TileBase tile, Color? color)
     {
         foreach (var position in positions)
         {
@@ -54,20 +42,19 @@ public class TilemapVisualizer : MonoBehaviour
         }
     }
 
-    private void PaintSingleTile(Tilemap tilemap, Tile tile, Vector3Int position, Color? color)
+    private void PaintSingleTile(Tilemap tilemap, TileBase tile, Vector3Int position, Color? color)
     {
 
-        var tilePosition2 = tilemap.WorldToCell(Vector3Int.RoundToInt(position));
+        var tilePosition = tilemap.WorldToCell(Vector3Int.RoundToInt(position));
         //var tilePosition2 = position;
         //tilemap.SetTile(tilePosition, tile);
 
-        //tilemap.SetTile(Vector3Int.RoundToInt(position), tile);
-        tilemap.SetTile(tilePosition2, tile);
-        tilemap.SetTileFlags(tilePosition2, TileFlags.None);
-        if (color != null)
+        tilemap.SetTile(tilePosition, tile);
+      /*  if (color != null)
         {
+            tilemap.SetTileFlags(tilePosition2, TileFlags.None);
             tilemap.SetColor(tilePosition2, (Color)color);
-        }
+        }*/
     }
 
     public void Clear()
@@ -81,9 +68,9 @@ public class TilemapVisualizer : MonoBehaviour
         PaintSingleTile(wallTilemap, wallTop, wallPosition, color);
     }
 
-    internal void PaintDoorTile(Vector3Int position, Color color)
+    internal void PaintDoorTile(Vector3Int position, Color? color)
     {
-        PaintSingleTile(floorTilemap, doorTile, position, color);
+        PaintSingleTile(wallTilemap, doorTile, position, color);
     }
 
  }

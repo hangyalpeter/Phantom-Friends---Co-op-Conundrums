@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 {
@@ -26,6 +27,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     private Dictionary<Vector3, BoundsInt> roomsDictionary = new Dictionary<Vector3, BoundsInt>();
     private HashSet<Vector3Int> corridorPositions = new HashSet<Vector3Int>();
     private HashSet<Vector3Int> floorPositions = new HashSet<Vector3Int>();
+    private List<Vector3Int> roomCenters = new List<Vector3Int>();
     public override void RunProceduralGeneration()
     {
         CreateRooms();
@@ -33,12 +35,12 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
     private void CreateRooms()
     {
+        roomCenters.Clear();
         roomsDictionary = ProceduralGenerationUtilityAlgorithms.BinarySpacePartitioning(new BoundsInt(Vector3Int.zero, new Vector3Int(dungeonWidth, dungeonHeight, 0)), minWidth, minHeight);
 
         tilemapVisualizer.Clear();
-        List<Vector3Int> roomCenters = new List<Vector3Int>();
 
-        HashSet<Vector3Int> floors = new HashSet<Vector3Int>();
+        floorPositions.Clear();
 
         var roomColors = new Dictionary<BoundsInt, Color>();
 
@@ -47,33 +49,41 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
             var color = GenerateRandomColor();
             roomColors.Add(room.Value, color.Value);
 
-            tilemapVisualizer.PaintFloorTiles(CreateSimpleRooms(new List<BoundsInt> { room.Value }), color);
-            
+            tilemapVisualizer.PaintFloorTiles(GetActualRoomFloorPositions(new List<BoundsInt> { room.Value }), color);
+
             roomCenters.Add(Vector3Int.RoundToInt(room.Value.center));
-            floors.UnionWith(CreateSimpleRooms(new List<BoundsInt> { room.Value }));
+            floorPositions.UnionWith(GetActualRoomFloorPositions(new List<BoundsInt> { room.Value }));
         }
 
-  
+
         Debug.Log("Room centers: " + roomCenters.Count);
 
         corridorPositions = ConnectRooms(roomCenters);
-        
+        var corridorPositionsCopy = new HashSet<Vector3Int>(corridorPositions);
+
         foreach (var corridor in corridorPositions)
         {
-            if (floors.Contains(corridor))
-            {
-                tilemapVisualizer.PaintFloorTiles(new HashSet<Vector3Int> { corridor }, null);
-            }
-            else
+            if (!floorPositions.Contains(corridor))
             {
                 tilemapVisualizer.PaintFloorTiles(new HashSet<Vector3Int> { corridor }, Color.black);
             }
+            else
+            {
+                corridorPositionsCopy.Remove(corridor);
+            }
         }
-        
-        floors.UnionWith(corridorPositions);
-        WallGenerator.CreateWalls(floors, tilemapVisualizer);
 
-                   
+        corridorPositions = corridorPositionsCopy;
+
+        //this is needed to connect the corridors to the rooms
+        floorPositions.UnionWith(corridorPositions);
+
+
+        tilemapVisualizer.PaintFloorTiles(floorPositions, null);
+
+        WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
+        PlaceDoors();
+
     }
 
     private Color? GenerateRandomColor()
@@ -107,6 +117,88 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         return corridors;
     }
 
+    
+    void PlaceDoors()
+    {
+        // Perform BFS to traverse all positions
+        var visited = new HashSet<Vector3Int>();
+        var queue = new Queue<Vector3Int>();
+
+        // Start BFS from any floor position
+
+        var startPosition = floorPositions.First();
+
+        foreach (var room in roomsDictionary.Values)
+        {
+            var rooms = GetActualRoomFloorPositions(new List<BoundsInt>() { room });
+            startPosition = rooms.First();
+            break;
+            
+        }
+
+
+        queue.Enqueue(startPosition);
+        visited.Add(startPosition);
+
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+
+            if (IsRoomPosition(current))
+            {
+                Debug.Log("Current is room position: " + current);
+                foreach (var neighbor in GetNeighbors(current))
+                {
+                    if (corridorPositions.Contains(neighbor))
+                    {
+                        Debug.Log("Placing door at: " + current);
+                        PlaceDoor(current);
+                    }
+                }
+            }
+
+            foreach (var neighbor in GetNeighbors(current))
+            {
+                if (floorPositions.Contains(neighbor) && !visited.Contains(neighbor))
+                {
+                    visited.Add(neighbor);
+                    queue.Enqueue(neighbor);
+                }
+            }
+        }
+    }
+
+    bool IsRoomPosition(Vector3Int position)
+    {
+        foreach (var room in roomsDictionary.Values)
+        {
+            var rooms = GetActualRoomFloorPositions(new List<BoundsInt>() { room });
+            if (rooms.Contains(position))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    void PlaceDoor(Vector3Int position)
+    {
+        tilemapVisualizer.PaintDoorTile(position, null);
+    }
+
+    List<Vector3Int> GetNeighbors(Vector3Int position)
+    {
+        return new List<Vector3Int>
+        {
+            position + Vector3Int.up,
+            position + Vector3Int.down,
+            position + Vector3Int.left,
+            position + Vector3Int.right
+        };
+    }
+
+
     private HashSet<Vector3Int> CreateCorridor(Vector3Int current, Vector3Int destination)
     {
         HashSet<Vector3Int> corridor = new HashSet<Vector3Int>();
@@ -127,8 +219,6 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
             // widen corridor
             corridor.Add(position + Vector3Int.left);
             corridor.Add(position + Vector3Int.right);
-
-
         }
 
         while (position.x != destination.x)
@@ -170,16 +260,16 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
     }
 
-    private HashSet<Vector3Int> CreateSimpleRooms(List<BoundsInt> roomList)
+    private HashSet<Vector3Int> GetActualRoomFloorPositions(List<BoundsInt> roomList)
     {
         HashSet<Vector3Int> floor = new HashSet<Vector3Int>();
         foreach (var room in roomList)
         {
             for (int y = roomWidthOffset; y < room.size.y - roomWidthOffset; y++)
             {
-                for (int x = roomWidthOffset; x < room.size.y - roomWidthOffset; x++)
+                for (int x = roomWidthOffset; x < room.size.x - roomWidthOffset; x++)
                 {
-                    Vector3Int position =  room.min + new Vector3Int(y, x);
+                    Vector3Int position = room.min + new Vector3Int(y, x);
                     floor.Add(position);
                 }
 
@@ -189,4 +279,65 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     }
 
 
+
+
+}
+
+public class Node : System.IComparable<Node>
+{
+    public Vector3Int Position { get; }
+    public int Priority { get; }
+
+    public Node(Vector3Int position, int priority)
+    {
+        Position = position;
+        Priority = priority;
+    }
+
+    public int CompareTo(Node other)
+    {
+        int result = Priority.CompareTo(other.Priority);
+        if (result == 0)
+        {
+            result = Position.x.CompareTo(other.Position.x);
+            if (result == 0)
+            {
+                result = Position.y.CompareTo(other.Position.y);
+                if (result == 0)
+                {
+                    result = Position.z.CompareTo(other.Position.z);
+                }
+            }
+        }
+        return result;
+    }
+}
+
+public class PriorityQueue<T>
+{
+    private List<KeyValuePair<T, int>> elements = new List<KeyValuePair<T, int>>();
+
+    public int Count => elements.Count;
+
+    public void Enqueue(T item, int priority)
+    {
+        elements.Add(new KeyValuePair<T, int>(item, priority));
+    }
+
+    public T Dequeue()
+    {
+        int bestIndex = 0;
+
+        for (int i = 0; i < elements.Count; i++)
+        {
+            if (elements[i].Value < elements[bestIndex].Value)
+            {
+                bestIndex = i;
+            }
+        }
+
+        T bestItem = elements[bestIndex].Key;
+        elements.RemoveAt(bestIndex);
+        return bestItem;
+    }
 }
