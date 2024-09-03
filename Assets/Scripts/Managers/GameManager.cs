@@ -69,9 +69,11 @@ public class GameManager : MonoBehaviour
         UIScreenEvents.PauseClosed += PauseClosed;
         UIScreenEvents.PauseShown += PauseShown;
         UIScreenEvents.OnNextLevel += OnNextLevel;
+        UIScreenEvents.OnLevelSelected += OnLevelSelected;
 
         GameEvents.OnLevelRestart += OnLevelRestartClicked;
         GameEvents.LevelFinished += OnLevelFinished;
+
     }
 
     private void UnsubscribeFromEvents()
@@ -82,11 +84,33 @@ public class GameManager : MonoBehaviour
         UIScreenEvents.PauseClosed -= PauseClosed;
         UIScreenEvents.PauseShown -= PauseShown;
         UIScreenEvents.OnNextLevel -= OnNextLevel;
+        UIScreenEvents.OnLevelSelected -= OnLevelSelected;
 
         GameEvents.OnLevelRestart -= OnLevelRestartClicked;
         GameEvents.LevelFinished -= OnLevelFinished;
 
     }
+
+    private void OnLevelSelected(string name)
+    {
+        UIScreenEvents.ScreenClosed?.Invoke();
+        StartCoroutine(LoadLevelWithName(name));
+    }
+
+   private IEnumerator LoadLevelWithName(string name)
+    {
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(name);
+
+        while (!asyncLoad.isDone)
+        {
+            yield return null;
+        }
+        UIScreenEvents.ScreenClosed?.Invoke();
+        Time.timeScale = 1f;
+        isLevelPlaying = true;
+        elapsedTime = 0f;
+    }
+
 
     private void OnNextLevel()
     {

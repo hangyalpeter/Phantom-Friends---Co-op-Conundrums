@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Uss/level-select-button.uss?fileID=7433441132597879392&amp;guid=128016b0c2bddcc40be13ff4e8b9d6a1&amp;type=3#level-select-button" />
+    <ui:VisualElement name="VisualElement" style="flex-grow: 1; width: 100%; height: 100%;">
+        <ui:VisualElement style="flex-grow: 0; flex-direction: row; justify-content: space-between;">
+            <ui:Label tabindex="-1" text="Level select" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-text-align: upper-center; font-size: 25px; margin-right: auto; margin-left: auto;" />
+            <ui:Button text="X" parse-escape-sequences="true" display-tooltip-when-elided="true" name="back-button" />
+        </ui:VisualElement>
+        <ui:VisualElement name="VisualElement" style="flex-grow: 1; flex-direction: row; justify-content: flex-start; align-items: flex-start; flex-shrink: 1; align-self: auto;">
+            <ui:VisualElement name="LevelElement" style="flex-grow: 1; flex-direction: column; background-image: none; width: 100%; height: 100%; align-self: auto; justify-content: flex-start; align-items: center;">
+                <ui:Button text="Level 1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="level1-button" class="level-select-button" style="background-image: url(&apos;project://database/Assets/Scenes/level1.png?fileID=21300000&amp;guid=68a0c3e9e76fb9c45b018a4c9e540e88&amp;type=3#level1&apos;); -unity-background-scale-mode: scale-to-fit; width: 223px; height: 118px;" />
+                <ui:Label tabindex="-1" text="Level 1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="level1-label" style="-unity-text-align: upper-left; flex-grow: 0;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="LevelElement" style="flex-grow: 1; flex-direction: column; width: 100%; height: 100%; align-items: center;">
+                <ui:Button text="Level 2" parse-escape-sequences="true" display-tooltip-when-elided="true" name="level2-button" class="level-select-button" style="background-image: url(&apos;project://database/Assets/Scenes/level2.png?fileID=21300000&amp;guid=094bb490b0868984680ce1b8dfb7bf6d&amp;type=3#level2&apos;); -unity-background-scale-mode: scale-to-fit; height: 99px; width: 248px;" />
+                <ui:Label tabindex="-1" text="Level 2" parse-escape-sequences="true" display-tooltip-when-elided="true" name="level2-label" style="-unity-text-align: upper-center;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

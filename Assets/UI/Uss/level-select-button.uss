@@ -1,0 +1,7 @@
+.level-select-button {
+    transition-timing-function: ease-in-out;
+}
+
+.level-select-button:hover {
+    scale: 1.05 1.05;
+}
