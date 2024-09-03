@@ -46,15 +46,16 @@ public class TilemapVisualizer : MonoBehaviour
     {
 
         var tilePosition = tilemap.WorldToCell(Vector3Int.RoundToInt(position));
-        //var tilePosition2 = position;
+
+        var tilePosition2 = position;
         //tilemap.SetTile(tilePosition, tile);
 
         tilemap.SetTile(tilePosition, tile);
-      /*  if (color != null)
+        if (color != null)
         {
-            tilemap.SetTileFlags(tilePosition2, TileFlags.None);
-            tilemap.SetColor(tilePosition2, (Color)color);
-        }*/
+            tilemap.SetTileFlags(tilePosition, TileFlags.None);
+            tilemap.SetColor(tilePosition, (Color)color);
+        }
     }
 
     public void Clear()

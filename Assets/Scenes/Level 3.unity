@@ -955,10 +955,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7ba4bc315afe0842a5dd11b9cb8ba2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minWidth: 10
-  minHeight: 10
-  dungeonWidth: 72
-  dungeonHeight: 72
+  minWidth: 20
+  minHeight: 20
+  dungeonWidth: 80
+  dungeonHeight: 80
   roomWidthOffset: 2
   tilemapVisualizer: {fileID: 1030782645}
 --- !u!4 &849193266

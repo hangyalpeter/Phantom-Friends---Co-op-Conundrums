@@ -1,25 +1,22 @@
 using Assets.Scripts.Dungeon;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 {
     [SerializeField]
-    private int minWidth = 10;
+    private int minWidth = 20;
 
     [SerializeField]
-    private int minHeight = 10;
+    private int minHeight = 20;
 
     [SerializeField]
-    private int dungeonWidth = 30;
+    private int dungeonWidth = 80;
     [SerializeField]
-    private int dungeonHeight = 30;
+    private int dungeonHeight = 80;
     [SerializeField]
-    private int roomWidthOffset = 2;
+    private int roomWidthOffset = 1;
 
     [SerializeField]
     private TilemapVisualizer tilemapVisualizer;
@@ -49,7 +46,8 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
             var color = GenerateRandomColor();
             roomColors.Add(room.Value, color.Value);
 
-            tilemapVisualizer.PaintFloorTiles(GetActualRoomFloorPositions(new List<BoundsInt> { room.Value }), color);
+            //tilemapVisualizer.PaintFloorTiles(GetActualRoomFloorPositions(new List<BoundsInt> { room.Value }), color);
+            tilemapVisualizer.PaintFloorTiles(GetActualRoomFloorPositions(new List<BoundsInt> { room.Value }), null);
 
             roomCenters.Add(Vector3Int.RoundToInt(room.Value.center));
             floorPositions.UnionWith(GetActualRoomFloorPositions(new List<BoundsInt> { room.Value }));
@@ -65,7 +63,8 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         {
             if (!floorPositions.Contains(corridor))
             {
-                tilemapVisualizer.PaintFloorTiles(new HashSet<Vector3Int> { corridor }, Color.black);
+                //tilemapVisualizer.PaintFloorTiles(new HashSet<Vector3Int> { corridor }, Color.black);
+                tilemapVisualizer.PaintFloorTiles(new HashSet<Vector3Int> { corridor }, null);
             }
             else
             {
@@ -82,6 +81,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         tilemapVisualizer.PaintFloorTiles(floorPositions, null);
 
         WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
+
         PlaceDoors();
 
     }
@@ -97,12 +97,13 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
             Color.magenta,
             Color.cyan
         };
-        return colors[UnityEngine.Random.Range(0, colors.Count)];
+        return colors[0];
     }
 
     private HashSet<Vector3Int> ConnectRooms(List<Vector3Int> roomCenters)
     {
         HashSet<Vector3Int> corridors = new HashSet<Vector3Int>();
+        //var current = roomCenters[UnityEngine.Random.Range(0, roomCenters.Count)];
         var current = roomCenters[0];
         roomCenters.Remove(current);
 
@@ -117,7 +118,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         return corridors;
     }
 
-    
+
     void PlaceDoors()
     {
         var visited = new HashSet<Vector3Int>();
@@ -131,7 +132,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
             var rooms = GetActualRoomFloorPositions(new List<BoundsInt>() { room });
             startPosition = rooms.First();
             break;
-            
+
         }
 
 
@@ -144,15 +145,15 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
             if (IsRoomPosition(current))
             {
-                Debug.Log("Current is room position: " + current);
                 foreach (var neighbor in GetNeighbors(current))
                 {
                     if (corridorPositions.Contains(neighbor))
                     {
-                        Debug.Log("Placing door at: " + current);
                         PlaceDoor(current);
                     }
+
                 }
+
             }
 
             foreach (var neighbor in GetNeighbors(current))
@@ -263,9 +264,9 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         HashSet<Vector3Int> floor = new HashSet<Vector3Int>();
         foreach (var room in roomList)
         {
-            for (int y = roomWidthOffset; y < room.size.y - roomWidthOffset; y++)
+            for (int y = roomWidthOffset; y < room.size.x - roomWidthOffset; y++)
             {
-                for (int x = roomWidthOffset; x < room.size.x - roomWidthOffset; x++)
+                for (int x = roomWidthOffset; x < room.size.y - roomWidthOffset; x++)
                 {
                     Vector3Int position = room.min + new Vector3Int(y, x);
                     floor.Add(position);
@@ -276,66 +277,4 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         return floor;
     }
 
-
-
-
-}
-
-public class Node : System.IComparable<Node>
-{
-    public Vector3Int Position { get; }
-    public int Priority { get; }
-
-    public Node(Vector3Int position, int priority)
-    {
-        Position = position;
-        Priority = priority;
-    }
-
-    public int CompareTo(Node other)
-    {
-        int result = Priority.CompareTo(other.Priority);
-        if (result == 0)
-        {
-            result = Position.x.CompareTo(other.Position.x);
-            if (result == 0)
-            {
-                result = Position.y.CompareTo(other.Position.y);
-                if (result == 0)
-                {
-                    result = Position.z.CompareTo(other.Position.z);
-                }
-            }
-        }
-        return result;
-    }
-}
-
-public class PriorityQueue<T>
-{
-    private List<KeyValuePair<T, int>> elements = new List<KeyValuePair<T, int>>();
-
-    public int Count => elements.Count;
-
-    public void Enqueue(T item, int priority)
-    {
-        elements.Add(new KeyValuePair<T, int>(item, priority));
-    }
-
-    public T Dequeue()
-    {
-        int bestIndex = 0;
-
-        for (int i = 0; i < elements.Count; i++)
-        {
-            if (elements[i].Value < elements[bestIndex].Value)
-            {
-                bestIndex = i;
-            }
-        }
-
-        T bestItem = elements[bestIndex].Key;
-        elements.RemoveAt(bestIndex);
-        return bestItem;
-    }
 }
