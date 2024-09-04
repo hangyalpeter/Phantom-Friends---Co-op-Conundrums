@@ -1,4 +1,5 @@
 using Assets.Scripts.Dungeon;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -25,54 +26,104 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     [SerializeField]
     private Transform player;
 
-    private Dictionary<Vector3, BoundsInt> roomsDictionary = new Dictionary<Vector3, BoundsInt>();
+    private HashSet<Room> rooms = new HashSet<Room>();
     private HashSet<Vector3Int> corridorPositions = new HashSet<Vector3Int>();
-    private HashSet<Vector3Int> floorPositions = new HashSet<Vector3Int>();
-    private List<Vector3Int> roomCenters = new List<Vector3Int>();
+    private readonly HashSet<Vector3Int> floorPositions = new HashSet<Vector3Int>();
 
-    private Vector3 bossRoomCenter = Vector3.zero;
-
-    private HashSet<Vector3> visitedRooms = new HashSet<Vector3>();
     private void Update()
     {
+        // just for testing the door opening and closing
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            foreach (var room in rooms)
+            {
+                var actualRooms = GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
+                var playerPosition = tilemapVisualizer.FloorTilemap.WorldToCell(player.position);
+                if (actualRooms.Contains(playerPosition))
+                {
+                    OpenAllFinishedRooms();
+                    room.isFinished = true;
+                }
+            }   
+        }   
         CheckIfPlayerEnteredRoom();
-        Debug.Log("Visited rooms: " + visitedRooms.Count);
         
     }
 
-    // TODO: refactor this to another class
-    private void CheckIfPlayerEnteredRoom ()
+   
+    private void CheckIfPlayerEnteredRoom()
     {
-        foreach (var room in roomsDictionary.Values)
+        foreach (var room in rooms)
         {
-            var rooms = GetActualRoomFloorPositions(new List<BoundsInt>() { room });
+            var rooms = GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
             var playerPosition = tilemapVisualizer.FloorTilemap.WorldToCell(player.position);
 
-            if (rooms.Contains(playerPosition) && !visitedRooms.Contains(room.center) && !room.center.Equals(bossRoomCenter))
+            if (rooms.Contains(playerPosition) && !room.isFinished && !room.isBossRoom)
             {
-                Debug.Log("Player entered room" + room.center);
-                visitedRooms.Add(room.center);
-                // TODO: generate enemies, close doors
-                CloseAllUnfinishedRoomDoors();
+                Debug.Log("Player entered room" + room.bounds.center);
+
+                // TODO: generate enemies after delay
+                StartCoroutine(DelayCloseCurrentRoom(room));
+
             }
         }
     }
 
-    private void CloseAllUnfinishedRoomDoors()
+    private IEnumerator DelayCloseCurrentRoom(Room room)
     {
-    
+
+        yield return new WaitForSeconds(2f);
+        CloseCurrentRoom(room);
+    }
+
+
+    private void CloseCurrentRoom(Room currentPlayerRoom)
+    {
+
+        foreach (var door in currentPlayerRoom.doorTilesPositions)
+        {
+            tilemapVisualizer.PaintDoorTile(door, Color.red);
+        }
+    }
+
+    private void OpenAllFinishedRooms()
+    {
+
+        foreach (var room in rooms)
+        {
+            if (!room.isBossRoom)
+            {
+                foreach (var door in room.doorTilesPositions)
+                {
+                    //tilemapVisualizer.PaintDoorTile(door, Color.green);
+                    tilemapVisualizer.PaintOpenGateTile(door, null);
+                }
+            }
+            else if (!rooms.Any(x => !x.isFinished && !x.isBossRoom))
+            {
+                foreach (var door in room.doorTilesPositions)
+                {
+                    tilemapVisualizer.PaintOpenGateTile(door, null);
+                }
+            }
+        }
     }
 
     public override void RunProceduralGeneration()
     {
         CreateRooms();
     }
+    // TODO: maybe refactor this to another class for better separation of concerns do it this way:
+    // when refactored for main menu button press for dungeon mode it will be a new class which has this generator class,
+    // calls the generator and then implements the other logics based on that create rooms function will be public and will
+    // return the generated rooms
+    // refactor all behaviors like this to that new class
 
     private void CreateRooms()
     {
         InitializeMap();
 
-        roomsDictionary = ProceduralGenerationUtilityAlgorithms.BinarySpacePartitioning(new BoundsInt(Vector3Int.zero, new Vector3Int(dungeonWidth, dungeonHeight, 0)), minWidth, minHeight);
+        rooms = ProceduralGenerationUtilityAlgorithms.BinarySpacePartitioning(new BoundsInt(Vector3Int.zero, new Vector3Int(dungeonWidth, dungeonHeight, 0)), minWidth, minHeight);
 
         GenerateRoomPositions();
 
@@ -86,7 +137,8 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
     private void ConnectRoomsWithCorridors()
     {
-        corridorPositions = ConnectRooms(roomCenters);
+
+        corridorPositions = ConnectRooms();
 
         RemoveCorridorTilesFromRoomTiles();
 
@@ -119,29 +171,26 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
     private void GenerateRoomPositions()
     {
-        foreach (var room in roomsDictionary)
+        foreach (var room in rooms)
         {
             var color = GenerateRandomColor();
 
-            tilemapVisualizer.PaintFloorTiles(GetActualRoomFloorPositions(new List<BoundsInt> { room.Value }), color);
+            tilemapVisualizer.PaintFloorTiles(GetActualRoomFloorPositions(new List<BoundsInt> { room.bounds }), color);
             //tilemapVisualizer.PaintFloorTiles(GetActualRoomFloorPositions(new List<BoundsInt> { room.Value }), null);
 
-            roomCenters.Add(Vector3Int.RoundToInt(room.Value.center));
-            floorPositions.UnionWith(GetActualRoomFloorPositions(new List<BoundsInt> { room.Value }));
-            bossRoomCenter = room.Value.center;
+            floorPositions.UnionWith(GetActualRoomFloorPositions(new List<BoundsInt> { room.bounds }));
+
+            room.floorTilesPositions.UnionWith(GetActualRoomFloorPositions(new List<BoundsInt> { room.bounds }));
         }
-        Debug.Log("Boss room center: " + bossRoomCenter);
     }
 
     private void InitializeMap()
     {
-        roomCenters.Clear();
+        rooms.Clear();
 
         tilemapVisualizer.Clear();
 
         floorPositions.Clear();
-        bossRoomCenter = Vector3.zero;
-        visitedRooms.Clear();
     }
 
     private Color? GenerateRandomColor()
@@ -158,11 +207,13 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         return colors[Random.Range(0, colors.Count)];
     }
 
-    private HashSet<Vector3Int> ConnectRooms(List<Vector3Int> roomCenters)
+    private HashSet<Vector3Int> ConnectRooms()
     {
+        var bossRoomCenter = Vector3Int.zero;
         HashSet<Vector3Int> corridors = new HashSet<Vector3Int>();
-        //var current = roomCenters[UnityEngine.Random.Range(0, roomCenters.Count)];
+        var roomCenters = rooms.Select(x => (Vector3Int.RoundToInt(x.bounds.center))).ToList();
         var current = roomCenters[0];
+        player.transform.position = current;
         roomCenters.Remove(current);
 
         while (roomCenters.Count > 0)
@@ -173,6 +224,9 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
             current = closest;
             corridors.UnionWith(newCorridor);
         }
+        bossRoomCenter = current;
+        Debug.Log("Boss room center: " + bossRoomCenter);
+        rooms.FirstOrDefault(room => room.floorTilesPositions.Contains(bossRoomCenter)).isBossRoom = true;
         return corridors;
     }
 
@@ -185,9 +239,9 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
         var startPosition = floorPositions.First();
 
-        foreach (var room in roomsDictionary.Values)
+        foreach (var room in rooms)
         {
-            var rooms = GetActualRoomFloorPositions(new List<BoundsInt>() { room });
+            var rooms = GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
             startPosition = rooms.First();
             break;
 
@@ -200,6 +254,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         while (queue.Count > 0)
         {
             var current = queue.Dequeue();
+            var currentRoom = rooms.FirstOrDefault(x => x.floorTilesPositions.Contains(current));
 
             if (IsRoomPosition(current))
             {
@@ -208,6 +263,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
                     if (corridorPositions.Contains(neighbor))
                     {
                         PlaceDoor(current);
+                        currentRoom.doorTilesPositions.Add(current);
 
                     }
 
@@ -224,13 +280,28 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
                 }
             }
         }
+
+        //TestDoorGenerationIfAddsToRooms();
+    }
+
+    private void TestDoorGenerationIfAddsToRooms()
+    {
+        foreach (var item in rooms)
+        {
+            foreach (var door in item.doorTilesPositions)
+            {
+                Debug.Log("Door position: " + door);
+                tilemapVisualizer.PaintSingleWall(door, Color.red);
+            }
+
+        }
     }
 
     bool IsRoomPosition(Vector3Int position)
     {
-        foreach (var room in roomsDictionary.Values)
+        foreach (var room in rooms)
         {
-            var rooms = GetActualRoomFloorPositions(new List<BoundsInt>() { room });
+            var rooms = GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
             if (rooms.Contains(position))
             {
                 return true;
@@ -305,6 +376,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     {
         var closest = Vector3Int.zero;
         var distance = float.MaxValue;
+
         foreach (var room in roomCenters)
         {
             var newDistance = Vector3Int.Distance(current, room);

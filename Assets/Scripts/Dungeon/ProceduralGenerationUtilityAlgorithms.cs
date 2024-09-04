@@ -34,11 +34,10 @@ public static class ProceduralGenerationUtilityAlgorithms
         return path;
     }
 
-    public static Dictionary<Vector3, BoundsInt>BinarySpacePartitioning(BoundsInt space, int minWidth, int minHeight)
+    public static HashSet<Room>BinarySpacePartitioning(BoundsInt space, int minWidth, int minHeight)
     {
         Queue<BoundsInt> roomsQueue = new Queue<BoundsInt>();
-        HashSet<BoundsInt> roomsList = new HashSet<BoundsInt>();
-        Dictionary<Vector3,BoundsInt> roomDictionary = new Dictionary<Vector3, BoundsInt>();
+        HashSet<Room> rooms = new HashSet<Room>();
         roomsQueue.Enqueue(space);
         while (roomsQueue.Count > 0)
         {
@@ -57,8 +56,7 @@ public static class ProceduralGenerationUtilityAlgorithms
                     }
                     else
                     {
-                        roomsList.Add(room);
-                        roomDictionary[room.center] = room;
+                        rooms.Add(new Room(room));
                     }
                 }
                 else
@@ -73,13 +71,12 @@ public static class ProceduralGenerationUtilityAlgorithms
                     }
                     else
                     {
-                        roomsList.Add(room);
-                        roomDictionary[room.center] = room;
+                        rooms.Add(new Room(room));
                     }
                 }
             }
         }
-        return roomDictionary;
+        return rooms;
     }
 
 
