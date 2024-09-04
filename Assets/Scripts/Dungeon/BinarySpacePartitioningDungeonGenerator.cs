@@ -111,7 +111,11 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
     public override void RunProceduralGeneration()
     {
-        CreateRooms();
+        InitializeMap();
+        while(rooms.Count < 5)
+        {
+            CreateRooms();
+        }
     }
     // TODO: maybe refactor this to another class for better separation of concerns do it this way:
     // when refactored for main menu button press for dungeon mode it will be a new class which has this generator class,
@@ -122,7 +126,6 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     private void CreateRooms()
     {
         InitializeMap();
-
         rooms = ProceduralGenerationUtilityAlgorithms.BinarySpacePartitioning(new BoundsInt(Vector3Int.zero, new Vector3Int(dungeonWidth, dungeonHeight, 0)), minWidth, minHeight);
 
         GenerateRoomPositions();
@@ -132,6 +135,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
 
         PlaceDoors();
+        Debug.Log("Rooms count: " + rooms.Count);
 
     }
 
@@ -186,11 +190,10 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
     private void InitializeMap()
     {
-        rooms.Clear();
-
         tilemapVisualizer.Clear();
-
+        rooms.Clear();
         floorPositions.Clear();
+        corridorPositions.Clear();
     }
 
     private Color? GenerateRandomColor()
