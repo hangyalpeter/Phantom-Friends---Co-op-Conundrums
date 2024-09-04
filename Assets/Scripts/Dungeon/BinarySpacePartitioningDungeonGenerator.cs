@@ -21,10 +21,48 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     [SerializeField]
     private TilemapVisualizer tilemapVisualizer;
 
+
+    [SerializeField]
+    private Transform player;
+
     private Dictionary<Vector3, BoundsInt> roomsDictionary = new Dictionary<Vector3, BoundsInt>();
     private HashSet<Vector3Int> corridorPositions = new HashSet<Vector3Int>();
     private HashSet<Vector3Int> floorPositions = new HashSet<Vector3Int>();
     private List<Vector3Int> roomCenters = new List<Vector3Int>();
+
+    private Vector3 bossRoomCenter = Vector3.zero;
+
+    private HashSet<Vector3> visitedRooms = new HashSet<Vector3>();
+    private void Update()
+    {
+        CheckIfPlayerEnteredRoom();
+        Debug.Log("Visited rooms: " + visitedRooms.Count);
+        
+    }
+
+    // TODO: refactor this to another class
+    private void CheckIfPlayerEnteredRoom ()
+    {
+        foreach (var room in roomsDictionary.Values)
+        {
+            var rooms = GetActualRoomFloorPositions(new List<BoundsInt>() { room });
+            var playerPosition = tilemapVisualizer.FloorTilemap.WorldToCell(player.position);
+
+            if (rooms.Contains(playerPosition) && !visitedRooms.Contains(room.center) && !room.center.Equals(bossRoomCenter))
+            {
+                Debug.Log("Player entered room" + room.center);
+                visitedRooms.Add(room.center);
+                // TODO: generate enemies, close doors
+                CloseAllUnfinishedRoomDoors();
+            }
+        }
+    }
+
+    private void CloseAllUnfinishedRoomDoors()
+    {
+    
+    }
+
     public override void RunProceduralGeneration()
     {
         CreateRooms();
@@ -90,7 +128,9 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
             roomCenters.Add(Vector3Int.RoundToInt(room.Value.center));
             floorPositions.UnionWith(GetActualRoomFloorPositions(new List<BoundsInt> { room.Value }));
+            bossRoomCenter = room.Value.center;
         }
+        Debug.Log("Boss room center: " + bossRoomCenter);
     }
 
     private void InitializeMap()
@@ -100,6 +140,8 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         tilemapVisualizer.Clear();
 
         floorPositions.Clear();
+        bossRoomCenter = Vector3.zero;
+        visitedRooms.Clear();
     }
 
     private Color? GenerateRandomColor()
@@ -166,6 +208,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
                     if (corridorPositions.Contains(neighbor))
                     {
                         PlaceDoor(current);
+
                     }
 
                 }
