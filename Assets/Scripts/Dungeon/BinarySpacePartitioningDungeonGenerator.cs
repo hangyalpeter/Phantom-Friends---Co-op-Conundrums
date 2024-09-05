@@ -30,98 +30,21 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     private HashSet<Vector3Int> corridorPositions = new HashSet<Vector3Int>();
     private readonly HashSet<Vector3Int> floorPositions = new HashSet<Vector3Int>();
 
-    private void Update()
-    {
-        // just for testing the door opening and closing
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            foreach (var room in rooms)
-            {
-                var actualRooms = GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
-                var playerPosition = tilemapVisualizer.FloorTilemap.WorldToCell(player.position);
-                if (actualRooms.Contains(playerPosition))
-                {
-                    OpenAllFinishedRooms();
-                    room.isFinished = true;
-                }
-            }   
-        }   
-        CheckIfPlayerEnteredRoom();
-        
-    }
-
-   
-    private void CheckIfPlayerEnteredRoom()
-    {
-        foreach (var room in rooms)
-        {
-            var rooms = GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
-            var playerPosition = tilemapVisualizer.FloorTilemap.WorldToCell(player.position);
-
-            if (rooms.Contains(playerPosition) && !room.isFinished && !room.isBossRoom)
-            {
-                Debug.Log("Player entered room" + room.bounds.center);
-
-                // TODO: generate enemies after delay
-                StartCoroutine(DelayCloseCurrentRoom(room));
-
-            }
-        }
-    }
-
-    private IEnumerator DelayCloseCurrentRoom(Room room)
-    {
-
-        yield return new WaitForSeconds(1f);
-        CloseCurrentRoom(room);
-    }
-
-
-    private void CloseCurrentRoom(Room currentPlayerRoom)
-    {
-
-        foreach (var door in currentPlayerRoom.doorTilesPositions)
-        {
-            tilemapVisualizer.PaintDoorTile(door, Color.red);
-        }
-    }
-
-    private void OpenAllFinishedRooms()
-    {
-
-        foreach (var room in rooms)
-        {
-            if (!room.isBossRoom)
-            {
-                foreach (var door in room.doorTilesPositions)
-                {
-                    //tilemapVisualizer.PaintDoorTile(door, Color.green);
-                    tilemapVisualizer.PaintOpenGateTile(door, null);
-                }
-            }
-            else if (!rooms.Any(x => !x.isFinished && !x.isBossRoom))
-            {
-                foreach (var door in room.doorTilesPositions)
-                {
-                    tilemapVisualizer.PaintOpenGateTile(door, null);
-                }
-            }
-        }
-    }
-
+    public TilemapVisualizer TilemapVisualizer => tilemapVisualizer;
     public override void RunProceduralGeneration()
+    {
+        GenerateDungeon();
+    }
+  
+    public HashSet<Room> GenerateDungeon()
     {
         InitializeMap();
         while(rooms.Count < 5)
         {
             CreateRooms();
         }
+        return rooms;
     }
-    // TODO: maybe refactor this to another class for better separation of concerns do it this way:
-    // when refactored for main menu button press for dungeon mode it will be a new class which has this generator class,
-    // calls the generator and then implements the other logics based on that create rooms function will be public and will
-    // return the generated rooms
-    // refactor all behaviors like this to that new class
 
     private void CreateRooms()
     {
@@ -265,8 +188,16 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
                 {
                     if (corridorPositions.Contains(neighbor))
                     {
-                        PlaceDoor(current);
-                        currentRoom.doorTilesPositions.Add(current);
+                        if (currentRoom.isBossRoom)
+                        {
+                            PlaceDoor(current, Color.red);
+                            currentRoom.doorTilesPositions.Add(current);
+                        }
+                        else
+                        {
+                            PlaceDoor(current, Color.green);
+                            currentRoom.doorTilesPositions.Add(current);
+                        }
 
                     }
 
@@ -314,9 +245,9 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     }
 
 
-    void PlaceDoor(Vector3Int position)
+    void PlaceDoor(Vector3Int position, Color? color)
     {
-        tilemapVisualizer.PaintDoorTile(position, null);
+        tilemapVisualizer.PaintDoorTile(position, color);
     }
 
     List<Vector3Int> GetNeighbors(Vector3Int position)
@@ -393,7 +324,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
     }
 
-    private HashSet<Vector3Int> GetActualRoomFloorPositions(List<BoundsInt> roomList)
+    public HashSet<Vector3Int> GetActualRoomFloorPositions(List<BoundsInt> roomList)
     {
         HashSet<Vector3Int> floor = new HashSet<Vector3Int>();
         foreach (var room in roomList)
