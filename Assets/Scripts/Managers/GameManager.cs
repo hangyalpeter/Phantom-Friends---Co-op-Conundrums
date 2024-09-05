@@ -64,6 +64,7 @@ public class GameManager : MonoBehaviour
     private void SubscribeToEvents()
     {
         UIScreenEvents.OnGameStart += OnGameStartClicked;
+        UIScreenEvents.OnDungeonGameStart += OnDungeonGameStartClicked;
         UIScreenEvents.OnLevelRestart += OnLevelRestartClicked;
         UIScreenEvents.MainMenuClicked += OnMainMenuClicked;
         UIScreenEvents.PauseClosed += PauseClosed;
@@ -76,9 +77,15 @@ public class GameManager : MonoBehaviour
 
     }
 
+    private void OnDungeonGameStartClicked()
+    {
+        StartCoroutine(LoadNamedLevel("Level 3"));
+    }
+
     private void UnsubscribeFromEvents()
     {
         UIScreenEvents.OnGameStart -= OnGameStartClicked;
+        UIScreenEvents.OnDungeonGameStart -= OnDungeonGameStartClicked;
         UIScreenEvents.OnLevelRestart -= OnLevelRestartClicked;
         UIScreenEvents.MainMenuClicked -= OnMainMenuClicked;
         UIScreenEvents.PauseClosed -= PauseClosed;
@@ -148,9 +155,9 @@ public class GameManager : MonoBehaviour
         isPaused = false;
     }
 
-    private IEnumerator LoadFirstLevel()
+    private IEnumerator LoadNamedLevel(string levelName)
     {
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("Level 1");
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelName);
 
         while (!asyncLoad.isDone)
         {
@@ -165,7 +172,7 @@ public class GameManager : MonoBehaviour
 
     private void OnGameStartClicked()
     {
-        StartCoroutine(LoadFirstLevel());
+        StartCoroutine(LoadNamedLevel("Level 1"));
     }
 
     private void OnLevelRestartClicked()

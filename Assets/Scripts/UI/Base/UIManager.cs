@@ -62,6 +62,8 @@ public class UIManager : MonoBehaviour
         UIScreenEvents.SettingsShown += UIScreenEvents_SettingsShown;
         UIScreenEvents.ScreenClosed += UIScreenEvents_ScreenClosed;
         UIScreenEvents.OnGameStart += HideScreens;
+        UIScreenEvents.OnDungeonGameStart += HideScreens;
+
         UIScreenEvents.PauseShown += UIScreenEvents_PauseShown;
         UIScreenEvents.LevelFinishShown += UIScreenEvents_LevelFinishShown;
         UIScreenEvents.LevelSelectShown += UIScreenEvents_LevelSelectShown;
@@ -74,6 +76,7 @@ public class UIManager : MonoBehaviour
         UIScreenEvents.SettingsShown -= UIScreenEvents_SettingsShown;
         UIScreenEvents.ScreenClosed -= UIScreenEvents_ScreenClosed;
         UIScreenEvents.OnGameStart -= HideScreens;
+        UIScreenEvents.OnDungeonGameStart -= HideScreens;
         UIScreenEvents.PauseShown -= UIScreenEvents_PauseShown;
         UIScreenEvents.LevelFinishShown -= UIScreenEvents_LevelFinishShown;
         UIScreenEvents.LevelSelectShown -= UIScreenEvents_LevelSelectShown;

@@ -10,6 +10,7 @@ public static class UIScreenEvents
     public static Action LevelFinishShown;
     public static Action PauseClosed;
     public static Action OnGameStart;
+    public static Action OnDungeonGameStart;
     public static Action OnNextLevel;
     public static Action LevelSelectShown;
 
