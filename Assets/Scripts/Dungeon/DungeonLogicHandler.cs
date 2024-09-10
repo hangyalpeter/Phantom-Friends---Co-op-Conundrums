@@ -11,9 +11,12 @@ public class DungeonLogicHandler : MonoBehaviour
     [SerializeField]
     private BinarySpacePartitioningDungeonGenerator dungeonGenerator;
     private HashSet<Room> rooms = new HashSet<Room>();
+
+    private EnemySpawner spawner;
     void Start()
     {
         rooms = dungeonGenerator.GenerateDungeon();
+        spawner = gameObject.GetComponent<EnemySpawner>();
     }
 
     private void Update()
@@ -44,10 +47,12 @@ public class DungeonLogicHandler : MonoBehaviour
             var rooms = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
             var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.position);
 
-            if (rooms.Contains(playerPosition) && !room.isFinished && !room.isBossRoom)
+            if (rooms.Contains(playerPosition) && !room.isFinished && !room.isBossRoom && !room.isVisited)
             {
                 Debug.Log("Player entered room" + room.bounds.center);
 
+
+                room.isVisited = true;
                 // TODO: generate enemies after delay
                 StartCoroutine(DelayCloseCurrentRoom(room));
 
@@ -60,6 +65,7 @@ public class DungeonLogicHandler : MonoBehaviour
 
         yield return new WaitForSeconds(1f);
         CloseCurrentRoom(room);
+        spawner.SpawnEnemies(room.bounds.center);
     }
 
 

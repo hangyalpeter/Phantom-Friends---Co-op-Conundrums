@@ -8,6 +8,7 @@ public class Room
     public HashSet<Vector3Int> doorTilesPositions;
     public bool isBossRoom;
     public bool isFinished;
+    public bool isVisited;
     public Room(BoundsInt bounds)
     {
         this.bounds = bounds;
@@ -15,5 +16,6 @@ public class Room
         doorTilesPositions = new HashSet<Vector3Int>();
         isBossRoom = false;
         isFinished = false;
+        isVisited = false;
     }
 }

@@ -9,6 +9,7 @@ TagManager:
   - Trap
   - Player_Child
   - Ground
+  - Enemy
   layers:
   - Default
   - TransparentFX
