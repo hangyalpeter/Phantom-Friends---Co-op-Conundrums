@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -32,8 +33,6 @@ public class TrunkEnemyAnimationHandler : MonoBehaviour
         }
     }
 
-    // TODO: add handle damage event
-
     private void HandleShoot()
     {
         state = MovementState.attack;
@@ -55,5 +54,11 @@ public class TrunkEnemyAnimationHandler : MonoBehaviour
 
         
         anim.SetInteger("state", (int)state);
+    }
+
+    // TODO: if have time check these animations
+    public void PlayHitAnimation()
+    {
+        state = MovementState.hit;
     }
 }

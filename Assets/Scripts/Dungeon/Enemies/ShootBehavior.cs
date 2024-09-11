@@ -4,9 +4,12 @@ public class ShootBehavior : MonoBehaviour
 {
     public GameObject projectilePrefab;
     public Transform shootingPoint;
-    public float interval = 2f;  // Time between shots
+
+    // TODO: fix access levels
+    public float interval = 10f;  // Time between shots
     private float nextShotTime = 0f;
 
+    public Transform target { get; internal set; }
 
     public event Action OnShoot;
 
@@ -17,6 +20,7 @@ public class ShootBehavior : MonoBehaviour
             Shoot();
             nextShotTime = Time.time + interval;
         }
+        AlwaysFacePlayer();
     }
 
     private void Shoot()
@@ -39,5 +43,18 @@ public class ShootBehavior : MonoBehaviour
         }
 
     }
+
+    private void AlwaysFacePlayer()
+    {
+        if (transform.position.x > target.position.x)
+        {
+            transform.rotation = new Quaternion(0, 0, 0, transform.rotation.w);
+        }
+        else
+        {
+            transform.rotation = new Quaternion(0, 180, 0, transform.rotation.w);
+        }
+    }
+
 }
 

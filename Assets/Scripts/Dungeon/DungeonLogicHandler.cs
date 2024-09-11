@@ -21,22 +21,26 @@ public class DungeonLogicHandler : MonoBehaviour
 
     private void Update()
     {
-        // just for testing the door opening and closing
-        if (Input.GetKeyDown(KeyCode.E))
+        CheckIfPlayerEnteredRoom();
+        foreach (var room in rooms)
         {
-            foreach (var room in rooms)
+            var actualRooms = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
+            var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.position);
+            if (actualRooms.Contains(playerPosition))
             {
-                var actualRooms = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
-                var playerPosition =dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.position);
-                if (actualRooms.Contains(playerPosition))
+                if (CheckIsRoomCleared(room))
                 {
                     OpenAllFinishedRooms();
                     room.isFinished = true;
                 }
             }
         }
-        CheckIfPlayerEnteredRoom();
 
+    }
+
+    private bool CheckIsRoomCleared(Room room)
+    {
+       return !room.enemies.Any(e => e != null);
     }
 
 
@@ -65,17 +69,22 @@ public class DungeonLogicHandler : MonoBehaviour
 
         yield return new WaitForSeconds(1f);
         CloseCurrentRoom(room);
-        spawner.SpawnEnemies(room.bounds.center);
+        room.enemies.AddRange(spawner.SpawnEnemies(room.bounds.center));
     }
 
 
     private void CloseCurrentRoom(Room currentPlayerRoom)
     {
 
+        var currentPlayerRoomFloorPositions = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { currentPlayerRoom.bounds });
+        var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.position);
+
         foreach (var door in currentPlayerRoom.doorTilesPositions)
         {
             dungeonGenerator.TilemapVisualizer.PaintDoorTile(door, Color.red);
         }
+
+
     }
 
     private void OpenAllFinishedRooms()

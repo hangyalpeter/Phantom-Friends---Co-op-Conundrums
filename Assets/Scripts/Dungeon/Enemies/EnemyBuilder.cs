@@ -11,7 +11,7 @@ public class EnemyBuilder
 
     public EnemyBuilder AddMoveBehavior(float speed)
     {
-        MoveBehavior moveBehavior = enemyInstance.AddComponent<MoveBehavior>();
+        FollowPlayerBehavior moveBehavior = enemyInstance.AddComponent<FollowPlayerBehavior>();
         moveBehavior.speed = speed;
         // TODO: add player's position as target as function parameter instead in enemy spawner and in enemy spawner, player should be a [serializefield]
         moveBehavior.target = GameObject.Find("Player_Child").transform;
@@ -22,6 +22,8 @@ public class EnemyBuilder
     {
         ShootBehavior shootBehavior = enemyInstance.AddComponent<ShootBehavior>();
         shootBehavior.interval = shootInterval;
+
+        shootBehavior.target = GameObject.Find("Player_Child").transform;
         return this;
     }
 

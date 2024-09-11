@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class MoveBehavior : MonoBehaviour
+public class FollowPlayerBehavior : MonoBehaviour
 {
     public float speed;
 
@@ -11,7 +11,10 @@ public class MoveBehavior : MonoBehaviour
     {
 
         var step = speed * Time.deltaTime;
-        transform.position = Vector3.MoveTowards(transform.position, target.position, step);
+        if (Vector3.Distance(transform.position, target.position) > 4f )
+        {
+            transform.position = Vector3.MoveTowards(transform.position, target.position, step);
+        }
         AlwaysFacePlayer();
     }
 
