@@ -8,9 +8,10 @@ public class Projectile : MonoBehaviour
 
     private Vector3 direction;
 
-     void Start()
+    void Start()
     {
 
+        // TODO: find another way for finding the player, maybe with the findobjectwithtag is better
         direction = (GameObject.Find("Player_Child").transform.position - transform.position).normalized;
     }
     private void Update()
@@ -18,24 +19,6 @@ public class Projectile : MonoBehaviour
 
         var step = speed * Time.deltaTime;
         transform.position = transform.position + direction * speed * Time.deltaTime;
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        HealthComponent health = collision.gameObject.GetComponent<HealthComponent>();
-        if (collision.gameObject.CompareTag("Enemy"))
-        {
-            return;
-        }
-        if (health != null && !collision.gameObject.CompareTag("Enemy"))
-        {
-            health.TakeDamage(damage);
-            Destroy(gameObject);
-        } else
-        {
-            Destroy(gameObject);
-        }
-
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {

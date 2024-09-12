@@ -8,11 +8,16 @@ public class DungeonLogicHandler : MonoBehaviour
     [SerializeField]
     private Transform player;
 
+
+    [SerializeField]
+    private EnemyData[] enemyData = new EnemyData[3];
+
     [SerializeField]
     private BinarySpacePartitioningDungeonGenerator dungeonGenerator;
     private HashSet<Room> rooms = new HashSet<Room>();
 
     private EnemySpawner spawner;
+
     void Start()
     {
         rooms = dungeonGenerator.GenerateDungeon();
@@ -57,7 +62,6 @@ public class DungeonLogicHandler : MonoBehaviour
 
 
                 room.isVisited = true;
-                // TODO: generate enemies after delay
                 StartCoroutine(DelayCloseCurrentRoom(room));
 
             }
@@ -69,13 +73,48 @@ public class DungeonLogicHandler : MonoBehaviour
 
         yield return new WaitForSeconds(1f);
         CloseCurrentRoom(room);
-        room.enemies.AddRange(spawner.SpawnEnemies(room.bounds.center));
+        SpawnEnemies(room);
+    }
+
+    private void SpawnEnemies(Room room)
+    {
+        foreach (var enemy in enemyData)
+        {
+            if (enemy != null)
+            {
+                //TODO refactor to methods
+
+                var neighborOffsets = new List<Vector3Int>{
+                    new Vector3Int(1, 0, 0),  // Right neighbor
+                    new Vector3Int(-1, 0, 0), // Left neighbor
+                     new Vector3Int(0, 1, 0),  // Up neighbor
+                    new Vector3Int(0, -1, 0)  // Down neighbor}; 
+                };
+                // Get all neighboring positions for each wall tile
+                var wallAndNeighborPositions = room.wallTilesPositions
+                    .SelectMany(wallPos => neighborOffsets.Select(offset => wallPos + offset))
+                    .Concat(room.wallTilesPositions)  // Include the wall tiles themselves
+                    .ToHashSet(); // Use a HashSet for fast lookups
+
+                var potentialSwawnPositions = room.floorTilesPositions
+                    .Where(p => Vector3.Distance(player.transform.position, p) > 0.5f &&
+                 !room.doorTilesPositions.Contains(p) &&
+                 !wallAndNeighborPositions.Contains(p)
+                 );
+                Vector3 position = potentialSwawnPositions.ElementAt(Random.Range(0, potentialSwawnPositions.Count()));
+
+                room.enemies.Add(spawner.SpawnEnemy(enemy, position));
+                
+            }
+        }
+
     }
 
 
     private void CloseCurrentRoom(Room currentPlayerRoom)
     {
 
+        // TODO maybe check again if the player is in the room
         var currentPlayerRoomFloorPositions = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { currentPlayerRoom.bounds });
         var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.position);
 
@@ -96,7 +135,6 @@ public class DungeonLogicHandler : MonoBehaviour
             {
                 foreach (var door in room.doorTilesPositions)
                 {
-                    //tilemapVisualizer.PaintDoorTile(door, Color.green);
                     dungeonGenerator.TilemapVisualizer.PaintOpenGateTile(door, null);
                 }
             }

@@ -3,28 +3,39 @@
 public class EnemyBuilder
 {
     private GameObject enemyInstance;
+    private EnemyData enemyData;
 
-    public EnemyBuilder(GameObject enemyInstance)
+    public EnemyBuilder(GameObject enemyInstance, EnemyData enemyData)
     {
         this.enemyInstance = enemyInstance;
+        this.enemyData = enemyData;
     }
 
-    public EnemyBuilder AddMoveBehavior(float speed)
+    public EnemyBuilder WithMovement()
     {
-        FollowPlayerBehavior moveBehavior = enemyInstance.AddComponent<FollowPlayerBehavior>();
-        moveBehavior.speed = speed;
-        // TODO: add player's position as target as function parameter instead in enemy spawner and in enemy spawner, player should be a [serializefield]
-        moveBehavior.target = GameObject.Find("Player_Child").transform;
+        if (enemyData.canMove)
+        {
+            FollowPlayerBehavior followPlayerBehaviour = enemyInstance.AddComponent<FollowPlayerBehavior>();
+            followPlayerBehaviour.speed = enemyData.speed;
+            // TODO: add player's position as target as function parameter or some other solution than this instead in enemy spawner and in enemy spawner, player should be a [serializefield]
+            followPlayerBehaviour.target = GameObject.Find("Player_Child").transform;
+        }
         return this;
     }
 
-    public EnemyBuilder AddShootBehavior(float shootInterval)
+    public EnemyBuilder WithShooting()
     {
-        ShootBehavior shootBehavior = enemyInstance.AddComponent<ShootBehavior>();
-        shootBehavior.interval = shootInterval;
-
-        shootBehavior.target = GameObject.Find("Player_Child").transform;
-        return this;
+        if (enemyData.canShoot)
+        {
+            ShootBehavior shootBehavior = enemyInstance.AddComponent<ShootBehavior>();
+            shootBehavior.interval = enemyData.shootInterval;
+            shootBehavior.target = GameObject.Find("Player_Child").transform;
+            shootBehavior.projectilePrefab = enemyData.projectilePrefab;
+            shootBehavior.shootingPoint = enemyInstance.transform;
+            shootBehavior.damage = enemyData.damage;
+            shootBehavior.speed = enemyData.projectileSpeed;
+        }
+       return this;
     }
 
     public EnemyBuilder AddRotateBehavior(float rotateSpeed)
@@ -34,10 +45,11 @@ public class EnemyBuilder
         return this;
     }
 
-    public EnemyBuilder AddHealth(float maxHealth)
+    // TODO observable for healthbar
+    public EnemyBuilder WithHealth()
     {
         HealthComponent healthComponent = enemyInstance.AddComponent<HealthComponent>();
-        healthComponent.maxHealth = maxHealth;
+        healthComponent.maxHealth = enemyData.health;
         return this;
     }
 

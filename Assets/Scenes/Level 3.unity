@@ -786,6 +786,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 1946791529}
+  enemyData:
+  - {fileID: 11400000, guid: 0f7e77353b714264e92c8fa7333cfe4c, type: 2}
+  - {fileID: 11400000, guid: af9100b38c36705449b4a375406b0321, type: 2}
+  - {fileID: 11400000, guid: 100d9fc5d09b6e54488f9aa09256351d, type: 2}
   dungeonGenerator: {fileID: 849193265}
 --- !u!4 &677841903
 Transform:
@@ -814,6 +818,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 673ed898c26a0ec4c9f4cf70257e1b73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyData:
+  - {fileID: 11400000, guid: 0f7e77353b714264e92c8fa7333cfe4c, type: 2}
+  - {fileID: 11400000, guid: af9100b38c36705449b4a375406b0321, type: 2}
+  - {fileID: 11400000, guid: 100d9fc5d09b6e54488f9aa09256351d, type: 2}
 --- !u!1 &727252687
 GameObject:
   m_ObjectHideFlags: 0

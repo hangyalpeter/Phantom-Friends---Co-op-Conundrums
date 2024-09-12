@@ -9,6 +9,9 @@ public class ShootBehavior : MonoBehaviour
     public float interval = 10f;  // Time between shots
     private float nextShotTime = 0f;
 
+    public float speed = 10f;
+    public float damage = 25f;
+
     public Transform target { get; internal set; }
 
     public event Action OnShoot;
@@ -31,8 +34,8 @@ public class ShootBehavior : MonoBehaviour
             Projectile projComponent = projectile.GetComponent<Projectile>();
             if (projComponent != null)
             {
-                projComponent.speed = 10f;
-                projComponent.damage = 25f;
+                projComponent.speed = speed;
+                projComponent.damage = damage;
             }
 
             OnShoot?.Invoke();

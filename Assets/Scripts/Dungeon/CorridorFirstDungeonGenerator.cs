@@ -56,7 +56,7 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
         }
 
         tilemapVisualizer.PaintFloorTiles(floorPositions, null);
-        WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
+        WallGenerator.CreateWalls(floorPositions, tilemapVisualizer, null);
         //PlaceDoors();
     }
 

@@ -55,7 +55,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
         ConnectRoomsWithCorridors();
 
-        WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
+        WallGenerator.CreateWalls(floorPositions, tilemapVisualizer, rooms);
 
         PlaceDoors();
         Debug.Log("Rooms count: " + rooms.Count);
