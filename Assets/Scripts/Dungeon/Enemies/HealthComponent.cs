@@ -7,6 +7,7 @@ public class HealthComponent : MonoBehaviour
     private float currentHealth;
 
     public event Action OnDied;
+    public event Action OnDamageTaken;
 
     void Start()
     {
@@ -17,6 +18,8 @@ public class HealthComponent : MonoBehaviour
     {
         currentHealth -= damage;
         Debug.Log(gameObject.name + " took " + damage + " damage, health left: " + currentHealth);
+
+        OnDamageTaken?.Invoke();
 
         if (currentHealth <= 0)
         {

@@ -82,34 +82,40 @@ public class DungeonLogicHandler : MonoBehaviour
         {
             if (enemy != null)
             {
-                //TODO refactor to methods
-
                 var neighborOffsets = new List<Vector3Int>{
-                    new Vector3Int(1, 0, 0),  // Right neighbor
-                    new Vector3Int(-1, 0, 0), // Left neighbor
-                     new Vector3Int(0, 1, 0),  // Up neighbor
-                    new Vector3Int(0, -1, 0)  // Down neighbor}; 
+                    Vector3Int.right,
+                    Vector3Int.left,
+                    Vector3Int.up,
+                    Vector3Int.down
                 };
-                // Get all neighboring positions for each wall tile
-                var wallAndNeighborPositions = room.wallTilesPositions
-                    .SelectMany(wallPos => neighborOffsets.Select(offset => wallPos + offset))
-                    .Concat(room.wallTilesPositions)  // Include the wall tiles themselves
-                    .ToHashSet(); // Use a HashSet for fast lookups
+                HashSet<Vector3Int> wallAndNeighborPositions = GetWallNeighborPositions(room, neighborOffsets);
 
-                var potentialSwawnPositions = room.floorTilesPositions
-                    .Where(p => Vector3.Distance(player.transform.position, p) > 0.5f &&
-                 !room.doorTilesPositions.Contains(p) &&
-                 !wallAndNeighborPositions.Contains(p)
-                 );
+                IEnumerable<Vector3Int> potentialSwawnPositions = CalculatePotentialSpawnPositions(room, wallAndNeighborPositions);
                 Vector3 position = potentialSwawnPositions.ElementAt(Random.Range(0, potentialSwawnPositions.Count()));
 
                 room.enemies.Add(spawner.SpawnEnemy(enemy, position));
-                
+
             }
         }
 
     }
 
+    private IEnumerable<Vector3Int> CalculatePotentialSpawnPositions(Room room, HashSet<Vector3Int> wallAndNeighborPositions)
+    {
+        return room.floorTilesPositions
+            .Where(p => Vector3.Distance(player.transform.position, p) > 0.5f &&
+         !room.doorTilesPositions.Contains(p) &&
+         !wallAndNeighborPositions.Contains(p)
+         );
+    }
+
+    private static HashSet<Vector3Int> GetWallNeighborPositions(Room room, List<Vector3Int> neighborOffsets)
+    {
+        return room.wallTilesPositions
+                            .SelectMany(wallPos => neighborOffsets.Select(offset => wallPos + offset))
+                            .Concat(room.wallTilesPositions)
+                            .ToHashSet();
+    }
 
     private void CloseCurrentRoom(Room currentPlayerRoom)
     {

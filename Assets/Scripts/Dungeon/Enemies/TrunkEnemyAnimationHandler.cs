@@ -5,37 +5,52 @@ using UnityEngine;
 
 public class TrunkEnemyAnimationHandler : MonoBehaviour
 {
-    private enum MovementState { idle, run, hit, attack }
+    private enum MovementState { idle, run}
     private Animator anim;
     private Vector3 lastPosition;
     private ShootBehavior shootBehavior;
 
-    MovementState state = MovementState.idle;
+    private HealthComponent healthComponent;
+
+    MovementState currentState = MovementState.idle;
     void Start()
     {
 
         anim = GetComponent<Animator>();
         lastPosition = transform.position;
         shootBehavior = GetComponent<ShootBehavior>();
+        healthComponent = GetComponent<HealthComponent>();
 
         if (shootBehavior != null)
         {
-            shootBehavior.OnShoot += HandleShoot;
+            shootBehavior.OnShoot += HandleShootAnimation;
+        }
+
+        if (healthComponent != null)
+        {
+
+            healthComponent.OnDamageTaken += PlayHitAnimation;
         }
 
     }
 
     void OnDestroy()
     {
+
         if (shootBehavior != null)
         {
-            shootBehavior.OnShoot -= HandleShoot;
+            shootBehavior.OnShoot -= HandleShootAnimation;
+        }
+
+        if ( healthComponent != null )
+        {
+            healthComponent.OnDamageTaken -= PlayHitAnimation;
         }
     }
 
-    private void HandleShoot()
+    private void HandleShootAnimation()
     {
-        state = MovementState.attack;
+        anim.SetTrigger("attack");
 
     }
 
@@ -43,22 +58,23 @@ public class TrunkEnemyAnimationHandler : MonoBehaviour
     {
 
 
-        if (transform.position != lastPosition)
+        if (!transform.position.Equals(lastPosition))
         {
-            state = MovementState.run;
-            
-        } else
+            currentState = MovementState.run;
+
+        }
+        else if (transform.position.Equals(lastPosition))
         {
-            state = MovementState.idle;
+            currentState = MovementState.idle;
         }
 
-        
-        anim.SetInteger("state", (int)state);
+
+        anim.SetInteger("state", (int)currentState);
+        lastPosition = transform.position;
     }
 
-    // TODO: if have time check these animations
-    public void PlayHitAnimation()
+    private void PlayHitAnimation()
     {
-        state = MovementState.hit;
+        anim.SetTrigger("hit");
     }
 }

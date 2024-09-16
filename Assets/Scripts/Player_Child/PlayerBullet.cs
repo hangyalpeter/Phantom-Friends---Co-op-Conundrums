@@ -20,12 +20,6 @@ public class PlayerBullet : MonoBehaviour
         if (health != null && collision.gameObject.CompareTag("Enemy"))
         {
             health.TakeDamage(damage);
-            var tea = collision.gameObject.GetComponent<TrunkEnemyAnimationHandler>();
-            if (tea != null)
-            {
-                tea.PlayHitAnimation();
-            }
-
             Destroy(gameObject);
         } else
         {
