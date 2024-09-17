@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20bef0f5984382041a4dfd681eb0d68f, type: 3}
   m_Name: StationaryShootingEnemyHard
   m_EditorClassIdentifier: 
-  enemyName: Stationary shooting enemy hard
+  enemyName: Stationary shooting trunk hard
   enemyPrefab: {fileID: 4637557867027910804, guid: 14ab8601dfaff61499c6a8a39f7765e9, type: 3}
   health: 300
   speed: 0

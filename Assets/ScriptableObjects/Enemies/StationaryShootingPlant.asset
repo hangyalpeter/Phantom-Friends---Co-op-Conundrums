@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20bef0f5984382041a4dfd681eb0d68f, type: 3}
-  m_Name: StationaryShootingEnemyEasy
+  m_Name: StationaryShootingPlant
   m_EditorClassIdentifier: 
-  enemyName: Stationary shooting trunk easy
-  enemyPrefab: {fileID: 4637557867027910804, guid: 14ab8601dfaff61499c6a8a39f7765e9, type: 3}
-  health: 150
-  speed: 3
-  damage: 25
-  projectilePrefab: {fileID: 4222163408759259628, guid: 720153838f020ab4eb5ec0bdc97b540e, type: 3}
-  shootInterval: 5
+  enemyName: Stationary shooting plant
+  enemyPrefab: {fileID: 6958306681862558131, guid: edc1a1b633513a24e9be2ebb73c54137, type: 3}
+  health: 200
+  speed: 0
+  damage: 20
+  projectilePrefab: {fileID: 145729832598270974, guid: 2c50824df4accf748844d98e9037b71e, type: 3}
+  shootInterval: 1
   projectileSpeed: 10
   canMove: 0
   canShoot: 1

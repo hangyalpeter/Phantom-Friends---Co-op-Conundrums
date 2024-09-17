@@ -63,7 +63,7 @@ public class TrunkEnemyAnimationHandler : MonoBehaviour
             currentState = MovementState.run;
 
         }
-        else if (transform.position.Equals(lastPosition))
+        else
         {
             currentState = MovementState.idle;
         }

@@ -41,7 +41,6 @@ public class EnemyBuilder
     public EnemyBuilder AddRotateBehavior(float rotateSpeed)
     {
         RotateBehavior rotateBehavior = enemyInstance.AddComponent<RotateBehavior>();
-        rotateBehavior.speed = rotateSpeed;
         return this;
     }
 
