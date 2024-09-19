@@ -12,12 +12,16 @@ public class ShootBehavior : MonoBehaviour
     public float speed = 10f;
     public float damage = 25f;
 
+    private Vector2 currentPosition;
+    private Vector2 previousPosition;
+    private Vector2 lastMovementDirection;
     public Transform target { get; internal set; }
 
     public event Action OnShoot;
 
     void Update()
     {
+        UpdateShootingDirection();
         if (Time.time >= nextShotTime)
         {
             Shoot();
@@ -34,8 +38,16 @@ public class ShootBehavior : MonoBehaviour
             Projectile projComponent = projectile.GetComponent<Projectile>();
             if (projComponent != null)
             {
-                projComponent.speed = speed;
+                //projComponent.speed = speed;
                 projComponent.damage = damage;
+                if (GetComponent<FollowPlayerBehavior>() != null)
+                {
+                    projComponent.GetComponent<Rigidbody2D>().velocity = lastMovementDirection * speed;
+                } else
+                {
+                    projComponent.GetComponent<Rigidbody2D>().velocity = (target.position - transform.position).normalized * speed;
+
+                }
             }
 
             OnShoot?.Invoke();
@@ -46,6 +58,22 @@ public class ShootBehavior : MonoBehaviour
         }
 
     }
+    
+
+    private void UpdateShootingDirection()
+    {
+        currentPosition = transform.position;
+        var direction = currentPosition - previousPosition;
+
+        if (direction != Vector2.zero)
+        {
+            lastMovementDirection = direction.normalized;
+        }
+
+
+        previousPosition = currentPosition;
+    }
+
 
     private void AlwaysFacePlayer()
     {

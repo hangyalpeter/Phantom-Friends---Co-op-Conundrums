@@ -13,6 +13,7 @@ public class EnemyData : ScriptableObject
     public float projectileSpeed;
     public bool canMove;
     public bool canShoot;
+    public bool canBePossessed;
 
     public GameObject CreateEnemy(Vector3 position)
     {
@@ -24,6 +25,7 @@ public class EnemyData : ScriptableObject
         builder.WithHealth()
                .WithMovement()
                .WithShooting()
+               .withPossessable()
                .Build();
 
         return enemy;

@@ -29,13 +29,24 @@ public class EnemyBuilder
         {
             ShootBehavior shootBehavior = enemyInstance.AddComponent<ShootBehavior>();
             shootBehavior.interval = enemyData.shootInterval;
-            shootBehavior.target = GameObject.Find("Player_Child").transform;
+            shootBehavior.target = GameObject.FindGameObjectWithTag("Player_Child").transform;
             shootBehavior.projectilePrefab = enemyData.projectilePrefab;
             shootBehavior.shootingPoint = enemyInstance.transform;
             shootBehavior.damage = enemyData.damage;
             shootBehavior.speed = enemyData.projectileSpeed;
         }
        return this;
+    }
+
+    public EnemyBuilder withPossessable()
+    {
+        if (enemyData.canBePossessed)
+        {
+            enemyInstance.AddComponent<PossessableBehavior>();
+            enemyInstance.AddComponent<PossessableTransformation>();
+            enemyInstance.AddComponent<PosessableMovement>();
+        }
+        return this;
     }
 
     public EnemyBuilder AddRotateBehavior(float rotateSpeed)

@@ -6,36 +6,43 @@ public class Projectile : MonoBehaviour
     public float speed = 10f;
     public float damage = 25f;
 
-    private Vector3 direction;
+    public float colliderEnableDelay = 1f;  // Delay before enabling the collider
+
+    private Collider2D bulletCollider;
 
     void Start()
     {
+        bulletCollider = GetComponent<Collider2D>();
 
-        // TODO: find another way for finding the player, maybe with the findobjectwithtag is better
-        direction = (GameObject.Find("Player_Child").transform.position - transform.position).normalized;
+        bulletCollider.enabled = false;
+
+        // Enable it after a short delay
+        Invoke(nameof(EnableCollider), colliderEnableDelay);
     }
-    private void Update()
+
+    void EnableCollider()
     {
-
-        var step = speed * Time.deltaTime;
-        transform.position = transform.position + direction * speed * Time.deltaTime;
+        bulletCollider.enabled = true;
     }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         HealthComponent health = collision.gameObject.GetComponent<HealthComponent>();
+
         if (collision.gameObject.CompareTag("Enemy"))
         {
+            Debug.Log("collision with enemy");
             return;
+
         }
         if (health != null && !collision.gameObject.CompareTag("Enemy"))
         {
             health.TakeDamage(damage);
-            Destroy(gameObject);
-        } else
-        {
-            Destroy(gameObject);
         }
 
+        Debug.Log("no collision with enemy");
+
+        Destroy(gameObject);
     }
 
 }

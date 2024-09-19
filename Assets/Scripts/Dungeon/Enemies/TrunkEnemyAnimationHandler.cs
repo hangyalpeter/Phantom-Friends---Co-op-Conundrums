@@ -11,6 +11,7 @@ public class TrunkEnemyAnimationHandler : MonoBehaviour
     private ShootBehavior shootBehavior;
 
     private HealthComponent healthComponent;
+    private Rigidbody2D rb;
 
     MovementState currentState = MovementState.idle;
     void Start()
@@ -20,6 +21,7 @@ public class TrunkEnemyAnimationHandler : MonoBehaviour
         lastPosition = transform.position;
         shootBehavior = GetComponent<ShootBehavior>();
         healthComponent = GetComponent<HealthComponent>();
+        rb = GetComponent<Rigidbody2D>();
 
         if (shootBehavior != null)
         {
@@ -58,7 +60,7 @@ public class TrunkEnemyAnimationHandler : MonoBehaviour
     {
 
 
-        if (!transform.position.Equals(lastPosition))
+        if (!transform.position.Equals(lastPosition) || rb.velocity.magnitude > 0 )
         {
             currentState = MovementState.run;
 

@@ -10,6 +10,9 @@ TagManager:
   - Player_Child
   - Ground
   - Enemy
+  - TimerText
+  - EnemyBullet
+  - PlayerBullet
   layers:
   - Default
   - TransparentFX

@@ -787,9 +787,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 1946791529}
   enemyData:
-  - {fileID: 11400000, guid: 0f7e77353b714264e92c8fa7333cfe4c, type: 2}
+  - {fileID: 11400000, guid: 1e93461fd07f3d640b36bc53838d474d, type: 2}
   - {fileID: 11400000, guid: af9100b38c36705449b4a375406b0321, type: 2}
-  - {fileID: 11400000, guid: 100d9fc5d09b6e54488f9aa09256351d, type: 2}
   - {fileID: 11400000, guid: 5eef44e209c25064d83adfa166f3e954, type: 2}
   dungeonGenerator: {fileID: 849193265}
 --- !u!4 &677841903
@@ -1050,6 +1049,7 @@ MonoBehaviour:
   roomWidthOffset: 2
   tilemapVisualizer: {fileID: 1030782645}
   player: {fileID: 1946791529}
+  ghost: {fileID: 727252690}
 --- !u!4 &849193266
 Transform:
   m_ObjectHideFlags: 0
@@ -1088,7 +1088,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1030282861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1434,7 +1434,7 @@ GameObject:
   - component: {fileID: 1352435524}
   m_Layer: 5
   m_Name: Text (TMP)
-  m_TagString: Untagged
+  m_TagString: TimerText
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2347,7 +2347,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2022063754
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2479,7 +2479,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2068189449
 RectTransform:
   m_ObjectHideFlags: 0

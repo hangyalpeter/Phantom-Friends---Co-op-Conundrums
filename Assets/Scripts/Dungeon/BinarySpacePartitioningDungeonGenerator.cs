@@ -25,6 +25,8 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
     [SerializeField]
     private Transform player;
+    [SerializeField]
+    private Transform ghost;
 
     private HashSet<Room> rooms = new HashSet<Room>();
     private HashSet<Vector3Int> corridorPositions = new HashSet<Vector3Int>();
@@ -140,6 +142,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         var roomCenters = rooms.Select(x => (Vector3Int.RoundToInt(x.bounds.center))).ToList();
         var current = roomCenters[0];
         player.transform.position = current;
+        ghost.transform.position = current;
         roomCenters.Remove(current);
 
         while (roomCenters.Count > 0)

@@ -11,11 +11,11 @@ GameObject:
   - component: {fileID: 8469644479756657856}
   - component: {fileID: 5064247290015357905}
   - component: {fileID: 896728789577838399}
-  - component: {fileID: 4217764044966936990}
   - component: {fileID: -1716144665117030015}
+  - component: {fileID: 7244428726580924395}
   m_Layer: 0
   m_Name: Trunk_Enemy_Bullet
-  m_TagString: Untagged
+  m_TagString: EnemyBullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -132,7 +132,24 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.73773384, y: 0.47546864}
   m_EdgeRadius: 0
---- !u!50 &4217764044966936990
+--- !u!114 &-1716144665117030015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4222163408759259628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeb1e3546f8b41c409277add606da75d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 10
+  damage: 25
+  colliderEnableDelay: 0.1
+  dirX: 0
+  dirY: 0
+--- !u!50 &7244428726580924395
 Rigidbody2D:
   serializedVersion: 4
   m_ObjectHideFlags: 0
@@ -158,19 +175,4 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 4
---- !u!114 &-1716144665117030015
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4222163408759259628}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eeb1e3546f8b41c409277add606da75d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 10
-  damage: 25
-  direction: {x: 0, y: 0, z: 0}
+  m_Constraints: 0
