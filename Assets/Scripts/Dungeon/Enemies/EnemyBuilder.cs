@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class EnemyBuilder
 {
@@ -49,12 +50,6 @@ public class EnemyBuilder
         return this;
     }
 
-    public EnemyBuilder AddRotateBehavior(float rotateSpeed)
-    {
-        RotateBehavior rotateBehavior = enemyInstance.AddComponent<RotateBehavior>();
-        return this;
-    }
-
     // TODO observable for healthbar
     public EnemyBuilder WithHealth()
     {
@@ -68,6 +63,14 @@ public class EnemyBuilder
         return enemyInstance;
     }
 
-
+    public EnemyBuilder WithRotateShooting()
+    {
+        if (enemyData.canRotateShoot)
+        {
+            RotateShootingBehavior rotateBehavior = enemyInstance.AddComponent<RotateShootingBehavior>();
+            rotateBehavior.projectilePrefab = enemyData.projectilePrefab;
+        }
+        return this;
+    }
 }
 
