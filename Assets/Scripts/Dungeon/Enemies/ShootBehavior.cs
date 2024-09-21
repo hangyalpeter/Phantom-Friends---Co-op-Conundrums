@@ -6,15 +6,15 @@ public class ShootBehavior : MonoBehaviour
     public Transform shootingPoint;
 
     // TODO: fix access levels
-    public float interval = 10f;  // Time between shots
+    public float interval = 10f;
     private float nextShotTime = 0f;
 
     public float speed = 10f;
     public float damage = 25f;
 
-    private Vector2 currentPosition;
-    private Vector2 previousPosition;
-    private Vector2 lastMovementDirection;
+    private Vector3 currentPosition;
+    private Vector3 previousPosition;
+    private Vector3 lastMovementDirection;
     public Transform target { get; internal set; }
 
     public event Action OnShoot;
@@ -34,21 +34,8 @@ public class ShootBehavior : MonoBehaviour
     {
         if (projectilePrefab != null && shootingPoint != null)
         {
-            GameObject projectile = Instantiate(projectilePrefab, shootingPoint.position, shootingPoint.rotation);
-            Projectile projComponent = projectile.GetComponent<Projectile>();
-            if (projComponent != null)
-            {
-                //projComponent.speed = speed;
-                projComponent.damage = damage;
-                if (GetComponent<FollowPlayerBehavior>() != null)
-                {
-                    projComponent.GetComponent<Rigidbody2D>().velocity = lastMovementDirection * speed;
-                } else
-                {
-                    projComponent.GetComponent<Rigidbody2D>().velocity = (target.position - transform.position).normalized * speed;
-
-                }
-            }
+            var direction = GetComponent<FollowPlayerBehavior>() == null ? (target.position - transform.position) : lastMovementDirection;
+            ProjectileFactory.Instance.GetProjectile(projectilePrefab, shootingPoint.position, direction, speed, "Enemy");
 
             OnShoot?.Invoke();
         }
@@ -65,7 +52,7 @@ public class ShootBehavior : MonoBehaviour
         currentPosition = transform.position;
         var direction = currentPosition - previousPosition;
 
-        if (direction != Vector2.zero)
+        if (direction != Vector3.zero)
         {
             lastMovementDirection = direction.normalized;
         }

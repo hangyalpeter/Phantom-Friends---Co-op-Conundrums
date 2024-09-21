@@ -18,7 +18,7 @@ public class EnemyBuilder
             FollowPlayerBehavior followPlayerBehaviour = enemyInstance.AddComponent<FollowPlayerBehavior>();
             followPlayerBehaviour.speed = enemyData.speed;
             // TODO: add player's position as target as function parameter or some other solution than this instead in enemy spawner and in enemy spawner, player should be a [serializefield]
-            followPlayerBehaviour.target = GameObject.Find("Player_Child").transform;
+            followPlayerBehaviour.target = GameObject.FindGameObjectWithTag("Player_Child").transform;
         }
         return this;
     }

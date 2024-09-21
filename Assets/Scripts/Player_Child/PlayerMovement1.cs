@@ -8,11 +8,12 @@ public class PlayerMovement1 : MonoBehaviour
     private BoxCollider2D bc;
     private SpriteRenderer sr;
     private Animator anim;
+    private HealthComponent health;
+
     private float dirX = 0f;
-    private float dirY= 0f;
+    private float dirY = 0f;
     private float moveSpeed = 7f;
 
-    [SerializeField] private AudioSource jumpSound;
     private GameObject bulletPrefab;
 
     private Vector2 previousPosition;
@@ -25,6 +26,7 @@ public class PlayerMovement1 : MonoBehaviour
         bc = GetComponent<BoxCollider2D>();
         sr = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
+        health = GetComponent<HealthComponent>();
 
         bulletPrefab = Resources.Load<GameObject>("PlayerBullet");
         if (bulletPrefab == null)
@@ -34,6 +36,13 @@ public class PlayerMovement1 : MonoBehaviour
         previousPosition = transform.position;
         lastMovementDirection = Vector2.right;
 
+        health.OnDamageTaken += TriggerHitAnimation;
+
+    }
+
+    private void OnDisable()
+    {
+        health.OnDamageTaken -= TriggerHitAnimation;
     }
 
     void Update()
@@ -58,9 +67,7 @@ public class PlayerMovement1 : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            GameObject bullet = Instantiate(bulletPrefab, transform.position, transform.rotation);
-
-            bullet.GetComponent<Rigidbody2D>().velocity = lastMovementDirection * 20f;
+            ProjectileFactory.Instance.GetProjectile(bulletPrefab, transform.position, lastMovementDirection, 20, "Player_Child");
         }
     }
 
@@ -107,7 +114,12 @@ public class PlayerMovement1 : MonoBehaviour
         }
 
         anim.SetInteger("state", (int)state);
- 
+
+    }
+
+    private void TriggerHitAnimation() {
+        anim.SetTrigger("hit");
+    
     }
 
     private bool IsChildGrounded()

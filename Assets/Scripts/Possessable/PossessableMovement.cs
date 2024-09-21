@@ -13,19 +13,31 @@ public class PosessableMovement : MonoBehaviour
     private Rigidbody2D rb;
 
     private bool isPossessed = false;
+    private SpriteRenderer rbSprite;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        rbSprite = GetComponent<SpriteRenderer>();
         secondPlayer = GameObject.FindGameObjectWithTag("Player_Child").transform;
     }
 
     void Update()
     {
+        if (dirX > 0)
+        {
+            transform.rotation = new Quaternion(0, 180, 0, transform.rotation.w);
+        }
+        else if (dirX < 0)
+        {
+            transform.rotation = new Quaternion(0, 0, 0, transform.rotation.w);
+        }
+
         if (isPossessed && !Equals(Time.timeScale, 0f))
         {
             Move();
         }
+   
     }
     private void Move()
     {

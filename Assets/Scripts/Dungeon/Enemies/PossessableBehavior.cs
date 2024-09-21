@@ -8,8 +8,6 @@ public class PossessableBehavior : MonoBehaviour
 {
     private Vector2 lastMovementDirection;
     private FollowPlayerBehavior followPlayerBehavior;
-    private PossessableTransformation pt;
-    private Rigidbody2D rb;
 
     private bool isPossessed = false;
 
@@ -21,10 +19,11 @@ public class PossessableBehavior : MonoBehaviour
     private ShootBehavior sb;
     private PosessableMovement pm;
 
+
+    public bool IsPossessed => isPossessed;
+
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        pt = GetComponent<PossessableTransformation>();
         sb = GetComponent<ShootBehavior>(); 
         pm = GetComponent<PosessableMovement>();
 
@@ -37,6 +36,7 @@ public class PossessableBehavior : MonoBehaviour
         PossessableTransformation.OnPossessEvent += OnPossess;
         PossessableTransformation.OnDePossessEvent += OnDePossess;
         bulletPrefab = Resources.Load<GameObject>("Trunk_Enemy_Bullet");
+
     }
 
     private void OnDisable()
@@ -55,11 +55,10 @@ public class PossessableBehavior : MonoBehaviour
     {
 
         UpdateShootingDirection();
-        if (Input.GetKeyDown(KeyCode.K) && isPossessed)
+        if (Input.GetKeyDown(KeyCode.K) && isPossessed && gameObject.tag == "PossessedEnemy")
         {
-            GameObject bullet = Instantiate(bulletPrefab, (transform.position), transform.rotation);
+            ProjectileFactory.Instance.GetProjectile(bulletPrefab, transform.position + new Vector3(lastMovementDirection.x*1.75f, lastMovementDirection.y, 0), lastMovementDirection, 20, "PossessedEnemy");
 
-            bullet.GetComponent<Rigidbody2D>().velocity = lastMovementDirection * 20f;
         }
 
     }
@@ -74,12 +73,14 @@ public class PossessableBehavior : MonoBehaviour
             lastMovementDirection = direction.normalized;
         }
 
+        Debug.Log("Direction: " + lastMovementDirection);
 
         previousPosition = currentPosition;
     }
 
     private void OnPossess()
     {
+        gameObject.tag = "PossessedEnemy";
         pm.SetPossessedTrue();
         sb.enabled = false;
         followPlayerBehavior.enabled = false;
@@ -88,11 +89,12 @@ public class PossessableBehavior : MonoBehaviour
 
     private void OnDePossess()
     {
+        gameObject.tag = "Enemy";
         pm.SetPossessedFalse();
+        
         sb.enabled = true;
         followPlayerBehavior.enabled = true;
         isPossessed = false;
-
     }
 
 }

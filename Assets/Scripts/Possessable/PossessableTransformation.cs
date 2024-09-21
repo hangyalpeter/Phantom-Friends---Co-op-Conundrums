@@ -15,6 +15,7 @@ public class PossessableTransformation : MonoBehaviour
 
     private Rigidbody2D rbGhost;
     private Rigidbody2D rb;
+    private HealthComponent health;
 
     public UnityEvent OnPossess;
     public UnityEvent OnDePossess;
@@ -30,8 +31,16 @@ public class PossessableTransformation : MonoBehaviour
         ghost = GameObject.FindGameObjectWithTag("Player_Ghost");
         rbGhost = ghost.GetComponent<Rigidbody2D>();
         rb = GetComponent<Rigidbody2D>();
+        health = GetComponent<HealthComponent>();
         timerText = GameObject.FindGameObjectWithTag("TimerText").GetComponent<TextMeshProUGUI>();
-        timerText.gameObject.SetActive(false);
+        timerText.text = "";
+
+        health.OnDied += UnPossess;
+    }
+
+    private void OnDisable()
+    {
+        health.OnDied -= UnPossess;
     }
 
     private void Update()
@@ -89,7 +98,7 @@ public class PossessableTransformation : MonoBehaviour
             possessionTimer = null;
         }
 
-        timerText.gameObject.SetActive(false);
+        timerText.text = "";
         OnDePossessEvent?.Invoke();
     }
 
@@ -115,7 +124,6 @@ public class PossessableTransformation : MonoBehaviour
         rbGhost.transform.rotation = transform.rotation;
         rbGhost.GetComponent<SpriteRenderer>().enabled = false;
 
-        timerText.gameObject.SetActive(true);
         StartPossessionTimer();
         OnPossess?.Invoke();
         OnPossessEvent?.Invoke();

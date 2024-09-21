@@ -6,36 +6,26 @@ public class Projectile : MonoBehaviour
     public float speed = 10f;
     public float damage = 25f;
 
-    public float colliderEnableDelay = 1f;  // Delay before enabling the collider
+    [SerializeField]
+    private string collisionTag;
 
-    private Collider2D bulletCollider;
-
-    void Start()
+    public void SetCollisionTag(string tag)
     {
-        bulletCollider = GetComponent<Collider2D>();
-
-        bulletCollider.enabled = false;
-
-        // Enable it after a short delay
-        Invoke(nameof(EnableCollider), colliderEnableDelay);
+        collisionTag = tag;
     }
 
-    void EnableCollider()
-    {
-        bulletCollider.enabled = true;
-    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         HealthComponent health = collision.gameObject.GetComponent<HealthComponent>();
 
-        if (collision.gameObject.CompareTag("Enemy"))
+        if (collision.gameObject.CompareTag(collisionTag))
         {
             Debug.Log("collision with enemy");
             return;
 
         }
-        if (health != null && !collision.gameObject.CompareTag("Enemy"))
+        if (health != null)
         {
             health.TakeDamage(damage);
         }

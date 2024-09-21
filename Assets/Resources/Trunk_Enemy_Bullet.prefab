@@ -146,9 +146,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 10
   damage: 25
-  colliderEnableDelay: 0.1
-  dirX: 0
-  dirY: 0
+  collisionTag: Player_Child
 --- !u!50 &7244428726580924395
 Rigidbody2D:
   serializedVersion: 4
