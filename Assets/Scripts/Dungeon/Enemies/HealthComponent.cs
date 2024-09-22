@@ -8,6 +8,9 @@ public class HealthComponent : MonoBehaviour
 
     public event Action OnDied;
     public event Action OnDamageTaken;
+    public event Action<float> OnDamageTakenWithAmount;
+
+    public float MaxHealth => maxHealth;
 
     void Start()
     {
@@ -20,6 +23,7 @@ public class HealthComponent : MonoBehaviour
         Debug.Log(gameObject.name + " took " + damage + " damage, health left: " + currentHealth);
 
         OnDamageTaken?.Invoke();
+        OnDamageTakenWithAmount?.Invoke(currentHealth);
 
         if (currentHealth <= 0)
         {
