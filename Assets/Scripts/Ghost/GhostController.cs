@@ -55,7 +55,7 @@ public class GhostController : MonoBehaviour
             return;
         }
 
-        float distance = Vector2.Distance(transform.position, secondPlayer.position);
+        //float distance = Vector2.Distance(transform.position, secondPlayer.position);
 
         // TODO separate dungeon and puzzle
 

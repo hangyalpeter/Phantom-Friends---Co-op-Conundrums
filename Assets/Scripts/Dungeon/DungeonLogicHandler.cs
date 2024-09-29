@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,9 +6,12 @@ using UnityEngine;
 
 public class DungeonLogicHandler : MonoBehaviour
 {
-    [SerializeField]
-    private Transform player;
+    public static Action<int> OnPLayerDied;
 
+    [SerializeField]
+    private GameObject player;
+
+    private HealthComponent playerHealthComponent;
 
     [SerializeField]
     private EnemyData[] enemyData = new EnemyData[3];
@@ -18,25 +22,39 @@ public class DungeonLogicHandler : MonoBehaviour
 
     private EnemySpawner spawner;
 
+    private int enemiesKilled = 0;
+
     void Start()
     {
         rooms = dungeonGenerator.GenerateDungeon();
         spawner = gameObject.GetComponent<EnemySpawner>();
+        playerHealthComponent = player.GetComponent<HealthComponent>();
+        playerHealthComponent.OnDied += HandlePlayerDeath;
+        enemiesKilled = 0;
+    }
+
+    private void OnDisable()
+    {
+        playerHealthComponent.OnDied -= HandlePlayerDeath;
     }
 
     private void Update()
     {
-        CheckIfPlayerEnteredRoom();
-        foreach (var room in rooms)
+        if (player != null)
         {
-            var actualRooms = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
-            var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.position);
-            if (actualRooms.Contains(playerPosition))
+
+            CheckIfPlayerEnteredRoom();
+            foreach (var room in rooms)
             {
-                if (CheckIsRoomCleared(room))
+                var actualRooms = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
+                var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.transform.position);
+                if (actualRooms.Contains(playerPosition))
                 {
-                    OpenAllFinishedRooms();
-                    room.isFinished = true;
+                    if (CheckIsRoomCleared(room))
+                    {
+                        OpenAllFinishedRooms();
+                        room.isFinished = true;
+                    }
                 }
             }
         }
@@ -54,7 +72,7 @@ public class DungeonLogicHandler : MonoBehaviour
         foreach (var room in rooms)
         {
             var rooms = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
-            var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.position);
+            var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.transform.position);
 
             if (rooms.Contains(playerPosition) && !room.isFinished && !room.isBossRoom && !room.isVisited)
             {
@@ -91,7 +109,7 @@ public class DungeonLogicHandler : MonoBehaviour
                 HashSet<Vector3Int> wallAndNeighborPositions = GetWallNeighborPositions(room, neighborOffsets);
 
                 IEnumerable<Vector3Int> potentialSwawnPositions = CalculatePotentialSpawnPositions(room, wallAndNeighborPositions);
-                Vector3 position = potentialSwawnPositions.ElementAt(Random.Range(0, potentialSwawnPositions.Count()));
+                Vector3 position = potentialSwawnPositions.ElementAt(UnityEngine.Random.Range(0, potentialSwawnPositions.Count()));
 
                 room.enemies.Add(spawner.SpawnEnemy(enemy, position));
 
@@ -122,7 +140,7 @@ public class DungeonLogicHandler : MonoBehaviour
 
         // TODO maybe check again if the player is in the room
         var currentPlayerRoomFloorPositions = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { currentPlayerRoom.bounds });
-        var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.position);
+        var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.transform.position);
 
         foreach (var door in currentPlayerRoom.doorTilesPositions)
         {
@@ -152,6 +170,15 @@ public class DungeonLogicHandler : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void HandlePlayerDeath()
+    {
+        var roomsCleared = rooms.Where(x => x.isFinished).Count();
+        OnPLayerDied?.Invoke(roomsCleared-1);
+        GameEvents.DungeonFinished?.Invoke();
+        UIScreenEvents.DungeonGameOverShown?.Invoke();
+        Time.timeScale = 0;
     }
 
 }

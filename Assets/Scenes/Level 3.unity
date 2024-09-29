@@ -646,11 +646,11 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.46, y: -0.22, z: -10}
+  m_LocalPosition: {x: 5.44, y: 10.679999, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1946791529}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &519420033
 MonoBehaviour:
@@ -659,7 +659,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4cd2281c80d74545b212ef17e2a8ca7, type: 3}
   m_Name: 
@@ -829,9 +829,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d1b9ad7ad4474441b6218ba51457889, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 1946791529}
+  player: {fileID: 1946791525}
   enemyData:
   - {fileID: 11400000, guid: b40ec3858137a3745a5c4a029937d228, type: 2}
+  - {fileID: 11400000, guid: 1e93461fd07f3d640b36bc53838d474d, type: 2}
+  - {fileID: 11400000, guid: 0f7e77353b714264e92c8fa7333cfe4c, type: 2}
+  - {fileID: 11400000, guid: 5eef44e209c25064d83adfa166f3e954, type: 2}
   dungeonGenerator: {fileID: 849193265}
 --- !u!4 &677841903
 Transform:
@@ -2989,6 +2992,10 @@ PrefabInstance:
       propertyPath: m_GravityScale
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1869601272545383487, guid: 53deec7c09f85f54db751365bc426009, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1886962593782680920, guid: 53deec7c09f85f54db751365bc426009, type: 3}
       propertyPath: OutputAudioMixerGroup
       value: 
@@ -2999,7 +3006,7 @@ PrefabInstance:
       objectReference: {fileID: 6601264287061838878, guid: 3e750bf53112b90429d861d8d6af6c7d, type: 2}
     - target: {fileID: 3398218039224685553, guid: 53deec7c09f85f54db751365bc426009, type: 3}
       propertyPath: maxHealth
-      value: 500
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 6934676213958665057, guid: 53deec7c09f85f54db751365bc426009, type: 3}
       propertyPath: applesCountText
@@ -3053,10 +3060,7 @@ PrefabInstance:
     - {fileID: 8861115289251122782, guid: 53deec7c09f85f54db751365bc426009, type: 3}
     - {fileID: 842048693276785997, guid: 53deec7c09f85f54db751365bc426009, type: 3}
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 9046742450761800680, guid: 53deec7c09f85f54db751365bc426009, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 519420032}
+    m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 540280608441340586, guid: 53deec7c09f85f54db751365bc426009, type: 3}
       insertIndex: -1
@@ -3178,6 +3182,7 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 519420032}
   - {fileID: 619394802}
   - {fileID: 334450149}
   - {fileID: 3314739099071009617}

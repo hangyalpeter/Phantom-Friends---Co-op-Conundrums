@@ -15,6 +15,7 @@ public class HealthComponent : MonoBehaviour
     void Start()
     {
         currentHealth = maxHealth;
+        
     }
 
     public void TakeDamage(float damage)
@@ -35,7 +36,15 @@ public class HealthComponent : MonoBehaviour
     {
         Debug.Log(gameObject.name + " died.");
         OnDied?.Invoke();
-        Destroy(gameObject);
+
+        if (gameObject.tag == "Player_Child")
+        {
+            return;
+        }
+        else
+        {
+            Destroy(gameObject, 0.2f);
+        }
     }
 }
 

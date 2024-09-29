@@ -37,12 +37,20 @@ public class PlayerMovement1 : MonoBehaviour
         lastMovementDirection = Vector2.right;
 
         health.OnDamageTaken += TriggerHitAnimation;
+        health.OnDied += OnDied;
 
     }
 
     private void OnDisable()
     {
         health.OnDamageTaken -= TriggerHitAnimation;
+        health.OnDied -= OnDied;
+    }
+
+    private void OnDied()
+    {
+        anim.SetTrigger("death");
+
     }
 
     void Update()
