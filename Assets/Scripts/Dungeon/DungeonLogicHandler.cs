@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class DungeonLogicHandler : MonoBehaviour
 {
-    public static Action<int> OnPLayerDied;
+    public static Action<int, int> OnPLayerDied;
 
     [SerializeField]
     private GameObject player;
@@ -31,11 +31,19 @@ public class DungeonLogicHandler : MonoBehaviour
         playerHealthComponent = player.GetComponent<HealthComponent>();
         playerHealthComponent.OnDied += HandlePlayerDeath;
         enemiesKilled = 0;
+        HealthComponent.OnEnemyDied += UpdateEnemyDiedCount;
     }
 
     private void OnDisable()
     {
         playerHealthComponent.OnDied -= HandlePlayerDeath;
+        HealthComponent.OnEnemyDied += UpdateEnemyDiedCount;
+    }
+    
+    private void UpdateEnemyDiedCount(string name)
+    {
+        enemiesKilled += 1;
+        Debug.Log("Enemies killed " + enemiesKilled + " " +  name);
     }
 
     private void Update()
@@ -175,7 +183,7 @@ public class DungeonLogicHandler : MonoBehaviour
     private void HandlePlayerDeath()
     {
         var roomsCleared = rooms.Where(x => x.isFinished).Count();
-        OnPLayerDied?.Invoke(roomsCleared-1);
+        OnPLayerDied?.Invoke(roomsCleared-1, enemiesKilled);
         GameEvents.DungeonFinished?.Invoke();
         UIScreenEvents.DungeonGameOverShown?.Invoke();
         Time.timeScale = 0;

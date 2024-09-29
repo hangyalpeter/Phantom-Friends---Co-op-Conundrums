@@ -11,6 +11,7 @@ public class DungeonGameOverScreen : UIScreen
     Button m_ExitButton;
 
     Label m_FinishedRoomsLabel;
+    Label m_EnemiesKilledLabel;
     Label m_ElapsedTimeLabel;
     public DungeonGameOverScreen(VisualElement parentElement) : base(parentElement)
     {
@@ -28,6 +29,7 @@ public class DungeonGameOverScreen : UIScreen
         m_ExitButton = m_RootElement.Q<Button>("exit-button");
 
         m_FinishedRoomsLabel = m_RootElement.Q<Label>("finished-rooms-label");
+        m_EnemiesKilledLabel = m_RootElement.Q<Label>("enemies-killed-label");
         m_ElapsedTimeLabel = m_RootElement.Q<Label>("elapsed-time-label");
 
 
@@ -52,14 +54,15 @@ public class DungeonGameOverScreen : UIScreen
         GameEvents.LevelFinishedWithTime -= OnLevelFinish;
     }
 
-    private void UpdateLabels(int roomsCleared)
+    private void UpdateLabels(int roomsCleared, int enemiesKilled)
     {
         m_FinishedRoomsLabel.text = "Rooms cleared: " + roomsCleared;
+        m_EnemiesKilledLabel.text = "Enemies killed: " + enemiesKilled;
     }
 
     private void OnLevelFinish(string time)
     {
-        m_ElapsedTimeLabel.text = time;
+        m_ElapsedTimeLabel.text = "Elapsed time: " + time;
     }
 
     private void RegisterCallbacks() 

@@ -8,6 +8,7 @@
                 </ui:VisualElement>
                 <ui:VisualElement name="VisualElement" style="flex-grow: 1; height: 100%;">
                     <ui:Label tabindex="-1" text="Finished rooms:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="finished-rooms-label" />
+                    <ui:Label tabindex="-1" text="Enemies killed:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="enemies-killed-label" />
                     <ui:Label tabindex="-1" text="Elapsed time:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="elapsed-time-label" />
                 </ui:VisualElement>
                 <ui:VisualElement style="flex-grow: 0; flex-direction: row; justify-content: center; align-self: flex-start; align-items: auto; -unity-text-align: lower-left; height: 80%; width: 100%;">
