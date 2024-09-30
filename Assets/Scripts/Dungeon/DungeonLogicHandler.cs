@@ -91,6 +91,16 @@ public class DungeonLogicHandler : MonoBehaviour
                 StartCoroutine(DelayCloseCurrentRoom(room));
 
             }
+            else if  (rooms.Contains(playerPosition) && !room.isFinished && room.isBossRoom && !room.isVisited)
+            {
+                // TODO handle boss differently
+                Debug.Log("Player entered boss room" + room.bounds.center);
+
+                room.isVisited = true;
+
+                StartCoroutine(DelayCloseCurrentRoom(room));
+
+            }
         }
     }
 

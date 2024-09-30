@@ -831,10 +831,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 1946791525}
   enemyData:
+  - {fileID: 11400000, guid: 215f96d49cfb9624a976e01deb4261c0, type: 2}
   - {fileID: 11400000, guid: b40ec3858137a3745a5c4a029937d228, type: 2}
-  - {fileID: 11400000, guid: 1e93461fd07f3d640b36bc53838d474d, type: 2}
-  - {fileID: 11400000, guid: 0f7e77353b714264e92c8fa7333cfe4c, type: 2}
-  - {fileID: 11400000, guid: 5eef44e209c25064d83adfa166f3e954, type: 2}
   dungeonGenerator: {fileID: 849193265}
 --- !u!4 &677841903
 Transform:
@@ -2563,6 +2561,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthSlider: {fileID: 844884504}
+  healthBar: {fileID: 0}
+  canvas: {fileID: 0}
+  healthBarPosition: {x: 380, y: -9, z: 0}
 --- !u!1 &1950364270
 GameObject:
   m_ObjectHideFlags: 0

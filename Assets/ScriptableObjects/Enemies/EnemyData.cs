@@ -15,6 +15,7 @@ public class EnemyData : ScriptableObject
     public bool canShoot;
     public bool canBePossessed;
     public bool canRotateShoot;
+    public bool canShootInCircle;
 
     public GameObject CreateEnemy(Vector3 position)
     {
@@ -28,6 +29,7 @@ public class EnemyData : ScriptableObject
                .WithShooting()
                .WithRotateShooting()
                .withPossessable()
+               .WithShootInCircle()
                .Build();
 
         return enemy;

@@ -72,5 +72,15 @@ public class EnemyBuilder
         }
         return this;
     }
+
+    public EnemyBuilder WithShootInCircle()
+    {
+        if (enemyData.canShootInCircle)
+        {
+            ShootInCircleBehavior shootInCircleBehavior = enemyInstance.AddComponent<ShootInCircleBehavior>();
+            shootInCircleBehavior.projectilePrefab = enemyData.projectilePrefab;
+        }
+        return this;
+    }
 }
 
