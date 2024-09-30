@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyName: Stationary shooting plant
   enemyPrefab: {fileID: 6958306681862558131, guid: edc1a1b633513a24e9be2ebb73c54137, type: 3}
-  health: 200
+  health: 30
   speed: 0
   damage: 20
   projectilePrefab: {fileID: 145729832598270974, guid: 2c50824df4accf748844d98e9037b71e, type: 3}
@@ -24,3 +24,5 @@ MonoBehaviour:
   canShoot: 0
   canBePossessed: 0
   canRotateShoot: 1
+  canShootInCircle: 0
+  isBoss: 0

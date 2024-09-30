@@ -16,7 +16,7 @@ public class EnemyData : ScriptableObject
     public bool canBePossessed;
     public bool canRotateShoot;
     public bool canShootInCircle;
-
+    public bool isBoss;
     public GameObject CreateEnemy(Vector3 position)
     {
         GameObject enemy = Instantiate(enemyPrefab, position, Quaternion.identity);

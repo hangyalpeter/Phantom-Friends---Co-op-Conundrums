@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class DungeonLogicHandler : MonoBehaviour
@@ -10,6 +11,7 @@ public class DungeonLogicHandler : MonoBehaviour
 
     [SerializeField]
     private GameObject player;
+
 
     private HealthComponent playerHealthComponent;
 
@@ -23,6 +25,8 @@ public class DungeonLogicHandler : MonoBehaviour
     private EnemySpawner spawner;
 
     private int enemiesKilled = 0;
+
+    private bool isClosed = false;
 
     void Start()
     {
@@ -56,17 +60,31 @@ public class DungeonLogicHandler : MonoBehaviour
             {
                 var actualRooms = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
                 var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.transform.position);
-                if (actualRooms.Contains(playerPosition))
+                if (actualRooms.Contains(playerPosition) && isClosed)
                 {
                     if (CheckIsRoomCleared(room))
                     {
-                        OpenAllFinishedRooms();
                         room.isFinished = true;
+                        isClosed = false;
+                        OpenAllFinishedRooms();
+
+                        if (CheckDungeonWin())
+                        {
+                            Debug.Log("Player won the dungeon!");
+                            //TODO dungeonfinishevent like gameover maybe new ui panel with next dungeon button and the gameover one should replay (generate) the same dungeon with the seed
+                            HandlePlayerDeath();
+                        }
                     }
                 }
             }
+
         }
 
+    }
+
+    private bool CheckDungeonWin()
+    {
+        return rooms.All(r => r.isFinished);
     }
 
     private bool CheckIsRoomCleared(Room room)
@@ -93,12 +111,11 @@ public class DungeonLogicHandler : MonoBehaviour
             }
             else if  (rooms.Contains(playerPosition) && !room.isFinished && room.isBossRoom && !room.isVisited)
             {
-                // TODO handle boss differently
                 Debug.Log("Player entered boss room" + room.bounds.center);
 
                 room.isVisited = true;
 
-                StartCoroutine(DelayCloseCurrentRoom(room));
+                StartCoroutine(DelayCloseBossRoom(room));
 
             }
         }
@@ -110,11 +127,39 @@ public class DungeonLogicHandler : MonoBehaviour
         yield return new WaitForSeconds(1f);
         CloseCurrentRoom(room);
         SpawnEnemies(room);
+        isClosed = true;
+    }
+
+    private IEnumerator DelayCloseBossRoom(Room room)
+    {
+
+        yield return new WaitForSeconds(1f);
+        CloseCurrentRoom(room);
+        SpawnBoss(room);
+        isClosed = true;
+    }
+
+
+    private void SpawnBoss(Room room)
+    {
+        var neighborOffsets = new List<Vector3Int>{
+                    Vector3Int.right,
+                    Vector3Int.left,
+                    Vector3Int.up,
+                    Vector3Int.down
+                };
+        HashSet<Vector3Int> wallAndNeighborPositions = GetWallNeighborPositions(room, neighborOffsets);
+
+        IEnumerable<Vector3Int> potentialSwawnPositions = CalculatePotentialSpawnPositions(room, wallAndNeighborPositions);
+        Vector3 position = potentialSwawnPositions.ElementAt(UnityEngine.Random.Range(0, potentialSwawnPositions.Count()));
+
+        room.enemies.Add(spawner.SpawnEnemy(enemyData.Where(e => e.isBoss).First(), room.bounds.center));
+
     }
 
     private void SpawnEnemies(Room room)
     {
-        foreach (var enemy in enemyData)
+        foreach (var enemy in enemyData.Where(e => !e.isBoss))
         {
             if (enemy != null)
             {
@@ -180,7 +225,7 @@ public class DungeonLogicHandler : MonoBehaviour
                     dungeonGenerator.TilemapVisualizer.PaintOpenGateTile(door, null);
                 }
             }
-            else if (!rooms.Any(x => !x.isFinished && !x.isBossRoom))
+            else if (room.isBossRoom && rooms.Where(r => !r.isBossRoom).All(x => x.isFinished))
             {
                 foreach (var door in room.doorTilesPositions)
                 {
@@ -188,12 +233,15 @@ public class DungeonLogicHandler : MonoBehaviour
                 }
             }
         }
+
+
+
     }
 
     private void HandlePlayerDeath()
     {
         var roomsCleared = rooms.Where(x => x.isFinished).Count();
-        OnPLayerDied?.Invoke(roomsCleared-1, enemiesKilled);
+        OnPLayerDied?.Invoke(roomsCleared, enemiesKilled);
         GameEvents.DungeonFinished?.Invoke();
         UIScreenEvents.DungeonGameOverShown?.Invoke();
         Time.timeScale = 0;

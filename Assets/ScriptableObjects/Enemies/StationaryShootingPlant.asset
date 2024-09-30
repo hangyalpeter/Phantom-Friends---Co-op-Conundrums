@@ -22,3 +22,7 @@ MonoBehaviour:
   projectileSpeed: 10
   canMove: 0
   canShoot: 1
+  canBePossessed: 0
+  canRotateShoot: 0
+  canShootInCircle: 0
+  isBoss: 0
