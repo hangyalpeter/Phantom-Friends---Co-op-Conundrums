@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
+// TODO refactor with interface segragation principle
 public class HealthComponent : MonoBehaviour
 {
     public float maxHealth = 100f;

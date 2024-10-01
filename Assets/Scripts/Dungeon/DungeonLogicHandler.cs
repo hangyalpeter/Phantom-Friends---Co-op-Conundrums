@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class DungeonLogicHandler : MonoBehaviour
 {
-    public static Action<int, int, string, string> OnOrDungeonFinish;
+    public static Action<int, int, string, string> OnDungeonFinish;
 
     [SerializeField]
     private GameObject player;
@@ -252,10 +252,10 @@ public class DungeonLogicHandler : MonoBehaviour
     private void HandlePlayerDeath()
     {
         var roomsCleared = rooms.Where(x => x.isFinished).Count();
-        OnOrDungeonFinish?.Invoke(roomsCleared, enemiesKilled, "Game Over", "Restart");
+        OnDungeonFinish?.Invoke(roomsCleared, enemiesKilled, "Game Over", "Restart");
         GameEvents.DungeonFinished?.Invoke();
+
         UIScreenEvents.DungeonGameOverShown?.Invoke();
-        Time.timeScale = 0;
     }
 
     private void HandleDungeonWin()
@@ -266,10 +266,10 @@ public class DungeonLogicHandler : MonoBehaviour
         PlayerPrefs.DeleteKey("DungeonSeed");
 
         var roomsCleared = rooms.Where(x => x.isFinished).Count();
-        OnOrDungeonFinish?.Invoke(roomsCleared, enemiesKilled, "You won!", "New Dungeon");
+        OnDungeonFinish?.Invoke(roomsCleared, enemiesKilled, "You won!", "New Dungeon");
+
         GameEvents.DungeonFinished?.Invoke();
         UIScreenEvents.DungeonGameOverShown?.Invoke();
-        Time.timeScale = 0;
     }
 
 }

@@ -4,6 +4,7 @@ using TMPro;
 using UnityEditor;
 using UnityEngine;
 
+// TODO separate these behaviors even more
 public class PossessableBehavior : MonoBehaviour
 {
     private Vector2 lastMovementDirection;

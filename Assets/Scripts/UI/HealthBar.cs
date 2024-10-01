@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+// TODO refactor isp
 public class HealthBar : MonoBehaviour
 {
     [SerializeField]

@@ -169,7 +169,6 @@ public class GameManager : MonoBehaviour
         isLevelPlaying = true;
         elapsedTime = 0f;
 
-
     }
 
     private void OnGameStartClicked()

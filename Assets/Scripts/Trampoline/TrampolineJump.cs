@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class TrampolineJump : MonoBehaviour
 {
-    // Start is called before the first frame update
     private Animator anim;
     [SerializeField] private float jumpForce = 20f;
     [SerializeField] private GameObject playerGameObject;

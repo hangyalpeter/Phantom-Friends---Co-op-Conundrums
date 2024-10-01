@@ -17,6 +17,7 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // ISP here also??
         HealthComponent health = collision.gameObject.GetComponent<HealthComponent>();
 
         if (collision.gameObject.CompareTag(collisionTag))

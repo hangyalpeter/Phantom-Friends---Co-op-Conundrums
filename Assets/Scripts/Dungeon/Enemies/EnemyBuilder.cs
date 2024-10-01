@@ -50,7 +50,6 @@ public class EnemyBuilder
         return this;
     }
 
-    // TODO observable for healthbar
     public EnemyBuilder WithHealth()
     {
         HealthComponent healthComponent = enemyInstance.AddComponent<HealthComponent>();

@@ -69,6 +69,7 @@ public class GhostController : MonoBehaviour
         dirY = Input.GetAxisRaw("Vertical_Ghost");
         rb.velocity = new Vector2(dirX * moveSpeed, dirY * moveSpeed);
         
+        // TODO argue if animation handling should be separated to a different script
         UpdateAnimationState();
 
     }

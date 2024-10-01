@@ -39,7 +39,7 @@ public class DungeonGameOverScreen : UIScreen
 
     private void SubscribeToEvents()
     {
-        DungeonLogicHandler.OnOrDungeonFinish += UpdateLabels;
+        DungeonLogicHandler.OnDungeonFinish += UpdateLabels;
 
         GameEvents.LevelFinishedWithTime += OnLevelFinish;
     }
@@ -52,7 +52,7 @@ public class DungeonGameOverScreen : UIScreen
 
     private void UnsubscribeFromEvents()
     {
-        DungeonLogicHandler.OnOrDungeonFinish -= UpdateLabels;
+        DungeonLogicHandler.OnDungeonFinish -= UpdateLabels;
         GameEvents.LevelFinishedWithTime -= OnLevelFinish;
     }
 
