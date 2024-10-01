@@ -833,6 +833,7 @@ MonoBehaviour:
   enemyData:
   - {fileID: 11400000, guid: 215f96d49cfb9624a976e01deb4261c0, type: 2}
   - {fileID: 11400000, guid: b40ec3858137a3745a5c4a029937d228, type: 2}
+  - {fileID: 11400000, guid: 1e93461fd07f3d640b36bc53838d474d, type: 2}
   dungeonGenerator: {fileID: 849193265}
 --- !u!4 &677841903
 Transform:
@@ -1183,6 +1184,7 @@ MonoBehaviour:
   tilemapVisualizer: {fileID: 1030782645}
   player: {fileID: 1946791529}
   ghost: {fileID: 727252690}
+  useStoredSeed: 1
 --- !u!4 &849193266
 Transform:
   m_ObjectHideFlags: 0
@@ -1762,7 +1764,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Remaining Possession Time:'
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

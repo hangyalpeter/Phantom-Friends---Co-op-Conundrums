@@ -39,7 +39,7 @@ public class HealthComponent : MonoBehaviour
     {
 
         dieInvoked = true;
-        if (gameObject.tag == "Player_Child")
+        if (gameObject.tag == "Player_Child" || gameObject.tag == "PossessedEnemy")
         {
             Debug.Log(gameObject.name + " died.");
             OnDied?.Invoke();
@@ -49,7 +49,7 @@ public class HealthComponent : MonoBehaviour
         {
             OnEnemyDied?.Invoke(gameObject.name);
             Debug.Log(gameObject.name + " died.");
-            Destroy(gameObject, 0.2f);
+            Destroy(gameObject);
         }
     }
 }
