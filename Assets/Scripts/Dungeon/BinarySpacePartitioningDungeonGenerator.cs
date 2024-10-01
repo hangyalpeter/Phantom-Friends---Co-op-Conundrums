@@ -33,6 +33,29 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     private readonly HashSet<Vector3Int> floorPositions = new HashSet<Vector3Int>();
 
     public TilemapVisualizer TilemapVisualizer => tilemapVisualizer;
+
+    public bool useStoredSeed = true;
+    private int seed;
+
+
+    private void Awake()
+    {
+        if (useStoredSeed)
+        {
+            if (PlayerPrefs.HasKey("DungeonSeed"))
+            {
+                seed = PlayerPrefs.GetInt("DungeonSeed");
+            }
+            else
+            {
+                seed = System.DateTime.Now.GetHashCode(); 
+                PlayerPrefs.SetInt("DungeonSeed", seed); 
+            }
+            Random.InitState(seed);
+        }
+
+    }
+
     public override void RunProceduralGeneration()
     {
         GenerateDungeon();

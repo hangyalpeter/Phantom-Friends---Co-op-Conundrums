@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class DungeonLogicHandler : MonoBehaviour
 {
-    public static Action<int, int> OnPLayerDied;
+    public static Action<int, int, string, string> OnOrDungeonFinish;
 
     [SerializeField]
     private GameObject player;
@@ -27,6 +27,19 @@ public class DungeonLogicHandler : MonoBehaviour
     private int enemiesKilled = 0;
 
     private bool isClosed = false;
+
+    private int seed;
+    private bool useSeed = true;
+
+    private void Awake()
+    {
+        if (useSeed)
+        {
+            seed = System.DateTime.Now.GetHashCode();
+            UnityEngine.Random.InitState(seed);
+        }
+
+    }
 
     void Start()
     {
@@ -70,9 +83,7 @@ public class DungeonLogicHandler : MonoBehaviour
 
                         if (CheckDungeonWin())
                         {
-                            Debug.Log("Player won the dungeon!");
-                            //TODO dungeonfinishevent like gameover maybe new ui panel with next dungeon button and the gameover one should replay (generate) the same dungeon with the seed
-                            HandlePlayerDeath();
+                            HandleDungeonWin();
                         }
                     }
                 }
@@ -201,7 +212,7 @@ public class DungeonLogicHandler : MonoBehaviour
     private void CloseCurrentRoom(Room currentPlayerRoom)
     {
 
-        // TODO maybe check again if the player is in the room
+        // TODO maybe check again if the player and ghost are in the room
         var currentPlayerRoomFloorPositions = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { currentPlayerRoom.bounds });
         var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.transform.position);
 
@@ -241,7 +252,21 @@ public class DungeonLogicHandler : MonoBehaviour
     private void HandlePlayerDeath()
     {
         var roomsCleared = rooms.Where(x => x.isFinished).Count();
-        OnPLayerDied?.Invoke(roomsCleared, enemiesKilled);
+        OnOrDungeonFinish?.Invoke(roomsCleared, enemiesKilled, "Game Over", "Restart");
+        GameEvents.DungeonFinished?.Invoke();
+        UIScreenEvents.DungeonGameOverShown?.Invoke();
+        Time.timeScale = 0;
+    }
+
+    private void HandleDungeonWin()
+    {
+        Debug.Log("Player won the dungeon!");
+        dungeonGenerator.useStoredSeed = false;
+        useSeed = false;
+        PlayerPrefs.DeleteKey("DungeonSeed");
+
+        var roomsCleared = rooms.Where(x => x.isFinished).Count();
+        OnOrDungeonFinish?.Invoke(roomsCleared, enemiesKilled, "You won!", "New Dungeon");
         GameEvents.DungeonFinished?.Invoke();
         UIScreenEvents.DungeonGameOverShown?.Invoke();
         Time.timeScale = 0;

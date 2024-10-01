@@ -13,6 +13,7 @@ public class DungeonGameOverScreen : UIScreen
     Label m_FinishedRoomsLabel;
     Label m_EnemiesKilledLabel;
     Label m_ElapsedTimeLabel;
+    Label m_GameOverLabel;
     public DungeonGameOverScreen(VisualElement parentElement) : base(parentElement)
     {
         SetupButtons();
@@ -22,6 +23,7 @@ public class DungeonGameOverScreen : UIScreen
 
     private void SetupButtons()
     {
+        m_GameOverLabel = m_RootElement.Q<Label>("game-over-label");
 
         m_RestartButton = m_RootElement.Q<Button>("restart-button");
 
@@ -37,7 +39,7 @@ public class DungeonGameOverScreen : UIScreen
 
     private void SubscribeToEvents()
     {
-        DungeonLogicHandler.OnPLayerDied += UpdateLabels;
+        DungeonLogicHandler.OnOrDungeonFinish += UpdateLabels;
 
         GameEvents.LevelFinishedWithTime += OnLevelFinish;
     }
@@ -50,14 +52,16 @@ public class DungeonGameOverScreen : UIScreen
 
     private void UnsubscribeFromEvents()
     {
-        DungeonLogicHandler.OnPLayerDied -= UpdateLabels;
+        DungeonLogicHandler.OnOrDungeonFinish -= UpdateLabels;
         GameEvents.LevelFinishedWithTime -= OnLevelFinish;
     }
 
-    private void UpdateLabels(int roomsCleared, int enemiesKilled)
+    private void UpdateLabels(int roomsCleared, int enemiesKilled, string title, string restartLabel)
     {
         m_FinishedRoomsLabel.text = "Rooms cleared: " + roomsCleared;
         m_EnemiesKilledLabel.text = "Enemies killed: " + enemiesKilled;
+        m_GameOverLabel.text = title;
+        m_RestartButton.text = restartLabel;
     }
 
     private void OnLevelFinish(string time)
