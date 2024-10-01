@@ -20,8 +20,11 @@ public class CameraController : MonoBehaviour
 
     private void Update()
     {
-        CameraFollowChildAndGhost();
-        UpdateCameraSize();
+        if (childTransform != null && ghostTransform != null)
+        {
+            CameraFollowChildAndGhost();
+            UpdateCameraSize();
+        }
 
     }
 

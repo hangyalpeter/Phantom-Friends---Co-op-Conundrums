@@ -11,8 +11,11 @@ public class PossessableTransformation : MonoBehaviour
     [SerializeField] private float possessionDuration = 15f;
     [SerializeField] private TextMeshProUGUI timerText;
 
+    private GameObject timerGO;
+
     private Rigidbody2D rbGhost;
     private Rigidbody2D rb;
+    private HealthComponent health;
 
     public UnityEvent OnPossess;
     public UnityEvent OnDePossess;
@@ -25,9 +28,19 @@ public class PossessableTransformation : MonoBehaviour
 
     void Start()
     {
+        ghost = GameObject.FindGameObjectWithTag("Player_Ghost");
         rbGhost = ghost.GetComponent<Rigidbody2D>();
         rb = GetComponent<Rigidbody2D>();
-        timerText.gameObject.SetActive(false);
+        health = GetComponent<HealthComponent>();
+        timerText = GameObject.FindGameObjectWithTag("TimerText").GetComponent<TextMeshProUGUI>();
+        timerText.text = "";
+
+        health.OnDied += UnPossess;
+    }
+
+    private void OnDisable()
+    {
+        health.OnDied -= UnPossess;
     }
 
     private void Update()
@@ -67,14 +80,16 @@ public class PossessableTransformation : MonoBehaviour
     {
         if (timerText != null)
         {
-            timerText.text = " Remaining Posession Time: " + Mathf.Ceil(remainingTime).ToString();
+           timerText.text = " Remaining Posession Time: " + Mathf.Ceil(remainingTime).ToString();
         }
     }
     private void UnPossess()
     {
         isPossessed = false;
         rbGhost.GetComponent<SpriteRenderer>().enabled = true;
+
         rb.constraints = RigidbodyConstraints2D.FreezeAll;
+
         OnDePossess?.Invoke();
 
         if (possessionTimer != null)
@@ -83,7 +98,7 @@ public class PossessableTransformation : MonoBehaviour
             possessionTimer = null;
         }
 
-        timerText.gameObject.SetActive(false);
+        timerText.text = "";
         OnDePossessEvent?.Invoke();
     }
 
@@ -102,17 +117,16 @@ public class PossessableTransformation : MonoBehaviour
 
         isPossessed = true;
         
-        rb.constraints = RigidbodyConstraints2D.None;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         rbGhost.velocity = Vector2.zero;
-        rbGhost.angularVelocity = 0f;
+        //rbGhost.angularVelocity = 0f;
         rbGhost.transform.position = transform.position;
         rbGhost.transform.rotation = transform.rotation;
         rbGhost.GetComponent<SpriteRenderer>().enabled = false;
 
-        timerText.gameObject.SetActive(true);
         StartPossessionTimer();
         OnPossess?.Invoke();
         OnPossessEvent?.Invoke();
     }
-
+  
 }

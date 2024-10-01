@@ -55,13 +55,15 @@ public class GhostController : MonoBehaviour
             return;
         }
 
-        float distance = Vector2.Distance(transform.position, secondPlayer.position);
+        //float distance = Vector2.Distance(transform.position, secondPlayer.position);
 
-        if (distance > maxDistanceFromSecondPlayer)
+        // TODO separate dungeon and puzzle
+
+       /* if (distance > maxDistanceFromSecondPlayer)
         {
             Vector2 direction = (transform.position - secondPlayer.position).normalized;
             transform.position = secondPlayer.position + new Vector3(direction.x, direction.y, 0) * maxDistanceFromSecondPlayer;
-        }
+        }*/
 
         dirX = Input.GetAxisRaw("Horizontal_Ghost");
         dirY = Input.GetAxisRaw("Vertical_Ghost");

@@ -64,6 +64,7 @@ public class GameManager : MonoBehaviour
     private void SubscribeToEvents()
     {
         UIScreenEvents.OnGameStart += OnGameStartClicked;
+        UIScreenEvents.OnDungeonGameStart += OnDungeonGameStartClicked;
         UIScreenEvents.OnLevelRestart += OnLevelRestartClicked;
         UIScreenEvents.MainMenuClicked += OnMainMenuClicked;
         UIScreenEvents.PauseClosed += PauseClosed;
@@ -73,12 +74,19 @@ public class GameManager : MonoBehaviour
 
         GameEvents.OnLevelRestart += OnLevelRestartClicked;
         GameEvents.LevelFinished += OnLevelFinished;
+        GameEvents.DungeonFinished += OnDungeonFinishedOrGameOver;
 
+    }
+
+    private void OnDungeonGameStartClicked()
+    {
+        StartCoroutine(LoadNamedLevel("Level 3"));
     }
 
     private void UnsubscribeFromEvents()
     {
         UIScreenEvents.OnGameStart -= OnGameStartClicked;
+        UIScreenEvents.OnDungeonGameStart -= OnDungeonGameStartClicked;
         UIScreenEvents.OnLevelRestart -= OnLevelRestartClicked;
         UIScreenEvents.MainMenuClicked -= OnMainMenuClicked;
         UIScreenEvents.PauseClosed -= PauseClosed;
@@ -88,6 +96,7 @@ public class GameManager : MonoBehaviour
 
         GameEvents.OnLevelRestart -= OnLevelRestartClicked;
         GameEvents.LevelFinished -= OnLevelFinished;
+        GameEvents.DungeonFinished -= OnDungeonFinishedOrGameOver;
 
     }
 
@@ -148,9 +157,9 @@ public class GameManager : MonoBehaviour
         isPaused = false;
     }
 
-    private IEnumerator LoadFirstLevel()
+    private IEnumerator LoadNamedLevel(string levelName)
     {
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("Level 1");
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelName);
 
         while (!asyncLoad.isDone)
         {
@@ -165,7 +174,7 @@ public class GameManager : MonoBehaviour
 
     private void OnGameStartClicked()
     {
-        StartCoroutine(LoadFirstLevel());
+        StartCoroutine(LoadNamedLevel("Level 1"));
     }
 
     private void OnLevelRestartClicked()
@@ -227,6 +236,16 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.SetFloat(currentLevelName + "_BestCompletionTime", elapsedTime);
             PlayerPrefs.Save();
         }
+    }
+
+    private void OnDungeonFinishedOrGameOver()
+    {
+        int minutes = (int)(elapsedTime / 60);
+        int seconds = (int)(elapsedTime % 60);
+        int milliseconds = (int)((elapsedTime * 1000) % 1000);
+
+        GameEvents.LevelFinishedWithTime?.Invoke(string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds));
+
     }
 
 }

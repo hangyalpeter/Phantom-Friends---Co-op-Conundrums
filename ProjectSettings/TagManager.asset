@@ -9,6 +9,13 @@ TagManager:
   - Trap
   - Player_Child
   - Ground
+  - Enemy
+  - TimerText
+  - EnemyBullet
+  - PlayerBullet
+  - PossessedEnemy
+  - BossHealthBar
+  - Boss
   layers:
   - Default
   - TransparentFX

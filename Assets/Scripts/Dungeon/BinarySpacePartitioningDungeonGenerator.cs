@@ -1,4 +1,5 @@
 using Assets.Scripts.Dungeon;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -21,50 +22,95 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     [SerializeField]
     private TilemapVisualizer tilemapVisualizer;
 
-    private Dictionary<Vector3, BoundsInt> roomsDictionary = new Dictionary<Vector3, BoundsInt>();
+
+    [SerializeField]
+    private Transform player;
+    [SerializeField]
+    private Transform ghost;
+
+    private HashSet<Room> rooms = new HashSet<Room>();
     private HashSet<Vector3Int> corridorPositions = new HashSet<Vector3Int>();
-    private HashSet<Vector3Int> floorPositions = new HashSet<Vector3Int>();
-    private List<Vector3Int> roomCenters = new List<Vector3Int>();
+    private readonly HashSet<Vector3Int> floorPositions = new HashSet<Vector3Int>();
+
+    public TilemapVisualizer TilemapVisualizer => tilemapVisualizer;
+
+    public bool useStoredSeed = true;
+    private int seed;
+
+
+    private void Awake()
+    {
+        if (useStoredSeed)
+        {
+            if (PlayerPrefs.HasKey("DungeonSeed"))
+            {
+                seed = PlayerPrefs.GetInt("DungeonSeed");
+            }
+            else
+            {
+                seed = System.DateTime.Now.GetHashCode(); 
+                PlayerPrefs.SetInt("DungeonSeed", seed); 
+            }
+            Random.InitState(seed);
+        }
+
+    }
+
     public override void RunProceduralGeneration()
     {
-        CreateRooms();
+        GenerateDungeon();
+    }
+  
+    public HashSet<Room> GenerateDungeon()
+    {
+        InitializeMap();
+        while(rooms.Count < 5)
+        {
+            CreateRooms();
+        }
+        return rooms;
     }
 
     private void CreateRooms()
     {
-        roomCenters.Clear();
-        roomsDictionary = ProceduralGenerationUtilityAlgorithms.BinarySpacePartitioning(new BoundsInt(Vector3Int.zero, new Vector3Int(dungeonWidth, dungeonHeight, 0)), minWidth, minHeight);
+        InitializeMap();
+        rooms = ProceduralGenerationUtilityAlgorithms.BinarySpacePartitioning(new BoundsInt(Vector3Int.zero, new Vector3Int(dungeonWidth, dungeonHeight, 0)), minWidth, minHeight);
 
-        tilemapVisualizer.Clear();
+        GenerateRoomPositions();
 
-        floorPositions.Clear();
+        ConnectRoomsWithCorridors();
 
-        var roomColors = new Dictionary<BoundsInt, Color>();
+        WallGenerator.CreateWalls(floorPositions, tilemapVisualizer, rooms);
 
-        foreach (var room in roomsDictionary)
-        {
-            var color = GenerateRandomColor();
-            roomColors.Add(room.Value, color.Value);
+        PlaceDoors();
+        Debug.Log("Rooms count: " + rooms.Count);
 
-            //tilemapVisualizer.PaintFloorTiles(GetActualRoomFloorPositions(new List<BoundsInt> { room.Value }), color);
-            tilemapVisualizer.PaintFloorTiles(GetActualRoomFloorPositions(new List<BoundsInt> { room.Value }), null);
+    }
 
-            roomCenters.Add(Vector3Int.RoundToInt(room.Value.center));
-            floorPositions.UnionWith(GetActualRoomFloorPositions(new List<BoundsInt> { room.Value }));
-        }
+    private void ConnectRoomsWithCorridors()
+    {
+
+        corridorPositions = ConnectRooms();
+
+        RemoveCorridorTilesFromRoomTiles();
+
+        //this is needed to connect the corridors to the rooms
+        floorPositions.UnionWith(corridorPositions);
 
 
-        Debug.Log("Room centers: " + roomCenters.Count);
+        tilemapVisualizer.PaintFloorTiles(floorPositions, null);
+    }
 
-        corridorPositions = ConnectRooms(roomCenters);
+    private void RemoveCorridorTilesFromRoomTiles()
+    {
         var corridorPositionsCopy = new HashSet<Vector3Int>(corridorPositions);
 
         foreach (var corridor in corridorPositions)
         {
             if (!floorPositions.Contains(corridor))
             {
-                //tilemapVisualizer.PaintFloorTiles(new HashSet<Vector3Int> { corridor }, Color.black);
-                tilemapVisualizer.PaintFloorTiles(new HashSet<Vector3Int> { corridor }, null);
+                tilemapVisualizer.PaintFloorTiles(new HashSet<Vector3Int> { corridor }, Color.black);
+                //tilemapVisualizer.PaintFloorTiles(new HashSet<Vector3Int> { corridor }, null);
             }
             else
             {
@@ -73,17 +119,29 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         }
 
         corridorPositions = corridorPositionsCopy;
+    }
 
-        //this is needed to connect the corridors to the rooms
-        floorPositions.UnionWith(corridorPositions);
+    private void GenerateRoomPositions()
+    {
+        foreach (var room in rooms)
+        {
+            var color = GenerateRandomColor();
 
+            tilemapVisualizer.PaintFloorTiles(GetActualRoomFloorPositions(new List<BoundsInt> { room.bounds }), color);
+            //tilemapVisualizer.PaintFloorTiles(GetActualRoomFloorPositions(new List<BoundsInt> { room.Value }), null);
 
-        tilemapVisualizer.PaintFloorTiles(floorPositions, null);
+            floorPositions.UnionWith(GetActualRoomFloorPositions(new List<BoundsInt> { room.bounds }));
 
-        WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
+            room.floorTilesPositions.UnionWith(GetActualRoomFloorPositions(new List<BoundsInt> { room.bounds }));
+        }
+    }
 
-        PlaceDoors();
-
+    private void InitializeMap()
+    {
+        tilemapVisualizer.Clear();
+        rooms.Clear();
+        floorPositions.Clear();
+        corridorPositions.Clear();
     }
 
     private Color? GenerateRandomColor()
@@ -97,14 +155,17 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
             Color.magenta,
             Color.cyan
         };
-        return colors[0];
+        return colors[Random.Range(0, colors.Count)];
     }
 
-    private HashSet<Vector3Int> ConnectRooms(List<Vector3Int> roomCenters)
+    private HashSet<Vector3Int> ConnectRooms()
     {
+        var bossRoomCenter = Vector3Int.zero;
         HashSet<Vector3Int> corridors = new HashSet<Vector3Int>();
-        //var current = roomCenters[UnityEngine.Random.Range(0, roomCenters.Count)];
+        var roomCenters = rooms.Select(x => (Vector3Int.RoundToInt(x.bounds.center))).ToList();
         var current = roomCenters[0];
+        player.transform.position = current;
+        ghost.transform.position = current;
         roomCenters.Remove(current);
 
         while (roomCenters.Count > 0)
@@ -115,6 +176,9 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
             current = closest;
             corridors.UnionWith(newCorridor);
         }
+        bossRoomCenter = current;
+        Debug.Log("Boss room center: " + bossRoomCenter);
+        rooms.FirstOrDefault(room => room.floorTilesPositions.Contains(bossRoomCenter)).isBossRoom = true;
         return corridors;
     }
 
@@ -127,9 +191,9 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
         var startPosition = floorPositions.First();
 
-        foreach (var room in roomsDictionary.Values)
+        foreach (var room in rooms)
         {
-            var rooms = GetActualRoomFloorPositions(new List<BoundsInt>() { room });
+            var rooms = GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
             startPosition = rooms.First();
             break;
 
@@ -142,6 +206,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         while (queue.Count > 0)
         {
             var current = queue.Dequeue();
+            var currentRoom = rooms.FirstOrDefault(x => x.floorTilesPositions.Contains(current));
 
             if (IsRoomPosition(current))
             {
@@ -149,7 +214,17 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
                 {
                     if (corridorPositions.Contains(neighbor))
                     {
-                        PlaceDoor(current);
+                        if (currentRoom.isBossRoom)
+                        {
+                            PlaceDoor(current, Color.red);
+                            currentRoom.doorTilesPositions.Add(current);
+                        }
+                        else
+                        {
+                            PlaceDoor(current, Color.green);
+                            currentRoom.doorTilesPositions.Add(current);
+                        }
+
                     }
 
                 }
@@ -165,13 +240,28 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
                 }
             }
         }
+
+        //TestDoorGenerationIfAddsToRooms();
+    }
+
+    private void TestDoorGenerationIfAddsToRooms()
+    {
+        foreach (var item in rooms)
+        {
+            foreach (var door in item.doorTilesPositions)
+            {
+                Debug.Log("Door position: " + door);
+                tilemapVisualizer.PaintSingleWall(door, Color.red);
+            }
+
+        }
     }
 
     bool IsRoomPosition(Vector3Int position)
     {
-        foreach (var room in roomsDictionary.Values)
+        foreach (var room in rooms)
         {
-            var rooms = GetActualRoomFloorPositions(new List<BoundsInt>() { room });
+            var rooms = GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
             if (rooms.Contains(position))
             {
                 return true;
@@ -181,9 +271,9 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     }
 
 
-    void PlaceDoor(Vector3Int position)
+    void PlaceDoor(Vector3Int position, Color? color)
     {
-        tilemapVisualizer.PaintDoorTile(position, null);
+        tilemapVisualizer.PaintDoorTile(position, color);
     }
 
     List<Vector3Int> GetNeighbors(Vector3Int position)
@@ -246,6 +336,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     {
         var closest = Vector3Int.zero;
         var distance = float.MaxValue;
+
         foreach (var room in roomCenters)
         {
             var newDistance = Vector3Int.Distance(current, room);
@@ -259,7 +350,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
     }
 
-    private HashSet<Vector3Int> GetActualRoomFloorPositions(List<BoundsInt> roomList)
+    public HashSet<Vector3Int> GetActualRoomFloorPositions(List<BoundsInt> roomList)
     {
         HashSet<Vector3Int> floor = new HashSet<Vector3Int>();
         foreach (var room in roomList)

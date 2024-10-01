@@ -58,6 +58,12 @@ public class TilemapVisualizer : MonoBehaviour
         }
     }
 
+    private void ClearSingleTile(Tilemap tilemap, Vector3Int position)
+    {
+        var tilePosition = tilemap.WorldToCell(Vector3Int.RoundToInt(position));
+        tilemap.SetTile(tilePosition, null);
+    }
+
     public void Clear()
     {
         floorTilemap.ClearAllTiles();
@@ -73,5 +79,10 @@ public class TilemapVisualizer : MonoBehaviour
     {
         PaintSingleTile(wallTilemap, doorTile, position, color);
     }
+    internal void PaintOpenGateTile(Vector3Int position, Color? color)
+    {
+        ClearSingleTile(wallTilemap, position);
+    }
 
- }
+
+}

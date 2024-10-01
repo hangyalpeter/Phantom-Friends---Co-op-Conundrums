@@ -23,7 +23,7 @@ public class RandomWalkDungeonGenerator : DungeonGeneratorStrategy
         HashSet<Vector3Int> floorPositions = RunRandomWalk(start);
         tilemapVisualizer.Clear();
         tilemapVisualizer.PaintFloorTiles(floorPositions, null);
-        WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
+        WallGenerator.CreateWalls(floorPositions, tilemapVisualizer, null);
     }
 
     public HashSet<Vector3Int> RunRandomWalk(Vector3Int position)
