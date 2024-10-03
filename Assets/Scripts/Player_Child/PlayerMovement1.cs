@@ -36,14 +36,14 @@ public class PlayerMovement1 : MonoBehaviour
         previousPosition = transform.position;
         lastMovementDirection = Vector2.right;
 
-        health.OnDamageTaken += TriggerHitAnimation;
+        health.OnHealthChanged += TriggerHitAnimation;
         health.OnDied += OnDied;
 
     }
 
     private void OnDisable()
     {
-        health.OnDamageTaken -= TriggerHitAnimation;
+        health.OnHealthChanged -= TriggerHitAnimation;
         health.OnDied -= OnDied;
     }
 
@@ -125,7 +125,7 @@ public class PlayerMovement1 : MonoBehaviour
 
     }
 
-    private void TriggerHitAnimation() {
+    private void TriggerHitAnimation(float _) {
         anim.SetTrigger("hit");
     
     }

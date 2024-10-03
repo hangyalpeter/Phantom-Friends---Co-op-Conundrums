@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
+// TODO: mediator patter for communication between ghost and possessable
 public class PossessableTransformation : MonoBehaviour
 {
     [SerializeField] private GameObject ghost;

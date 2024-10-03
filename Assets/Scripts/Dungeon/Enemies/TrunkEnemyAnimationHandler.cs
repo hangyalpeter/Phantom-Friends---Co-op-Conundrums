@@ -32,7 +32,7 @@ public class TrunkEnemyAnimationHandler : MonoBehaviour
         if (healthComponent != null)
         {
 
-            healthComponent.OnDamageTaken += PlayHitAnimation;
+            healthComponent.OnHealthChanged += PlayHitAnimation;
         }
 
     }
@@ -47,7 +47,7 @@ public class TrunkEnemyAnimationHandler : MonoBehaviour
 
         if ( healthComponent != null )
         {
-            healthComponent.OnDamageTaken -= PlayHitAnimation;
+            healthComponent.OnHealthChanged -= PlayHitAnimation;
         }
     }
 
@@ -76,7 +76,7 @@ public class TrunkEnemyAnimationHandler : MonoBehaviour
         lastPosition = transform.position;
     }
 
-    private void PlayHitAnimation()
+    private void PlayHitAnimation(float _)
     {
         anim.SetTrigger("hit");
     }

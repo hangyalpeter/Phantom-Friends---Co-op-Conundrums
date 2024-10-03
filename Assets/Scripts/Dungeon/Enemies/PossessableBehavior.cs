@@ -16,6 +16,8 @@ public class PossessableBehavior : MonoBehaviour
     private Vector2 previousPosition;
 
     private GameObject bulletPrefab;
+    
+    // TODO mediator pattern?
 
     private ShootBehavior sb;
     private PosessableMovement pm;
@@ -73,8 +75,6 @@ public class PossessableBehavior : MonoBehaviour
         {
             lastMovementDirection = direction.normalized;
         }
-
-        Debug.Log("Direction: " + lastMovementDirection);
 
         previousPosition = currentPosition;
     }

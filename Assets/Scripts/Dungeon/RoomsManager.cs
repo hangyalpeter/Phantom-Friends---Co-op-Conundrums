@@ -1,74 +1,46 @@
-using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
-
-public class DungeonLogicHandler : MonoBehaviour
+public class RoomsManager : MonoBehaviour
 {
-    //public static Action<int, int, string, string> OnDungeonFinish;
-
-    [SerializeField]
-    private GameObject player;
-
-
-    private HealthComponent playerHealthComponent;
-
     [SerializeField]
     private EnemyData[] enemyData = new EnemyData[3];
 
-    [SerializeField]
-    private BinarySpacePartitioningDungeonGenerator dungeonGenerator;
+    private IDungeonMediator mediator;
+
     private HashSet<Room> rooms = new HashSet<Room>();
-
+    private BinarySpacePartitioningDungeonGenerator dungeonGenerator;
+    private Transform player;
     private EnemySpawner spawner;
-
-    private int enemiesKilled = 0;
 
     private bool isClosed = false;
 
-    private int seed;
-    private bool useSeed = true;
-
-    private void Awake()
+    public void SetMediator(IDungeonMediator mediator)
     {
-        if (useSeed)
-        {
-            seed = System.DateTime.Now.GetHashCode();
-            UnityEngine.Random.InitState(seed);
-        }
-
+        this.mediator = mediator;
     }
 
-    void Start()
+    private void Start()
     {
-        rooms = dungeonGenerator.GenerateDungeon();
-        spawner = gameObject.GetComponent<EnemySpawner>();
-        playerHealthComponent = player.GetComponent<HealthComponent>();
-        playerHealthComponent.OnDied += HandlePlayerDeath;
-        enemiesKilled = 0;
-        HealthComponent.OnEnemyDied += UpdateEnemyDiedCount;
-    }
-
-    private void OnDisable()
-    {
-        playerHealthComponent.OnDied -= HandlePlayerDeath;
-        HealthComponent.OnEnemyDied += UpdateEnemyDiedCount;
-    }
-    
-    private void UpdateEnemyDiedCount()
-    {
-        enemiesKilled += 1;
+        rooms = mediator.GetManager<DungeonManager>().Rooms;
+        dungeonGenerator = mediator.GetManager<DungeonManager>().DungeonGenerator;
+        spawner = GetComponent<EnemySpawner>();
+        player = mediator.GetManager<PlayerManager>().Player;
+        
     }
 
     private void Update()
     {
+        /*if (rooms.Count == 0)
+        {
+            rooms = mediator.GetManager<DungeonManager>().Rooms;
+        }*/
         if (player != null)
         {
 
-            CheckIfPlayerEnteredRoom();
+            CheckPlayerEnteredRoom();
             foreach (var room in rooms)
             {
                 var actualRooms = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
@@ -83,13 +55,14 @@ public class DungeonLogicHandler : MonoBehaviour
 
                         if (CheckDungeonWin())
                         {
-                            HandleDungeonWin();
+                            NotifyDungeonWin();
                         }
                     }
                 }
             }
 
         }
+
 
     }
 
@@ -98,13 +71,32 @@ public class DungeonLogicHandler : MonoBehaviour
         return rooms.All(r => r.isFinished);
     }
 
-    private bool CheckIsRoomCleared(Room room)
+    private void OpenAllFinishedRooms()
     {
-       return !room.enemies.Any(e => e != null);
+
+        foreach (var room in rooms)
+        {
+            if (!room.isBossRoom)
+            {
+                foreach (var door in room.doorTilesPositions)
+                {
+                    dungeonGenerator.TilemapVisualizer.PaintOpenGateTile(door, null);
+                }
+            }
+            else if (room.isBossRoom && rooms.Where(r => !r.isBossRoom).All(x => x.isFinished))
+            {
+                foreach (var door in room.doorTilesPositions)
+                {
+                    dungeonGenerator.TilemapVisualizer.PaintOpenGateTile(door, null);
+                }
+            }
+        }
+
+
+
     }
 
-
-    private void CheckIfPlayerEnteredRoom()
+    private void CheckPlayerEnteredRoom()
     {
         foreach (var room in rooms)
         {
@@ -114,7 +106,6 @@ public class DungeonLogicHandler : MonoBehaviour
             if (rooms.Contains(playerPosition) && !room.isFinished && !room.isBossRoom && !room.isVisited)
             {
                 Debug.Log("Player entered room" + room.bounds.center);
-
 
                 room.isVisited = true;
                 StartCoroutine(DelayCloseCurrentRoom(room));
@@ -130,6 +121,7 @@ public class DungeonLogicHandler : MonoBehaviour
 
             }
         }
+
     }
 
     private IEnumerator DelayCloseCurrentRoom(Room room)
@@ -149,25 +141,6 @@ public class DungeonLogicHandler : MonoBehaviour
         SpawnBoss(room);
         isClosed = true;
     }
-
-
-    private void SpawnBoss(Room room)
-    {
-        var neighborOffsets = new List<Vector3Int>{
-                    Vector3Int.right,
-                    Vector3Int.left,
-                    Vector3Int.up,
-                    Vector3Int.down
-                };
-        HashSet<Vector3Int> wallAndNeighborPositions = GetWallNeighborPositions(room, neighborOffsets);
-
-        IEnumerable<Vector3Int> potentialSwawnPositions = CalculatePotentialSpawnPositions(room, wallAndNeighborPositions);
-        Vector3 position = potentialSwawnPositions.ElementAt(UnityEngine.Random.Range(0, potentialSwawnPositions.Count()));
-
-        room.enemies.Add(spawner.SpawnEnemy(enemyData.Where(e => e.isBoss).First(), room.bounds.center));
-
-    }
-
     private void SpawnEnemies(Room room)
     {
         foreach (var enemy in enemyData.Where(e => !e.isBoss))
@@ -189,6 +162,23 @@ public class DungeonLogicHandler : MonoBehaviour
 
             }
         }
+
+    }
+
+    private void SpawnBoss(Room room)
+    {
+        var neighborOffsets = new List<Vector3Int>{
+                    Vector3Int.right,
+                    Vector3Int.left,
+                    Vector3Int.up,
+                    Vector3Int.down
+                };
+        HashSet<Vector3Int> wallAndNeighborPositions = GetWallNeighborPositions(room, neighborOffsets);
+
+        IEnumerable<Vector3Int> potentialSwawnPositions = CalculatePotentialSpawnPositions(room, wallAndNeighborPositions);
+        Vector3 position = potentialSwawnPositions.ElementAt(UnityEngine.Random.Range(0, potentialSwawnPositions.Count()));
+
+        room.enemies.Add(spawner.SpawnEnemy(enemyData.Where(e => e.isBoss).First(), room.bounds.center));
 
     }
 
@@ -223,53 +213,14 @@ public class DungeonLogicHandler : MonoBehaviour
 
 
     }
-
-    private void OpenAllFinishedRooms()
+    private bool CheckIsRoomCleared(Room room)
     {
-
-        foreach (var room in rooms)
-        {
-            if (!room.isBossRoom)
-            {
-                foreach (var door in room.doorTilesPositions)
-                {
-                    dungeonGenerator.TilemapVisualizer.PaintOpenGateTile(door, null);
-                }
-            }
-            else if (room.isBossRoom && rooms.Where(r => !r.isBossRoom).All(x => x.isFinished))
-            {
-                foreach (var door in room.doorTilesPositions)
-                {
-                    dungeonGenerator.TilemapVisualizer.PaintOpenGateTile(door, null);
-                }
-            }
-        }
-
-
-
+        return !room.enemies.Any(e => e != null);
     }
 
-    private void HandlePlayerDeath()
+    private void NotifyDungeonWin()
     {
-        var roomsCleared = rooms.Where(x => x.isFinished).Count();
-        //OnDungeonFinish?.Invoke(roomsCleared, enemiesKilled, "Game Over", "Restart");
-        GameEvents.DungeonFinished?.Invoke();
-
-        UIScreenEvents.DungeonGameOverShown?.Invoke();
-    }
-
-    private void HandleDungeonWin()
-    {
-        Debug.Log("Player won the dungeon!");
-        dungeonGenerator.useStoredSeed = false;
-        useSeed = false;
-        PlayerPrefs.DeleteKey("DungeonSeed");
-
-        var roomsCleared = rooms.Where(x => x.isFinished).Count();
-        //OnDungeonFinish?.Invoke(roomsCleared, enemiesKilled, "You won!", "New Dungeon");
-
-        GameEvents.DungeonFinished?.Invoke();
-        UIScreenEvents.DungeonGameOverShown?.Invoke();
+        mediator.Notify(this, DungeonEvents.DungeonWin);
     }
 
 }

@@ -5,7 +5,7 @@ public class GhostController : MonoBehaviour
 {
 
     [SerializeField] private Transform secondPlayer;
-    [SerializeField] private float maxDistanceFromSecondPlayer = 10f; 
+    [SerializeField] private float maxDistanceFromSecondPlayer = 10f;
     
     private Rigidbody2D rb;
     private SpriteRenderer sr;
