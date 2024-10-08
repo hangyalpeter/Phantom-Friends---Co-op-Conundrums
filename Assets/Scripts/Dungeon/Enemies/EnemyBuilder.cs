@@ -44,6 +44,7 @@ public class EnemyBuilder
         if (enemyData.canBePossessed)
         {
             enemyInstance.AddComponent<PossessableBehavior>();
+            //enemyInstance.AddComponent<Possessable>();
             enemyInstance.AddComponent<PossessableTransformation>();
             enemyInstance.AddComponent<PosessableMovement>();
         }
@@ -68,6 +69,7 @@ public class EnemyBuilder
         {
             RotateShootingBehavior rotateBehavior = enemyInstance.AddComponent<RotateShootingBehavior>();
             rotateBehavior.projectilePrefab = enemyData.projectilePrefab;
+            rotateBehavior.damage = enemyData.damage;
         }
         return this;
     }
@@ -78,6 +80,7 @@ public class EnemyBuilder
         {
             ShootInCircleBehavior shootInCircleBehavior = enemyInstance.AddComponent<ShootInCircleBehavior>();
             shootInCircleBehavior.projectilePrefab = enemyData.projectilePrefab;
+            shootInCircleBehavior.damage = enemyData.damage;
         }
         return this;
     }

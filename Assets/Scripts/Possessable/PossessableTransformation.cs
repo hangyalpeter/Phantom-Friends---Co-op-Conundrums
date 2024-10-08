@@ -1,133 +1,78 @@
-using System;
-using System.Collections;
+﻿using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 
-// TODO: mediator patter for communication between ghost and possessable
+
 public class PossessableTransformation : MonoBehaviour
 {
-    [SerializeField] private GameObject ghost;
     [SerializeField] private float distanceOffset = 2f;
     [SerializeField] private float possessionDuration = 15f;
-    [SerializeField] private TextMeshProUGUI timerText;
 
-    private GameObject timerGO;
+    private PossessMediator mediator;
+    private IState currentState;
 
-    private Rigidbody2D rbGhost;
-    private Rigidbody2D rb;
-    private HealthComponent health;
+    public float PossessionDuration => possessionDuration;
+    public Rigidbody2D Rb { get; private set; }
+    public GameObject Ghost { get; private set; }
 
-    public UnityEvent OnPossess;
-    public UnityEvent OnDePossess;
+    public IState DepossessedState { get; private set; }
+    public IState PossessedState { get; private set; }
 
-    public static event Action OnPossessEvent;
-    public static event Action OnDePossessEvent;
-
-    private bool isPossessed = false;
-    private Coroutine possessionTimer;
-
-    void Start()
+    private void Awake()
     {
-        ghost = GameObject.FindGameObjectWithTag("Player_Ghost");
-        rbGhost = ghost.GetComponent<Rigidbody2D>();
-        rb = GetComponent<Rigidbody2D>();
-        health = GetComponent<HealthComponent>();
-        timerText = GameObject.FindGameObjectWithTag("TimerText").GetComponent<TextMeshProUGUI>();
-        timerText.text = "";
+        mediator = FindObjectOfType<PossessMediator>();
+        //Ghost = mediator.Ghost;
+        Ghost = GameObject.FindGameObjectWithTag("Player_Ghost");
 
-        health.OnDied += UnPossess;
+        DepossessedState = new DepossessedState(this);
+        PossessedState = new PossessedState(this);
+        Rb = GetComponent<Rigidbody2D>();
+
+        //SetState(DepossessedState); 
     }
-
-    private void OnDisable()
+    private void Start()
     {
-        health.OnDied -= UnPossess;
+        SetState(DepossessedState); 
+       
     }
 
     private void Update()
     {
-
-        if (isPossessed && Input.GetKeyDown(KeyCode.R) && rbGhost.GetComponent<GhostController>().IsPossessed )
-        {
-            UnPossess();
-        }
-
-        if (isWithinTransformationRange() && !isPossessed && Input.GetKeyDown(KeyCode.E) && !rbGhost.GetComponent<GhostController>().IsPossessed )
-        {
-            Possess();
-        }
-
+        currentState.Update();
     }
 
-    private void StartPossessionTimer()
+    public void SetState(IState newState)
     {
-        possessionTimer = StartCoroutine(PossessionTimerCoroutine());
+        currentState?.Exit();
+        currentState = newState;
+        currentState.Enter();
     }
 
-    private IEnumerator PossessionTimerCoroutine()
+    public void Possess()
     {
-        float currentTime = possessionDuration;
-
-        while (currentTime > 0f)
-        {
-            UpdateTimerDisplay(currentTime);
-            yield return new WaitForSeconds(1f);
-            currentTime -= 1f;
-        }
-
-        UnPossess();
+        SetState(PossessedState);
     }
-    private void UpdateTimerDisplay(float remainingTime)
+
+    public void Depossess()
     {
-        if (timerText != null)
-        {
-           timerText.text = " Remaining Posession Time: " + Mathf.Ceil(remainingTime).ToString();
-        }
-    }
-    private void UnPossess()
-    {
-        isPossessed = false;
-        rbGhost.GetComponent<SpriteRenderer>().enabled = true;
-
-        rb.constraints = RigidbodyConstraints2D.FreezeAll;
-
-        OnDePossess?.Invoke();
-
-        if (possessionTimer != null)
-        {
-            StopCoroutine(possessionTimer);
-            possessionTimer = null;
-        }
-
-        timerText.text = "";
-        OnDePossessEvent?.Invoke();
+        SetState(DepossessedState);
     }
 
-    private bool isWithinTransformationRange() 
+    public bool IsWithinTransformationRange(GameObject ghost)
     {
         return Vector2.Distance(transform.position, ghost.transform.position) < distanceOffset;
     }
 
-
-    public void Possess()
+    public void RequestPossession()
     {
-        if (isPossessed)
+        if (!mediator.IsPossessing() && IsWithinTransformationRange(mediator.Ghost))
         {
-            return;
+            mediator.RegisterPossessionRequest(this);
         }
-
-        isPossessed = true;
-        
-        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-        rbGhost.velocity = Vector2.zero;
-        //rbGhost.angularVelocity = 0f;
-        rbGhost.transform.position = transform.position;
-        rbGhost.transform.rotation = transform.rotation;
-        rbGhost.GetComponent<SpriteRenderer>().enabled = false;
-
-        StartPossessionTimer();
-        OnPossess?.Invoke();
-        OnPossessEvent?.Invoke();
     }
-  
+
+    public void RequestDepossession()
+    {
+        mediator.RegisterDepossessionRequest();
+    }
 }

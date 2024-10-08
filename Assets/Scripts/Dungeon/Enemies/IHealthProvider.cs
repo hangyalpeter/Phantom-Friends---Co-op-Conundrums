@@ -7,6 +7,7 @@ public interface IHealthProvider
     event Action<float> OnHealthChanged;
     static event Action OnEnemyDied;
     event Action OnDied;
+    public void TakeDamage(float damage);
 
 }
 

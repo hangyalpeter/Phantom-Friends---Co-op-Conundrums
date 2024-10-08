@@ -3,7 +3,6 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     
-    public float speed = 10f;
     public float damage = 25f;
 
     [SerializeField]
@@ -17,12 +16,10 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // ISP here also??
-        HealthComponent health = collision.gameObject.GetComponent<HealthComponent>();
+        IHealthProvider health = collision.gameObject.GetComponent<IHealthProvider>();
 
         if (collision.gameObject.CompareTag(collisionTag))
         {
-            Debug.Log("collision with enemy");
             return;
 
         }
@@ -30,8 +27,6 @@ public class Projectile : MonoBehaviour
         {
             health.TakeDamage(damage);
         }
-
-        Debug.Log("no collision with enemy");
 
         Destroy(gameObject);
     }

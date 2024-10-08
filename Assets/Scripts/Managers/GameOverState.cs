@@ -43,7 +43,7 @@ public class GameOverState : IGameState
 
     public void UpdateState()
     {
-        // intentionally empty, the ui buttons will call the event to trigger the restart ?
+        // intentionally empty}
     }
 
     public void ExitState()

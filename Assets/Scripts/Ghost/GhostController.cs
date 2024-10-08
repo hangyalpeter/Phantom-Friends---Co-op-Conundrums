@@ -4,6 +4,9 @@ using UnityEngine;
 public class GhostController : MonoBehaviour
 {
 
+    private PossessMediator mediator;
+
+
     [SerializeField] private Transform secondPlayer;
     [SerializeField] private float maxDistanceFromSecondPlayer = 10f;
     
@@ -14,37 +17,17 @@ public class GhostController : MonoBehaviour
     private float dirY = 0f;
     private float moveSpeed = 7f;
 
-    public bool IsPossessed { get; private set; }
+    public bool IsPossessed { get; set; }
 
     private enum MovementState { idle, moving}
-
-    private void OnEnable()
-    {
-        PossessableTransformation.OnPossessEvent += SetPossessedTrue;
-        PossessableTransformation.OnDePossessEvent += SetPossessedFalse;
-    }
-
-    private void SetPossessedFalse()
-    {
-        this.IsPossessed = false;
-    }
-
-    private void SetPossessedTrue()
-    {
-        this.IsPossessed = true;
-    }
-
-    private void OnDisable()
-    {
-        PossessableTransformation.OnPossessEvent -= SetPossessedTrue;
-        PossessableTransformation.OnDePossessEvent -= SetPossessedFalse;
-    }   
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
+        mediator = FindObjectOfType<PossessMediator>();
+
 
     }
 
@@ -64,6 +47,19 @@ public class GhostController : MonoBehaviour
             Vector2 direction = (transform.position - secondPlayer.position).normalized;
             transform.position = secondPlayer.position + new Vector3(direction.x, direction.y, 0) * maxDistanceFromSecondPlayer;
         }*/
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            if (!IsPossessed)
+            {
+                var target = GetClosestPossessableTarget();
+                target?.RequestPossession();
+            }
+        }
+        else if (Input.GetKeyDown(KeyCode.R) && IsPossessed)
+        {
+            mediator.RegisterDepossessionRequest();
+        }
 
         dirX = Input.GetAxisRaw("Horizontal_Ghost");
         dirY = Input.GetAxisRaw("Vertical_Ghost");
@@ -94,6 +90,24 @@ public class GhostController : MonoBehaviour
 
         anim.SetInteger("state", (int)state);
  
+    }
+
+    
+    private PossessableTransformation GetClosestPossessableTarget()
+    {
+        PossessableTransformation closestTarget = null;
+        float closestDistance = Mathf.Infinity;
+
+        foreach (var target in FindObjectsOfType<PossessableTransformation>())
+        {
+            float distance = Vector2.Distance(transform.position, target.transform.position);
+            if (distance < closestDistance && target.IsWithinTransformationRange(gameObject))
+            {
+                closestTarget = target;
+                closestDistance = distance;
+            }
+        }
+        return closestTarget;
     }
 
 }

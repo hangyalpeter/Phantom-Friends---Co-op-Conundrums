@@ -33,10 +33,6 @@ public class RoomsManager : MonoBehaviour
 
     private void Update()
     {
-        /*if (rooms.Count == 0)
-        {
-            rooms = mediator.GetManager<DungeonManager>().Rooms;
-        }*/
         if (player != null)
         {
 

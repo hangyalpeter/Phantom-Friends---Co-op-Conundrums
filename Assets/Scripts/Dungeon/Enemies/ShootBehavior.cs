@@ -35,7 +35,7 @@ public class ShootBehavior : MonoBehaviour
         if (projectilePrefab != null && shootingPoint != null)
         {
             var direction = GetComponent<FollowPlayerBehavior>() == null ? (target.position - transform.position) : lastMovementDirection;
-            ProjectileFactory.Instance.GetProjectile(projectilePrefab, shootingPoint.position, direction, speed, "Enemy");
+            ProjectileFactory.Instance.GetProjectile(projectilePrefab, shootingPoint.position, direction, speed, damage, "Enemy");
 
             OnShoot?.Invoke();
         }

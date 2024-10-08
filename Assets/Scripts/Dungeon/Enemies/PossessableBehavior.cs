@@ -4,7 +4,7 @@ using TMPro;
 using UnityEditor;
 using UnityEngine;
 
-// TODO separate these behaviors even more
+// TODO separate these behaviors even more or make a parent class which only updates the direction of movement (shooting direction) and descend from that
 public class PossessableBehavior : MonoBehaviour
 {
     private Vector2 lastMovementDirection;
@@ -17,7 +17,6 @@ public class PossessableBehavior : MonoBehaviour
 
     private GameObject bulletPrefab;
     
-    // TODO mediator pattern?
 
     private ShootBehavior sb;
     private PosessableMovement pm;
@@ -36,16 +35,18 @@ public class PossessableBehavior : MonoBehaviour
         lastMovementDirection = Vector2.right;
         previousPosition = transform.position;
 
-        PossessableTransformation.OnPossessEvent += OnPossess;
-        PossessableTransformation.OnDePossessEvent += OnDePossess;
+        //Possessable.OnPossessEvent += OnPossess;
+        //Possessable.OnDePossessEvent += OnDePossess;
         bulletPrefab = Resources.Load<GameObject>("Trunk_Enemy_Bullet");
+
+        //OnDePossess();
 
     }
 
     private void OnDisable()
     {
-        PossessableTransformation.OnPossessEvent -= OnPossess;
-        PossessableTransformation.OnDePossessEvent -= OnDePossess;
+        //Possessable.OnPossessEvent -= OnPossess;
+        //Possessable.OnDePossessEvent -= OnDePossess;
     }
 
 
@@ -60,7 +61,7 @@ public class PossessableBehavior : MonoBehaviour
         UpdateShootingDirection();
         if (Input.GetKeyDown(KeyCode.K) && isPossessed && gameObject.tag == "PossessedEnemy")
         {
-            ProjectileFactory.Instance.GetProjectile(bulletPrefab, transform.position + new Vector3(lastMovementDirection.x*1.75f, lastMovementDirection.y, 0), lastMovementDirection, 20, "PossessedEnemy");
+            ProjectileFactory.Instance.GetProjectile(bulletPrefab, transform.position + new Vector3(lastMovementDirection.x*1.75f, lastMovementDirection.y, 0), lastMovementDirection, 20, sb.damage , "PossessedEnemy");
 
         }
 
@@ -79,7 +80,7 @@ public class PossessableBehavior : MonoBehaviour
         previousPosition = currentPosition;
     }
 
-    private void OnPossess()
+    public void OnPossess()
     {
         gameObject.tag = "PossessedEnemy";
         pm.SetPossessedTrue();
@@ -88,7 +89,7 @@ public class PossessableBehavior : MonoBehaviour
         isPossessed = true;
     }
 
-    private void OnDePossess()
+    public void OnDePossess()
     {
         gameObject.tag = "Enemy";
         pm.SetPossessedFalse();

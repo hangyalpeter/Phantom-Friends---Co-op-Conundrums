@@ -19,6 +19,8 @@ public class RotateShootingBehavior : MonoBehaviour
 
     public string collisionTag = "Enemy";
 
+    public float damage = 25f;
+
     public Transform target { get; internal set; }
 
     private void Start()
@@ -46,7 +48,7 @@ public class RotateShootingBehavior : MonoBehaviour
 
         Vector3 spawnPoint = transform.position + spawnDirection * spawnRadius;
 
-        ProjectileFactory.Instance.GetProjectile(projectilePrefab, spawnPoint, spawnDirection, projectileSpeed, collisionTag);
+        ProjectileFactory.Instance.GetProjectile(projectilePrefab, spawnPoint, spawnDirection, projectileSpeed, damage, collisionTag);
         
         float angleInDegrees = Mathf.Atan2(spawnDirection.y, spawnDirection.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angleInDegrees);

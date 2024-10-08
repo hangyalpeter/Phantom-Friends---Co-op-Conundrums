@@ -65,6 +65,7 @@ public class PosessableMovement : MonoBehaviour
     public void SetPossessedFalse()
     {
         isPossessed = false;
+
         rb.velocity = Vector2.zero;
     }
 }

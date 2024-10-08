@@ -15,6 +15,8 @@ public class PlayerMovement1 : MonoBehaviour
     private float moveSpeed = 7f;
 
     private GameObject bulletPrefab;
+    [SerializeField]
+    private float damage = 25f;
 
     private Vector2 previousPosition;
     private Vector2 currentPosition;
@@ -75,7 +77,7 @@ public class PlayerMovement1 : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            ProjectileFactory.Instance.GetProjectile(bulletPrefab, transform.position, lastMovementDirection, 20, "Player_Child");
+            ProjectileFactory.Instance.GetProjectile(bulletPrefab, transform.position, lastMovementDirection, 20, damage, "Player_Child");
         }
     }
 

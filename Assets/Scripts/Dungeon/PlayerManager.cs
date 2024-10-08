@@ -19,7 +19,7 @@ public class PlayerManager : MonoBehaviour
     {
         GameObject playerGO = GameObject.FindGameObjectWithTag("Player_Child");
         player = playerGO.transform;
-        healthProvider = playerGO.GetComponent<HealthComponent>();
+        healthProvider = playerGO.GetComponent<IHealthProvider>();
         healthProvider.OnDied += Die;
     }
 

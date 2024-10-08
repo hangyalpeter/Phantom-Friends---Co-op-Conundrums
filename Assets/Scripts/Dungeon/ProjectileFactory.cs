@@ -19,7 +19,7 @@ public class ProjectileFactory : MonoBehaviour
         }
     }
 
-    public GameObject GetProjectile(GameObject projectilePrefab, Vector3 spawnPoint, Vector3 direction, float speed, string collisionTag)
+    public GameObject GetProjectile(GameObject projectilePrefab, Vector3 spawnPoint, Vector3 direction, float speed, float damage, string collisionTag)
     {
         if (projectilePrefab == null)
         {
@@ -38,6 +38,7 @@ public class ProjectileFactory : MonoBehaviour
         Projectile projectileComponent = projectile.GetComponent<Projectile>();
         if (projectileComponent != null)
         {
+            projectileComponent.damage = damage;
             projectileComponent.SetCollisionTag(collisionTag);
         }
 
