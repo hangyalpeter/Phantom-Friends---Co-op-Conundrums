@@ -1,3 +1,4 @@
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewEnemyData", menuName = "Enemies/EnemyData")]
@@ -24,13 +25,22 @@ public class EnemyData : ScriptableObject
 
         // the builder checks if it can add the corresponding components
         EnemyBuilder builder = new EnemyBuilder(enemy, this);
-        builder.WithHealth()
-               .WithMovement()
-               .WithShooting()
-               .WithRotateShooting()
-               .withPossessable()
-               .WithShootInCircle()
-               .Build();
+
+        if (!isBoss)
+        {
+            builder.WithHealth()
+                   .WithMovement()
+                   .WithShooting()
+                   .WithRotateShooting()
+                   .withPossessable()
+                   .WithShootInCircle()
+                   .Build();
+        }
+        else
+        {
+            builder.WithHealth()
+                   .Build();
+        }
 
         return enemy;
     }

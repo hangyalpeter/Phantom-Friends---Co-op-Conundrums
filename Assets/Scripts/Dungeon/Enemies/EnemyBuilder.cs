@@ -14,7 +14,7 @@ public class EnemyBuilder
 
     public EnemyBuilder WithMovement()
     {
-        if (enemyData.canMove)
+        if (enemyData.canMove || enemyData.isBoss)
         {
             FollowPlayerBehavior followPlayerBehaviour = enemyInstance.AddComponent<FollowPlayerBehavior>();
             followPlayerBehaviour.speed = enemyData.speed;
@@ -26,7 +26,7 @@ public class EnemyBuilder
 
     public EnemyBuilder WithShooting()
     {
-        if (enemyData.canShoot)
+        if (enemyData.canShoot || enemyData.isBoss)
         {
             ShootBehavior shootBehavior = enemyInstance.AddComponent<ShootBehavior>();
             shootBehavior.interval = enemyData.shootInterval;
@@ -65,22 +65,28 @@ public class EnemyBuilder
 
     public EnemyBuilder WithRotateShooting()
     {
-        if (enemyData.canRotateShoot)
+        if (enemyInstance.GetComponent<RotateShootingBehavior>() == null)
         {
-            RotateShootingBehavior rotateBehavior = enemyInstance.AddComponent<RotateShootingBehavior>();
-            rotateBehavior.projectilePrefab = enemyData.projectilePrefab;
-            rotateBehavior.damage = enemyData.damage;
+            if (enemyData.canRotateShoot || enemyData.isBoss)
+            {
+                RotateShootingBehavior rotateBehavior = enemyInstance.AddComponent<RotateShootingBehavior>();
+                rotateBehavior.projectilePrefab = enemyData.projectilePrefab;
+                rotateBehavior.damage = enemyData.damage;
+            }
         }
         return this;
     }
 
     public EnemyBuilder WithShootInCircle()
     {
-        if (enemyData.canShootInCircle)
+        if (enemyInstance.GetComponent<ShootInCircleBehavior>() == null)
         {
-            ShootInCircleBehavior shootInCircleBehavior = enemyInstance.AddComponent<ShootInCircleBehavior>();
-            shootInCircleBehavior.projectilePrefab = enemyData.projectilePrefab;
-            shootInCircleBehavior.damage = enemyData.damage;
+            if (enemyData.canShootInCircle || enemyData.isBoss)
+            {
+                ShootInCircleBehavior shootInCircleBehavior = enemyInstance.AddComponent<ShootInCircleBehavior>();
+                shootInCircleBehavior.projectilePrefab = enemyData.projectilePrefab;
+                shootInCircleBehavior.damage = enemyData.damage;
+            }
         }
         return this;
     }

@@ -63,11 +63,13 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
   
     public HashSet<Room> GenerateDungeon()
     {
+        // TODO rooms count as scriptable object parameter
         InitializeMap();
-        while(rooms.Count < 5)
-        {
-            CreateRooms();
-        }
+        /*  while(rooms.Count < 5)
+          {
+              CreateRooms();
+          }*/
+        CreateRooms();
         return rooms;
     }
 

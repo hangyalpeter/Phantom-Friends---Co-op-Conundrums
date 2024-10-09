@@ -64,6 +64,8 @@ public class ShootBehavior : MonoBehaviour
 
     private void AlwaysFacePlayer()
     {
+        if (target == null) return;
+
         if (transform.position.x > target.position.x)
         {
             transform.rotation = new Quaternion(0, 0, 0, transform.rotation.w);

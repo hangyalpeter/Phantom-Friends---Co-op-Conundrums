@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 
-// TODO: mediator patter for communication between ghost and possessable
+// TODO delete class
 public class Possessable : MonoBehaviour
 {
     [SerializeField] private GameObject ghost;
