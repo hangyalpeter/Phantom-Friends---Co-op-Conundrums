@@ -35,21 +35,11 @@ public class PossessableBehavior : MonoBehaviour
         lastMovementDirection = Vector2.right;
         previousPosition = transform.position;
 
-        //Possessable.OnPossessEvent += OnPossess;
-        //Possessable.OnDePossessEvent += OnDePossess;
         bulletPrefab = Resources.Load<GameObject>("Trunk_Enemy_Bullet");
 
-        //OnDePossess();
-
     }
 
-    private void OnDisable()
-    {
-        //Possessable.OnPossessEvent -= OnPossess;
-        //Possessable.OnDePossessEvent -= OnDePossess;
-    }
-
-
+    
     void Update()
     {
         HandleShooting();

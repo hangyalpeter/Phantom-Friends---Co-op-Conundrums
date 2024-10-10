@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EnemyBuilder
 {
@@ -18,7 +17,6 @@ public class EnemyBuilder
         {
             FollowPlayerBehavior followPlayerBehaviour = enemyInstance.AddComponent<FollowPlayerBehavior>();
             followPlayerBehaviour.speed = enemyData.speed;
-            // TODO: add player's position as target as function parameter or some other solution than this instead in enemy spawner and in enemy spawner, player should be a [serializefield]
             followPlayerBehaviour.target = GameObject.FindGameObjectWithTag("Player_Child").transform;
         }
         return this;
@@ -29,12 +27,12 @@ public class EnemyBuilder
         if (enemyData.canShoot || enemyData.isBoss)
         {
             ShootBehavior shootBehavior = enemyInstance.AddComponent<ShootBehavior>();
-            shootBehavior.interval = enemyData.shootInterval;
             shootBehavior.target = GameObject.FindGameObjectWithTag("Player_Child").transform;
             shootBehavior.projectilePrefab = enemyData.projectilePrefab;
             shootBehavior.shootingPoint = enemyInstance.transform;
             shootBehavior.damage = enemyData.damage;
             shootBehavior.speed = enemyData.projectileSpeed;
+            shootBehavior.spawnInterval = enemyData.shootInterval;
         }
        return this;
     }
@@ -44,7 +42,6 @@ public class EnemyBuilder
         if (enemyData.canBePossessed)
         {
             enemyInstance.AddComponent<PossessableBehavior>();
-            //enemyInstance.AddComponent<Possessable>();
             enemyInstance.AddComponent<PossessableTransformation>();
             enemyInstance.AddComponent<PosessableMovement>();
         }

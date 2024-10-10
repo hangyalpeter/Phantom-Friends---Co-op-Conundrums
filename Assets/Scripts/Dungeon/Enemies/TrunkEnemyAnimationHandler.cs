@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-//TODO ISP again
 public class TrunkEnemyAnimationHandler : MonoBehaviour
 {
     private enum MovementState { idle, run}

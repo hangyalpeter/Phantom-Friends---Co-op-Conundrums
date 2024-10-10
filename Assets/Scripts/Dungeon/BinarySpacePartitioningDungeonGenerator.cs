@@ -1,5 +1,4 @@
 using Assets.Scripts.Dungeon;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -37,6 +36,8 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     public bool useStoredSeed = true;
     private int seed;
 
+    [SerializeField]
+    private int minimumRoomsCount = 5;
 
     private void Awake()
     {
@@ -63,13 +64,11 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
   
     public HashSet<Room> GenerateDungeon()
     {
-        // TODO rooms count as scriptable object parameter
         InitializeMap();
-        /*  while(rooms.Count < 5)
-          {
-              CreateRooms();
-          }*/
-        CreateRooms();
+        while (rooms.Count < minimumRoomsCount)
+        {
+            CreateRooms();
+        }
         return rooms;
     }
 
@@ -93,6 +92,8 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     {
 
         corridorPositions = ConnectRooms();
+        rooms.First().corridorTilePositions = corridorPositions;
+
 
         RemoveCorridorTilesFromRoomTiles();
 

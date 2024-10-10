@@ -14,9 +14,6 @@ public class DungeonManager : MonoBehaviour
 
     private int enemiesKilled = 0;
 
-    private int seed;
-    private bool useSeed = true;
-
     public static Action<int, int, string, string> OnDungeonFinish;
 
     public HashSet<Room> Rooms { get { return rooms; } }
@@ -29,15 +26,6 @@ public class DungeonManager : MonoBehaviour
         this.mediator = mediator;
     }
 
-    private void Awake()
-    {
-        if (useSeed)
-        {
-            seed = DateTime.Now.GetHashCode();
-            UnityEngine.Random.InitState(seed);
-        }
-
-    }
     private void Start()
     {
         rooms = dungeonGenerator.GenerateDungeon();
@@ -60,8 +48,8 @@ public class DungeonManager : MonoBehaviour
     {
         Debug.Log("Player won the dungeon!");
         dungeonGenerator.useStoredSeed = false;
-        useSeed = false;
         PlayerPrefs.DeleteKey("DungeonSeed");
+        PlayerPrefs.SetInt("MakeHarder", 1);
 
         var roomsCleared = rooms.Where(x => x.isFinished).Count();
         OnDungeonFinish?.Invoke(roomsCleared, enemiesKilled, "You won!", "New Dungeon");

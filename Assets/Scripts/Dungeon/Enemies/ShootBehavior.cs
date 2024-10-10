@@ -5,8 +5,7 @@ public class ShootBehavior : MonoBehaviour
     public GameObject projectilePrefab;
     public Transform shootingPoint;
 
-    // TODO: fix access levels
-    public float interval = 10f;
+    public float spawnInterval = 10f;
     private float nextShotTime = 0f;
 
     public float speed = 10f;
@@ -25,7 +24,7 @@ public class ShootBehavior : MonoBehaviour
         if (Time.time >= nextShotTime)
         {
             Shoot();
-            nextShotTime = Time.time + interval;
+            nextShotTime = Time.time + spawnInterval;
         }
         AlwaysFacePlayer();
     }

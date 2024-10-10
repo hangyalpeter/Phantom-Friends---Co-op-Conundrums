@@ -1274,6 +1274,7 @@ MonoBehaviour:
   player: {fileID: 1946791529}
   ghost: {fileID: 727252690}
   useStoredSeed: 1
+  minimumRoomsCount: 2
 --- !u!4 &849193266
 Transform:
   m_ObjectHideFlags: 0
@@ -1960,10 +1961,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5711a7c736765141ab912e027f8324f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyData:
-  - {fileID: 11400000, guid: 215f96d49cfb9624a976e01deb4261c0, type: 2}
+  roomEnemiesData:
   - {fileID: 11400000, guid: b40ec3858137a3745a5c4a029937d228, type: 2}
   - {fileID: 11400000, guid: 1e93461fd07f3d640b36bc53838d474d, type: 2}
+  - {fileID: 11400000, guid: 100d9fc5d09b6e54488f9aa09256351d, type: 2}
+  bossEnemiesData:
+  - {fileID: 11400000, guid: 215f96d49cfb9624a976e01deb4261c0, type: 2}
 --- !u!4 &1417255862
 Transform:
   m_ObjectHideFlags: 0
@@ -2802,7 +2805,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 859a67317cc1c154498c1fb325cbeb55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 25
+  damage: 1000
 --- !u!114 &1946791539
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3262,7 +3265,7 @@ PrefabInstance:
       objectReference: {fileID: 6601264287061838878, guid: 3e750bf53112b90429d861d8d6af6c7d, type: 2}
     - target: {fileID: 3398218039224685553, guid: 53deec7c09f85f54db751365bc426009, type: 3}
       propertyPath: maxHealth
-      value: 50
+      value: 10000
       objectReference: {fileID: 0}
     - target: {fileID: 6934676213958665057, guid: 53deec7c09f85f54db751365bc426009, type: 3}
       propertyPath: applesCountText

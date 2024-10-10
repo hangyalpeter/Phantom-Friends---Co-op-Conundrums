@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using TMPro;
-using UnityEngine;
+﻿using UnityEngine;
 
 
 public class PossessableTransformation : MonoBehaviour
@@ -21,14 +19,11 @@ public class PossessableTransformation : MonoBehaviour
     private void Awake()
     {
         mediator = FindObjectOfType<PossessMediator>();
-        //Ghost = mediator.Ghost;
         Ghost = GameObject.FindGameObjectWithTag("Player_Ghost");
 
         DepossessedState = new DepossessedState(this);
         PossessedState = new PossessedState(this);
         Rb = GetComponent<Rigidbody2D>();
-
-        //SetState(DepossessedState); 
     }
     private void Start()
     {

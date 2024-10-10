@@ -6,16 +6,21 @@ using UnityEngine;
 public class RoomsManager : MonoBehaviour
 {
     [SerializeField]
-    private EnemyData[] enemyData = new EnemyData[3];
+    private List<EnemyData> roomEnemiesData = new List<EnemyData>();
+    [SerializeField]
+    private List<EnemyData> bossEnemiesData = new List<EnemyData>();
 
     private IDungeonMediator mediator;
 
     private HashSet<Room> rooms = new HashSet<Room>();
     private BinarySpacePartitioningDungeonGenerator dungeonGenerator;
     private Transform player;
+    private Transform ghost;
     private EnemySpawner spawner;
+    Room currentRoom;
 
     private bool isClosed = false;
+    private bool isClosingRoom = false;
 
     public void SetMediator(IDungeonMediator mediator)
     {
@@ -28,7 +33,21 @@ public class RoomsManager : MonoBehaviour
         dungeonGenerator = mediator.GetManager<DungeonManager>().DungeonGenerator;
         spawner = GetComponent<EnemySpawner>();
         player = mediator.GetManager<PlayerManager>().Player;
-        
+        ghost = mediator.GetManager<PlayerManager>().Ghost;
+        currentRoom = rooms.First();
+        if (!PlayerPrefs.HasKey("MakeHarder"))
+        {
+            PlayerPrefs.SetInt("MakeHarder", 0);
+        }
+        // if you finish a dungeon the next dungeon is harder,
+        // but if you fail then it returns to being the initial difficulity
+        // game design question, question of further development
+        if (PlayerPrefs.GetInt("MakeHarder") == 1)
+        {
+            roomEnemiesData.Add(roomEnemiesData.ElementAt(1));
+            PlayerPrefs.SetInt("MakeHarder", 0);
+        }
+
     }
 
     private void Update()
@@ -59,7 +78,6 @@ public class RoomsManager : MonoBehaviour
 
         }
 
-
     }
 
     private bool CheckDungeonWin()
@@ -88,33 +106,40 @@ public class RoomsManager : MonoBehaviour
             }
         }
 
-
-
     }
 
     private void CheckPlayerEnteredRoom()
     {
         foreach (var room in rooms)
         {
-            var rooms = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
+            var roomPositions = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
             var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.transform.position);
+            var ghostPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(ghost.transform.position);
+            Debug.Log("playerpositon: " + playerPosition);
 
-            if (rooms.Contains(playerPosition) && !room.isFinished && !room.isBossRoom && !room.isVisited)
+            if (roomPositions.Contains(playerPosition) && roomPositions.Contains(ghostPosition) && !room.isFinished && !room.isBossRoom && !room.isVisited)
             {
                 Debug.Log("Player entered room" + room.bounds.center);
 
-                room.isVisited = true;
-                StartCoroutine(DelayCloseCurrentRoom(room));
-
+                if (!isClosingRoom)
+                {
+                    StartCoroutine(DelayCloseCurrentRoom(room));
+                }
             }
-            else if  (rooms.Contains(playerPosition) && !room.isFinished && room.isBossRoom && !room.isVisited)
+            else if (roomPositions.Contains(playerPosition) && roomPositions.Contains(ghostPosition) && !room.isFinished && room.isBossRoom && !room.isVisited)
             {
                 Debug.Log("Player entered boss room" + room.bounds.center);
 
-                room.isVisited = true;
+                if (!isClosingRoom)
+                {
+                    StartCoroutine(DelayCloseBossRoom(room));
+                }
 
-                StartCoroutine(DelayCloseBossRoom(room));
-
+            }
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                player.transform.position = currentRoom.bounds.center;
+                ghost.transform.position = currentRoom.bounds.center;
             }
         }
 
@@ -123,23 +148,36 @@ public class RoomsManager : MonoBehaviour
     private IEnumerator DelayCloseCurrentRoom(Room room)
     {
 
+        isClosingRoom = true;
         yield return new WaitForSeconds(1f);
-        CloseCurrentRoom(room);
-        SpawnEnemies(room);
-        isClosed = true;
+
+        isClosed = CloseCurrentRoom(room);
+        if (isClosed && !room.spawned)
+        {
+            SpawnEnemies(room);
+            room.isVisited = true;
+            currentRoom = room;
+        }
+        isClosingRoom = false;
     }
 
     private IEnumerator DelayCloseBossRoom(Room room)
     {
 
         yield return new WaitForSeconds(1f);
-        CloseCurrentRoom(room);
-        SpawnBoss(room);
-        isClosed = true;
+
+        isClosed = CloseCurrentRoom(room);
+        if (isClosed && !room.spawned)
+        {
+            SpawnBoss(room);
+            room.isVisited = true;
+            currentRoom = room;
+        }
+        isClosingRoom = false;
     }
     private void SpawnEnemies(Room room)
     {
-        foreach (var enemy in enemyData.Where(e => !e.isBoss))
+        foreach (var enemy in roomEnemiesData)
         {
             if (enemy != null)
             {
@@ -152,12 +190,14 @@ public class RoomsManager : MonoBehaviour
                 HashSet<Vector3Int> wallAndNeighborPositions = GetWallNeighborPositions(room, neighborOffsets);
 
                 IEnumerable<Vector3Int> potentialSwawnPositions = CalculatePotentialSpawnPositions(room, wallAndNeighborPositions);
-                Vector3 position = potentialSwawnPositions.ElementAt(UnityEngine.Random.Range(0, potentialSwawnPositions.Count()));
+                Vector3 position = potentialSwawnPositions.ElementAt(Random.Range(0, potentialSwawnPositions.Count()));
 
                 room.enemies.Add(spawner.SpawnEnemy(enemy, position));
 
             }
         }
+
+        room.spawned = true;
 
     }
 
@@ -172,9 +212,10 @@ public class RoomsManager : MonoBehaviour
         HashSet<Vector3Int> wallAndNeighborPositions = GetWallNeighborPositions(room, neighborOffsets);
 
         IEnumerable<Vector3Int> potentialSwawnPositions = CalculatePotentialSpawnPositions(room, wallAndNeighborPositions);
-        Vector3 position = potentialSwawnPositions.ElementAt(UnityEngine.Random.Range(0, potentialSwawnPositions.Count()));
+        Vector3 position = potentialSwawnPositions.ElementAt(Random.Range(0, potentialSwawnPositions.Count()));
 
-        room.enemies.Add(spawner.SpawnEnemy(enemyData.Where(e => e.isBoss).First(), room.bounds.center));
+        room.enemies.Add(spawner.SpawnEnemy(bossEnemiesData.First(), room.bounds.center));
+        room.spawned = true;
 
     }
 
@@ -195,19 +236,66 @@ public class RoomsManager : MonoBehaviour
                             .ToHashSet();
     }
 
-    private void CloseCurrentRoom(Room currentPlayerRoom)
+    private bool CloseCurrentRoom(Room currentPlayerRoom)
     {
 
-        // TODO maybe check again if the player and ghost are in the room
         var currentPlayerRoomFloorPositions = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { currentPlayerRoom.bounds });
         var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.transform.position);
+        var ghostPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(ghost.transform.position);
 
-        foreach (var door in currentPlayerRoom.doorTilesPositions)
+
+        List<Vector3Int> offsets = new List<Vector3Int>
         {
-            dungeonGenerator.TilemapVisualizer.PaintDoorTile(door, Color.red);
+            new Vector3Int(0, 0, 0),   // Center (original position)
+            new Vector3Int(1, 0, 0),   // Right
+            new Vector3Int(-1, 0, 0),  // Left
+            new Vector3Int(0, 1, 0),   // Up
+            new Vector3Int(0, -1, 0),  // Down
+            new Vector3Int(1, 1, 0),   // Top-right diagonal
+            new Vector3Int(-1, 1, 0),  // Top-left diagonal
+            new Vector3Int(1, -1, 0),  // Bottom-right diagonal
+            new Vector3Int(-1, -1, 0)  // Bottom-left diagonal
+        };
+
+        var validPositions = new HashSet<Vector3Int>();
+        foreach (var item in currentPlayerRoom.floorTilesPositions)
+        {
+            if (!currentPlayerRoom.corridorTilePositions.Contains(item))
+            {
+                validPositions.Add(item);
+            }
+            
         }
 
+        const int offsetRange = 2;
+        var flag = true;
 
+        foreach (var offset in offsets)
+        {
+            Vector3Int offsetPlayerPosition = playerPosition + offset * offsetRange;
+            Vector3Int offsetGhostPosition = ghostPosition + offset * offsetRange;
+
+            if (!validPositions.Contains(offsetPlayerPosition)
+            || !validPositions.Contains(offsetGhostPosition)
+            || currentPlayerRoom.doorTilesPositions.Contains(offsetPlayerPosition)
+            || currentPlayerRoom.doorTilesPositions.Contains(offsetGhostPosition)
+            || currentPlayerRoom.wallTilesPositions.Contains(offsetPlayerPosition)
+            || currentPlayerRoom.wallTilesPositions.Contains(offsetGhostPosition)
+            || currentPlayerRoom.corridorTilePositions.Contains(offsetPlayerPosition)
+            || currentPlayerRoom.corridorTilePositions.Contains(offsetGhostPosition))
+            {
+                flag = false; break;
+            }
+        }
+
+        if (flag)
+        {
+            foreach (var door in currentPlayerRoom.doorTilesPositions)
+            {
+                dungeonGenerator.TilemapVisualizer.PaintDoorTile(door, Color.red);
+            }
+        }
+        return flag;
     }
     private bool CheckIsRoomCleared(Room room)
     {

@@ -11,6 +11,7 @@ public class FollowPlayerBehavior : MonoBehaviour
     {
 
         var step = speed * Time.deltaTime;
+        if (target == null) return;
         if (Vector3.Distance(transform.position, target.position) > 4f )
         {
             transform.position = Vector3.MoveTowards(transform.position, target.position, step);

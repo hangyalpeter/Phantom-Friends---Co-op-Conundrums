@@ -8,7 +8,6 @@ public class RotateShootingBehavior : MonoBehaviour
     private float spawnRadius = 1.0f;
     private float projectileSpeed = 10f;
 
-    // TODO maybe make it a parameter for enemydata
     private float spawnInterval = 1f;
 
     // How fast the spawner rotates (degrees per second)

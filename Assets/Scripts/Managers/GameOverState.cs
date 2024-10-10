@@ -43,7 +43,7 @@ public class GameOverState : IGameState
 
     public void UpdateState()
     {
-        // intentionally empty}
+        // intentionally empty
     }
 
     public void ExitState()

@@ -19,7 +19,6 @@ public class ProjectileFactory : MonoBehaviour
         }
     }
 
-    // TODO: could use a builder for it
     public GameObject GetProjectile(GameObject projectilePrefab, Vector3 spawnPoint, Vector3 direction, float speed, float damage, string collisionTag)
     {
         if (projectilePrefab == null)
