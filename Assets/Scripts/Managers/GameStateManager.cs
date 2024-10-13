@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameStateManager : MonoBehaviour
 {
@@ -7,6 +8,7 @@ public class GameStateManager : MonoBehaviour
     public PlayingState PlayingState { get; private set; }
     public PausedState PausedState { get; private set; }
     public GameOverState GameOverState { get; private set; }
+    public MainMenuState MainMenuState { get; private set; }
 
     public float ElapsedTime { get; set; }
 
@@ -35,8 +37,9 @@ public class GameStateManager : MonoBehaviour
         PlayingState = new PlayingState(this);
         PausedState = new PausedState(this);
         GameOverState = new GameOverState(this);
+        MainMenuState = new MainMenuState(this);
 
-        TransitionToState(PlayingState);
+        TransitionToState(MainMenuState);
     }
 
     private void Update()
@@ -54,5 +57,12 @@ public class GameStateManager : MonoBehaviour
     private void ResetElapsedTime()
     {
         ElapsedTime = 0;
+        if (SceneManager.GetActiveScene().name == "Main Menu")
+        {
+            TransitionToState(MainMenuState);
+        } else
+        {
+            TransitionToState(PlayingState);
+        }
     }
 }

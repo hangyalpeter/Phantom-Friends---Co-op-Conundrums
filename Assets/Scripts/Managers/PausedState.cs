@@ -1,8 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class PausedState : IGameState
 {
     private GameStateManager context;
+    private bool settingsShown = false;
 
     public PausedState(GameStateManager context)
     {
@@ -14,6 +16,8 @@ public class PausedState : IGameState
         Time.timeScale = 0f;
         UIScreenEvents.PauseShown?.Invoke();
 
+        UIScreenEvents.SettingsShown += SettingsShown;
+
         int minutes = (int)(context.ElapsedTime / 60);
         int seconds = (int)(context.ElapsedTime % 60);
         int milliseconds = (int)((context.ElapsedTime * 1000) % 1000);
@@ -22,9 +26,16 @@ public class PausedState : IGameState
 
     }
 
+    private void SettingsShown()
+    {
+        settingsShown = true;
+
+        UIScreenEvents.ScreenClosed += () => settingsShown = false;
+    }
+
     public void UpdateState()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && !settingsShown)
         {
             context.TransitionToState(context.PlayingState);
         }
@@ -34,6 +45,7 @@ public class PausedState : IGameState
     {
         Debug.Log("Exiting Paused State");
         Time.timeScale = 1f;
+        UIScreenEvents.ScreenClosed -= () => settingsShown = false;
         UIScreenEvents.ScreenClosed?.Invoke();
     }
 }
