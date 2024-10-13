@@ -1089,7 +1089,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0.00014567375, y: 0.014413357}
@@ -1965,6 +1965,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b40ec3858137a3745a5c4a029937d228, type: 2}
   - {fileID: 11400000, guid: 1e93461fd07f3d640b36bc53838d474d, type: 2}
   - {fileID: 11400000, guid: 100d9fc5d09b6e54488f9aa09256351d, type: 2}
+  - {fileID: 11400000, guid: 0f7e77353b714264e92c8fa7333cfe4c, type: 2}
   bossEnemiesData:
   - {fileID: 11400000, guid: 215f96d49cfb9624a976e01deb4261c0, type: 2}
 --- !u!4 &1417255862

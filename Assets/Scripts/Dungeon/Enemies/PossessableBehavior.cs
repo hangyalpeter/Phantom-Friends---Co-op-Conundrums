@@ -51,7 +51,7 @@ public class PossessableBehavior : MonoBehaviour
         UpdateShootingDirection();
         if (Input.GetKeyDown(KeyCode.K) && isPossessed && gameObject.tag == "PossessedEnemy")
         {
-            ProjectileFactory.Instance.GetProjectile(bulletPrefab, transform.position + new Vector3(lastMovementDirection.x*1.75f, lastMovementDirection.y, 0), lastMovementDirection, 20, sb.damage , "PossessedEnemy");
+            ProjectileFactory.Instance.GetProjectile(bulletPrefab, transform.position, lastMovementDirection, 20, sb.damage , "PossessedEnemy");
 
         }
 

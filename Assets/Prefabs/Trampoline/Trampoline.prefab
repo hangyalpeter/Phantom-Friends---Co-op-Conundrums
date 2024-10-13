@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 2370294599771671793}
   - component: {fileID: 780509797028825379}
   - component: {fileID: 7794958839750989299}
-  - component: {fileID: 1248805215203321359}
   - component: {fileID: 3237152986990279656}
   - component: {fileID: 5177407711045345560}
   - component: {fileID: 6103840035555384480}
@@ -200,40 +199,6 @@ MonoBehaviour:
   jumpForce: 20
   playerGameObject: {fileID: 0}
   trampolineSound: {fileID: 5177407711045345560}
---- !u!114 &1248805215203321359
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7057812541009118503}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 13565fef265564d4f8acd239d398563c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ghost: {fileID: 0}
-  distanceOffset: 2
-  possessionDuration: 15
-  timerText: {fileID: 0}
-  OnPossess:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  OnDePossess:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!114 &3237152986990279656
 MonoBehaviour:
   m_ObjectHideFlags: 0

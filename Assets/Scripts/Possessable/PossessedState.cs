@@ -17,6 +17,7 @@ public class PossessedState : IState
         }
         possessable.Rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         possessable.Ghost.GetComponent<SpriteRenderer>().enabled = false;
+        possessable.Ghost.GetComponent<BoxCollider2D>().enabled = false;
 
         possessable.Ghost.GetComponent<Rigidbody2D>().transform.rotation = possessable.Rb.gameObject.transform.rotation;
         possessable.Ghost.GetComponent<Rigidbody2D>().transform.position = possessable.Rb.gameObject.transform.position;
@@ -36,5 +37,6 @@ public class PossessedState : IState
     public void Exit()
     {
         possessable.Ghost.GetComponent<SpriteRenderer>().enabled = true;
+        possessable.Ghost.GetComponent<BoxCollider2D>().enabled = true;
     }
 }

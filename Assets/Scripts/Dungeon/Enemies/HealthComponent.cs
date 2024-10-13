@@ -40,6 +40,7 @@ public class HealthComponent : MonoBehaviour, IHealthProvider
         if (gameObject.tag == "Player_Child" || gameObject.tag == "PossessedEnemy")
         {
             OnDied?.Invoke();
+            FindAnyObjectByType<PossessionTimer>()?.StopTimer();
             Destroy(gameObject);
             return;
         }
