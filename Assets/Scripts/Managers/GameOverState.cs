@@ -20,7 +20,6 @@ public class GameOverState : IGameState
         int milliseconds = (int)((context.ElapsedTime * 1000) % 1000);
 
         GameEvents.LevelFinishedWithTime?.Invoke(string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds));
-        UIScreenEvents.LevelFinishShown?.Invoke();
 
         var currentLevelName = SceneManager.GetActiveScene().name;
         if (PlayerPrefs.HasKey(currentLevelName + "_BestCompletionTime"))

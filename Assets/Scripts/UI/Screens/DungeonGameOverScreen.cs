@@ -9,6 +9,7 @@ public class DungeonGameOverScreen : UIScreen
     Button m_RestartButton;
     Button m_MainMenuButton;
     Button m_ExitButton;
+    Button m_NewDungeonButton;
 
     Label m_FinishedRoomsLabel;
     Label m_EnemiesKilledLabel;
@@ -26,6 +27,7 @@ public class DungeonGameOverScreen : UIScreen
         m_GameOverLabel = m_RootElement.Q<Label>("game-over-label");
 
         m_RestartButton = m_RootElement.Q<Button>("restart-button");
+        m_NewDungeonButton = m_RootElement.Q<Button>("new-dungeon-button");
 
         m_MainMenuButton = m_RootElement.Q<Button>("main-menu-button");
         m_ExitButton = m_RootElement.Q<Button>("exit-button");
@@ -62,8 +64,16 @@ public class DungeonGameOverScreen : UIScreen
     {
         m_FinishedRoomsLabel.text = "Rooms cleared: " + roomsCleared;
         m_EnemiesKilledLabel.text = "Enemies killed: " + enemiesKilled;
-        m_GameOverLabel.text = title;
-        m_RestartButton.text = restartLabel;
+        if (restartLabel == "Restart")
+        {
+            m_NewDungeonButton.SetEnabled(false);
+            m_RestartButton.SetEnabled(true);
+        }
+        else
+        {
+            m_NewDungeonButton.SetEnabled(true);
+            m_RestartButton.SetEnabled(false);
+        }
     }
 
     private void OnLevelFinish(string time)
@@ -75,6 +85,7 @@ public class DungeonGameOverScreen : UIScreen
     {
         m_EventRegistry.RegisterCallback<ClickEvent>(m_ExitButton, evt => Application.Quit());
         m_EventRegistry.RegisterCallback<ClickEvent>(m_RestartButton, evt => UIScreenEvents.OnLevelRestart?.Invoke());
+        m_EventRegistry.RegisterCallback<ClickEvent>(m_NewDungeonButton, evt => GameEvents.OnNewDungeon?.Invoke());
         m_EventRegistry.RegisterCallback<ClickEvent>(m_MainMenuButton, evt => UIScreenEvents.MainMenuClicked?.Invoke());
     }
 

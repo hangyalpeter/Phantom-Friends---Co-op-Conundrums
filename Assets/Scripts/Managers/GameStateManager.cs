@@ -18,6 +18,7 @@ public class GameStateManager : MonoBehaviour
         LevelManager.LevelChanged += ResetElapsedTime;
         GameEvents.DungeonFinished += TransitionToGameOverState;
         GameEvents.LevelFinished += TransitionToGameOverState;
+        GameEvents.OnNewDungeon += HandleNewDungeon;
     }
 
     private void OnDisable()
@@ -25,6 +26,14 @@ public class GameStateManager : MonoBehaviour
         LevelManager.LevelChanged -= ResetElapsedTime;
         GameEvents.DungeonFinished -= TransitionToGameOverState;
         GameEvents.LevelFinished -= TransitionToGameOverState;
+        GameEvents.OnNewDungeon -= HandleNewDungeon;
+    }
+
+    private void HandleNewDungeon()
+    {
+        ResetElapsedTime();
+        UIScreenEvents.ScreenClosed?.Invoke();
+        TransitionToState(PlayingState);
     }
 
     private void TransitionToGameOverState()

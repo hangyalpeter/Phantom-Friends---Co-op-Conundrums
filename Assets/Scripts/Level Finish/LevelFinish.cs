@@ -13,6 +13,8 @@ public class LevelFinish : MonoBehaviour
         {
             levelFinishSound.Play();
             GameEvents.LevelFinished?.Invoke();
+            UIScreenEvents.LevelFinishShown?.Invoke();
+
         }
 
     }

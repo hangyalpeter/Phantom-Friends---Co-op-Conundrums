@@ -14,23 +14,37 @@ public class HealthComponent : MonoBehaviour, IHealthProvider
 
     public float MaxHealth => maxHealth;
 
-    public float CurrentHealth => currentHealth;
+    public float CurrentHealth
+    {
+        get => currentHealth;
+        private set
+        {
+            if (currentHealth != value)
+            {
+                currentHealth = value;
+                OnHealthChanged?.Invoke(currentHealth);
+            }
+        }
+    }
 
     void Start()
     {
-        currentHealth = maxHealth;
+        CurrentHealth = maxHealth;
     }
 
     public void TakeDamage(float damage)
     {
-        currentHealth -= damage;
+        CurrentHealth -= damage;
 
-        OnHealthChanged?.Invoke(currentHealth);
-
-        if (currentHealth <= 0 && !dieInvoked)
+        if (CurrentHealth <= 0 && !dieInvoked)
         {
             Die();
         }
+    }
+
+    public void ResetHealth()
+    {
+        CurrentHealth = maxHealth;
     }
 
     private void Die()

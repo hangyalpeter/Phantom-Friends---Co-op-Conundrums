@@ -37,7 +37,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     private int seed;
 
     [SerializeField]
-    private int minimumRoomsCount = 5;
+    private int minimumRoomsCount = 4;
 
     private void Awake()
     {

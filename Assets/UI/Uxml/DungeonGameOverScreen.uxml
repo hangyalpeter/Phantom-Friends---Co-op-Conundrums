@@ -12,7 +12,8 @@
                     <ui:Label tabindex="-1" text="Elapsed time:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="elapsed-time-label" />
                 </ui:VisualElement>
                 <ui:VisualElement style="flex-grow: 0; flex-direction: row; justify-content: center; align-self: flex-start; align-items: auto; -unity-text-align: lower-left; height: 80%; width: 100%;">
-                    <ui:Button text="Restart (new dungeon)" parse-escape-sequences="true" display-tooltip-when-elided="true" name="restart-button" class="action-buttons" style="justify-content: space-around; align-self: center;" />
+                    <ui:Button text="New Dungeon" parse-escape-sequences="true" display-tooltip-when-elided="true" name="new-dungeon-button" class="action-buttons" style="justify-content: space-around; align-self: center;" />
+                    <ui:Button text="Restart" parse-escape-sequences="true" display-tooltip-when-elided="true" name="restart-button" class="action-buttons" style="justify-content: space-around; align-self: center;" />
                     <ui:Button text="Main Menu" parse-escape-sequences="true" display-tooltip-when-elided="true" name="main-menu-button" class="action-buttons" style="align-self: center;" />
                     <ui:Button text="Exit to desktop" parse-escape-sequences="true" display-tooltip-when-elided="true" name="exit-button" class="action-buttons" style="align-self: center;" />
                 </ui:VisualElement>

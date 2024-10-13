@@ -18,11 +18,11 @@ public class Projectile : MonoBehaviour
     {
         IHealthProvider health = collision.gameObject.GetComponent<IHealthProvider>();
 
-        if (collision.gameObject.CompareTag(collisionTag))
+        if (collision.gameObject.CompareTag(collisionTag) || collision.gameObject.CompareTag("Player_Ghost"))
         {
             return;
-
         }
+
         if (health != null)
         {
             health.TakeDamage(damage);
@@ -30,5 +30,5 @@ public class Projectile : MonoBehaviour
 
         Destroy(gameObject);
     }
-
+ 
 }

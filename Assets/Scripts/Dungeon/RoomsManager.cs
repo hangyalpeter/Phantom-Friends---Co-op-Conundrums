@@ -7,6 +7,9 @@ public class RoomsManager : MonoBehaviour
 {
     [SerializeField]
     private List<EnemyData> roomEnemiesData = new List<EnemyData>();
+
+    private int numberOfEnemiesToGenerate = 3;
+
     [SerializeField]
     private List<EnemyData> bossEnemiesData = new List<EnemyData>();
 
@@ -17,10 +20,12 @@ public class RoomsManager : MonoBehaviour
 
     private HashSet<Room> rooms = new HashSet<Room>();
     private BinarySpacePartitioningDungeonGenerator dungeonGenerator;
+
     private Transform player;
     private Transform ghost;
+
     private EnemySpawner spawner;
-    Room currentRoom;
+    private Room currentRoom;
 
     private bool isClosed = false;
     private bool isClosingRoom = false;
@@ -38,19 +43,6 @@ public class RoomsManager : MonoBehaviour
         player = mediator.GetManager<PlayerManager>().Player;
         ghost = mediator.GetManager<PlayerManager>().Ghost;
         currentRoom = rooms.First();
-        if (!PlayerPrefs.HasKey("MakeHarder"))
-        {
-            PlayerPrefs.SetInt("MakeHarder", 0);
-        }
-        // if you finish a dungeon the next dungeon is harder,
-        // but if you fail then it returns to being the initial difficulity
-        // game design question, question of further development
-        if (PlayerPrefs.GetInt("MakeHarder") == 1)
-        {
-            roomEnemiesData.Add(roomEnemiesData.ElementAt(1));
-            PlayerPrefs.SetInt("MakeHarder", 0);
-        }
-
     }
 
     private void Update()
@@ -190,13 +182,13 @@ public class RoomsManager : MonoBehaviour
 
         IEnumerable<Vector3Int> potentialSwawnPositions = CalculatePotentialSpawnPositions(room, wallAndNeighborPositions);
 
-        foreach (var enemy in roomEnemiesData)
+        int i = 0;
+        while(i < numberOfEnemiesToGenerate)
         {
-            if (enemy != null)
-            {
-                Vector3 position = potentialSwawnPositions.ElementAt(Random.Range(0, potentialSwawnPositions.Count()));
-                room.enemies.Add(spawner.SpawnEnemy(enemy, position));
-            }
+            var randomEnemy = roomEnemiesData[Random.Range(0, roomEnemiesData.Count)];
+            Vector3 position = potentialSwawnPositions.ElementAt(Random.Range(0, potentialSwawnPositions.Count()));
+            room.enemies.Add(spawner.SpawnEnemy(randomEnemy, position));
+            i++;
         }
 
         foreach (var possessable in possessableObjects)
@@ -319,6 +311,12 @@ public class RoomsManager : MonoBehaviour
     private void NotifyDungeonWin()
     {
         mediator.Notify(this, DungeonEvents.DungeonWin);
+        bossEnemiesData.ForEach(b =>
+        {
+            b.health = b.health * 1.2f;
+        });
+        roomEnemiesData.ForEach(e => { e.health = e.health * 1.2f; });
+        numberOfEnemiesToGenerate++;
     }
 
 }

@@ -20,6 +20,15 @@ public class DungeonManager : MonoBehaviour
 
     public BinarySpacePartitioningDungeonGenerator DungeonGenerator => dungeonGenerator;
 
+    private void OnEnable()
+    {
+        GameEvents.OnNewDungeon += GenerateNewDungeonAfterWin;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnNewDungeon -= GenerateNewDungeonAfterWin;
+    }
 
     public void SetMediator(IDungeonMediator mediator)
     {
@@ -31,6 +40,17 @@ public class DungeonManager : MonoBehaviour
         rooms = dungeonGenerator.GenerateDungeon();
     }
 
+    private void GenerateNewDungeonAfterWin()
+    {
+        var possessables = GameObject.FindGameObjectsWithTag("Possessable").Concat(GameObject.FindGameObjectsWithTag("BossHealthBar"));
+        foreach (var possessable in possessables)
+        {
+            Destroy(possessable);
+        }
+        rooms.Clear();
+        rooms.UnionWith(dungeonGenerator.GenerateDungeon());
+    }
+
     public void IncrementKilledEnemies()
     {
         enemiesKilled++;
@@ -40,22 +60,22 @@ public class DungeonManager : MonoBehaviour
     {
         var roomsCleared = rooms.Where(x => x.isFinished).Count();
         OnDungeonFinish?.Invoke(roomsCleared, enemiesKilled, "Game Over", "Restart");
-        GameEvents.DungeonFinished?.Invoke();
-
         UIScreenEvents.DungeonGameOverShown?.Invoke();
+        GameEvents.DungeonFinished?.Invoke();
     }
     public void HandleDungeonWin()
     {
         Debug.Log("Player won the dungeon!");
         dungeonGenerator.useStoredSeed = false;
         PlayerPrefs.DeleteKey("DungeonSeed");
-        PlayerPrefs.SetInt("MakeHarder", 1);
 
         var roomsCleared = rooms.Where(x => x.isFinished).Count();
         OnDungeonFinish?.Invoke(roomsCleared, enemiesKilled, "You won!", "New Dungeon");
 
-        GameEvents.DungeonFinished?.Invoke();
+        enemiesKilled = 0;
+
         UIScreenEvents.DungeonGameOverShown?.Invoke();
+        GameEvents.DungeonFinished?.Invoke();
     }
 
 }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -11,7 +12,8 @@ public class PlayerManager : MonoBehaviour
 
     public Transform Player => player;
     public Transform Ghost => ghost;
-    
+
+    private GameObject playerGO;
     public void SetMediator(IDungeonMediator mediator)
     {
         this.mediator = mediator;
@@ -19,7 +21,7 @@ public class PlayerManager : MonoBehaviour
 
     private void OnEnable()
     {
-        GameObject playerGO = GameObject.FindGameObjectWithTag("Player_Child");
+        playerGO = GameObject.FindGameObjectWithTag("Player_Child");
         GameObject ghostGO = GameObject.FindGameObjectWithTag("Player_Ghost");
         player = playerGO.transform;
         ghost = ghostGO.transform;
@@ -38,5 +40,10 @@ public class PlayerManager : MonoBehaviour
     private void Die()
     {
         mediator.Notify(this, DungeonEvents.PlayerDied);
+    }
+
+    public void ResetHealth()
+    {
+        playerGO.GetComponent<HealthComponent>().ResetHealth();
     }
 }
