@@ -1968,6 +1968,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0f7e77353b714264e92c8fa7333cfe4c, type: 2}
   bossEnemiesData:
   - {fileID: 11400000, guid: 215f96d49cfb9624a976e01deb4261c0, type: 2}
+  possessableObjects:
+  - {fileID: 380759389136876573, guid: 0e685936c982e9f4798c158058e715d7, type: 3}
+  - {fileID: 380759389136876573, guid: 0e685936c982e9f4798c158058e715d7, type: 3}
+  - {fileID: 380759389136876573, guid: 0e685936c982e9f4798c158058e715d7, type: 3}
+  - {fileID: 380759389136876573, guid: 0e685936c982e9f4798c158058e715d7, type: 3}
+  - {fileID: 380759389136876573, guid: 0e685936c982e9f4798c158058e715d7, type: 3}
 --- !u!4 &1417255862
 Transform:
   m_ObjectHideFlags: 0

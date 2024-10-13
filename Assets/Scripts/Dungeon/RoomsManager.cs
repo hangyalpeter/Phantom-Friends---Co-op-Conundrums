@@ -10,6 +10,9 @@ public class RoomsManager : MonoBehaviour
     [SerializeField]
     private List<EnemyData> bossEnemiesData = new List<EnemyData>();
 
+    [SerializeField]
+    private List<GameObject> possessableObjects = new List<GameObject>();
+
     private IDungeonMediator mediator;
 
     private HashSet<Room> rooms = new HashSet<Room>();
@@ -177,24 +180,29 @@ public class RoomsManager : MonoBehaviour
     }
     private void SpawnEnemies(Room room)
     {
-        foreach (var enemy in roomEnemiesData)
-        {
-            if (enemy != null)
-            {
-                var neighborOffsets = new List<Vector3Int>{
+        var neighborOffsets = new List<Vector3Int>{
                     Vector3Int.right,
                     Vector3Int.left,
                     Vector3Int.up,
                     Vector3Int.down
                 };
-                HashSet<Vector3Int> wallAndNeighborPositions = GetWallNeighborPositions(room, neighborOffsets);
+        HashSet<Vector3Int> wallAndNeighborPositions = GetWallNeighborPositions(room, neighborOffsets);
 
-                IEnumerable<Vector3Int> potentialSwawnPositions = CalculatePotentialSpawnPositions(room, wallAndNeighborPositions);
+        IEnumerable<Vector3Int> potentialSwawnPositions = CalculatePotentialSpawnPositions(room, wallAndNeighborPositions);
+
+        foreach (var enemy in roomEnemiesData)
+        {
+            if (enemy != null)
+            {
                 Vector3 position = potentialSwawnPositions.ElementAt(Random.Range(0, potentialSwawnPositions.Count()));
-
                 room.enemies.Add(spawner.SpawnEnemy(enemy, position));
-
             }
+        }
+
+        foreach (var possessable in possessableObjects)
+        {
+            Vector3 position = potentialSwawnPositions.ElementAt(Random.Range(0, potentialSwawnPositions.Count()));
+            Instantiate(possessable, position, Quaternion.identity);
         }
 
         room.spawned = true;
@@ -212,7 +220,13 @@ public class RoomsManager : MonoBehaviour
         HashSet<Vector3Int> wallAndNeighborPositions = GetWallNeighborPositions(room, neighborOffsets);
 
         IEnumerable<Vector3Int> potentialSwawnPositions = CalculatePotentialSpawnPositions(room, wallAndNeighborPositions);
-        Vector3 position = potentialSwawnPositions.ElementAt(Random.Range(0, potentialSwawnPositions.Count()));
+        Vector3 spawnPosition = potentialSwawnPositions.ElementAt(Random.Range(0, potentialSwawnPositions.Count()));
+
+        foreach (var possessable in possessableObjects)
+        {
+            Vector3 position = potentialSwawnPositions.ElementAt(Random.Range(0, potentialSwawnPositions.Count()));
+            Instantiate(possessable, position, Quaternion.identity);
+        }
 
         room.enemies.Add(spawner.SpawnEnemy(bossEnemiesData.First(), room.bounds.center));
         room.spawned = true;
