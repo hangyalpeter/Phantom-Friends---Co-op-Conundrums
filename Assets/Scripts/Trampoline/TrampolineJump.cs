@@ -23,6 +23,17 @@ public class TrampolineJump : MonoBehaviour
         }
     }
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.name == "Player_Child")
+        {
+            trampolineSound.Play();
+            anim.SetTrigger("jump");
+            JumpPlayer();
+        }
+
+    }
+
     public void JumpPlayer()
     {
         rb.velocity = new Vector2(rb.velocity.x, jumpForce);

@@ -76,7 +76,7 @@ public class LevelManager : MonoBehaviour
 
     private void OnDungeonGameStartClicked()
     {
-        StartCoroutine(LoadLevelAsync("Level 3"));
+        StartCoroutine(LoadLevelAsync("Dungeon Crawler"));
     }
 
     private void OnLevelRestartClicked()
@@ -109,6 +109,7 @@ public class LevelManager : MonoBehaviour
     }
     private IEnumerator LoadNextLevel()
     {
+        // TODO: consider loading level x +1 instead of buildindex+1
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
 
         while (!asyncLoad.isDone)

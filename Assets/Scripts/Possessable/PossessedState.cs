@@ -16,10 +16,10 @@ public class PossessedState : IState
             possessable.GetComponent<HealthComponent>().OnDied += Exit;
         }
         possessable.Rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
         possessable.Ghost.GetComponent<SpriteRenderer>().enabled = false;
         possessable.Ghost.GetComponent<BoxCollider2D>().enabled = false;
 
-        possessable.Ghost.GetComponent<Rigidbody2D>().transform.rotation = possessable.Rb.gameObject.transform.rotation;
         possessable.Ghost.GetComponent<Rigidbody2D>().transform.position = possessable.Rb.gameObject.transform.position;
         possessable.Ghost.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         possessable.GetComponent<PosessableMovement>().SetPossessedTrue();
@@ -32,6 +32,7 @@ public class PossessedState : IState
         {
             possessable.RequestDepossession();
         }
+        possessable.Ghost.GetComponent<Rigidbody2D>().transform.position = possessable.Rb.gameObject.transform.position;
     }
 
     public void Exit()

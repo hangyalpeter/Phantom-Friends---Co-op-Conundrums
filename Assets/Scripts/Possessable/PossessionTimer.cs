@@ -44,8 +44,8 @@ public class PossessionTimer : MonoBehaviour
             yield return new WaitForSeconds(1f);
             remainingTime -= 1f;
         }
+            mediator.RegisterDepossessionRequest();
 
-        mediator.RegisterDepossessionRequest();
     }
 
     public void UpdateTimerDisplay(float remainingTime)

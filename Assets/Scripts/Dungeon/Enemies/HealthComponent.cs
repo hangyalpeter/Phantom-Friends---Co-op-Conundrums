@@ -51,10 +51,13 @@ public class HealthComponent : MonoBehaviour, IHealthProvider
     {
 
         dieInvoked = true;
-        if (gameObject.tag == "Player_Child" || gameObject.tag == "PossessedEnemy" || gameObject.tag == "Possessable")
+        if (gameObject.CompareTag("Player_Child") || gameObject.CompareTag("PossessedEnemy") || gameObject.CompareTag("Possessable"))
         {
             OnDied?.Invoke();
-            FindAnyObjectByType<PossessionTimer>()?.StopTimer();
+            if (gameObject.GetComponent<PosessableMovement>().IsPossessed)
+            {
+                FindAnyObjectByType<PossessionTimer>()?.StopTimer();
+            }
             Destroy(gameObject);
             return;
         }
