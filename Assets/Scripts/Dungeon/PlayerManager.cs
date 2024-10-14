@@ -14,6 +14,8 @@ public class PlayerManager : MonoBehaviour
     public Transform Ghost => ghost;
 
     private GameObject playerGO;
+
+    private PlayerMovement1 playerMovement1;
     public void SetMediator(IDungeonMediator mediator)
     {
         this.mediator = mediator;
@@ -22,6 +24,7 @@ public class PlayerManager : MonoBehaviour
     private void OnEnable()
     {
         playerGO = GameObject.FindGameObjectWithTag("Player_Child");
+        playerMovement1 = playerGO.GetComponent<PlayerMovement1>();
         GameObject ghostGO = GameObject.FindGameObjectWithTag("Player_Ghost");
         player = playerGO.transform;
         ghost = ghostGO.transform;
@@ -46,4 +49,11 @@ public class PlayerManager : MonoBehaviour
     {
         playerGO.GetComponent<HealthComponent>().ResetHealth();
     }
+
+    public void IncreaseDamage(float damage)
+    {
+        playerMovement1.Damage = playerMovement1.Damage * damage;
+
+    }
+
 }

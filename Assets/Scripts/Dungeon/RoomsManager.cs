@@ -314,8 +314,13 @@ public class RoomsManager : MonoBehaviour
         bossEnemiesData.ForEach(b =>
         {
             b.health = b.health * 1.2f;
+            b.damage = b.damage * 1.05f;
         });
-        roomEnemiesData.ForEach(e => { e.health = e.health * 1.2f; });
+        roomEnemiesData.ForEach(e =>
+        {
+            e.health = e.health * 1.2f;
+            e.damage = e.damage * 1.05f;
+        });
         numberOfEnemiesToGenerate++;
     }
 

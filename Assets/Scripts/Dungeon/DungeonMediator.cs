@@ -37,6 +37,7 @@ public class DungeonMediator : MonoBehaviour, IDungeonMediator
             case DungeonEvents.DungeonWin:
                 dungeonManager.HandleDungeonWin();
                 playerManager.ResetHealth();
+                playerManager.IncreaseDamage(1.1f);
                 break;
         }
     }
