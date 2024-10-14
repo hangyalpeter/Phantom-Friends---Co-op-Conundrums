@@ -2498,7 +2498,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 859a67317cc1c154498c1fb325cbeb55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 1000
+  Damage: 1000
 --- !u!114 &1946791539
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2958,7 +2958,7 @@ PrefabInstance:
       objectReference: {fileID: 6601264287061838878, guid: 3e750bf53112b90429d861d8d6af6c7d, type: 2}
     - target: {fileID: 3398218039224685553, guid: 53deec7c09f85f54db751365bc426009, type: 3}
       propertyPath: maxHealth
-      value: 100
+      value: 10000
       objectReference: {fileID: 0}
     - target: {fileID: 6934676213958665057, guid: 53deec7c09f85f54db751365bc426009, type: 3}
       propertyPath: applesCountText

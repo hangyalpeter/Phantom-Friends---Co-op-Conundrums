@@ -18,6 +18,7 @@ public class EnemyBuilder
             FollowPlayerBehavior followPlayerBehaviour = enemyInstance.AddComponent<FollowPlayerBehavior>();
             followPlayerBehaviour.speed = enemyData.speed;
             followPlayerBehaviour.target = GameObject.FindGameObjectWithTag("Player_Child").transform;
+            followPlayerBehaviour.secondTarget = GameObject.FindGameObjectWithTag("Player_Ghost").transform;
         }
         return this;
     }
