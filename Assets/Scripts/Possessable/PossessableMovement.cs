@@ -15,6 +15,8 @@ public class PosessableMovement : MonoBehaviour
     private bool isPossessed = false;
     private SpriteRenderer rbSprite;
 
+    public bool IsPossessed => isPossessed;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -65,6 +67,7 @@ public class PosessableMovement : MonoBehaviour
     public void SetPossessedFalse()
     {
         isPossessed = false;
+
         rb.velocity = Vector2.zero;
     }
 }

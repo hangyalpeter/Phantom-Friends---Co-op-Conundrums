@@ -1,14 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class HealthBar : MonoBehaviour
 {
     [SerializeField]
-    public Slider healthSlider;
+    //public Slider healthSlider;
+    private Slider healthSlider;
 
-    private HealthComponent healthComponent;
+    private IHealthProvider healthComponent;
 
     [SerializeField]
     private GameObject healthBar;
@@ -28,10 +27,10 @@ public class HealthBar : MonoBehaviour
             healthSlider = h.GetComponent<Slider>();
         }
 
-        healthComponent = GetComponent<HealthComponent>();
+        healthComponent = GetComponent<IHealthProvider>();
         if (healthComponent != null)
         {
-            healthComponent.OnDamageTakenWithAmount += SetHealth;
+            healthComponent.OnHealthChanged += SetHealth;
             SetMaxHealth(healthComponent.MaxHealth);
         }
     }
@@ -40,7 +39,7 @@ public class HealthBar : MonoBehaviour
     {
         if (healthComponent != null)
         {
-            healthComponent.OnDamageTakenWithAmount -= SetHealth;
+            healthComponent.OnHealthChanged -= SetHealth;
         }
 
     }

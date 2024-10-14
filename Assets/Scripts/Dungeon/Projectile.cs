@@ -3,7 +3,6 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     
-    public float speed = 10f;
     public float damage = 25f;
 
     [SerializeField]
@@ -17,22 +16,19 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        HealthComponent health = collision.gameObject.GetComponent<HealthComponent>();
+        IHealthProvider health = collision.gameObject.GetComponent<IHealthProvider>();
 
-        if (collision.gameObject.CompareTag(collisionTag))
+        if (collision.gameObject.CompareTag(collisionTag) || collision.gameObject.CompareTag("Player_Ghost"))
         {
-            Debug.Log("collision with enemy");
             return;
-
         }
+
         if (health != null)
         {
             health.TakeDamage(damage);
         }
 
-        Debug.Log("no collision with enemy");
-
         Destroy(gameObject);
     }
-
+ 
 }

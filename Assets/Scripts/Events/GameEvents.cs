@@ -11,4 +11,5 @@ public class GameEvents
     public static Action LevelFinished;
     public static Action<string> LevelFinishedWithTime; 
     public static Action DungeonFinished;
+    public static Action OnNewDungeon;
 }

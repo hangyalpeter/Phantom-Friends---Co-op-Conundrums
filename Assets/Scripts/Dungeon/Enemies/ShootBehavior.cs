@@ -5,8 +5,7 @@ public class ShootBehavior : MonoBehaviour
     public GameObject projectilePrefab;
     public Transform shootingPoint;
 
-    // TODO: fix access levels
-    public float interval = 10f;
+    public float spawnInterval = 10f;
     private float nextShotTime = 0f;
 
     public float speed = 10f;
@@ -25,7 +24,7 @@ public class ShootBehavior : MonoBehaviour
         if (Time.time >= nextShotTime)
         {
             Shoot();
-            nextShotTime = Time.time + interval;
+            nextShotTime = Time.time + spawnInterval;
         }
         AlwaysFacePlayer();
     }
@@ -35,7 +34,7 @@ public class ShootBehavior : MonoBehaviour
         if (projectilePrefab != null && shootingPoint != null)
         {
             var direction = GetComponent<FollowPlayerBehavior>() == null ? (target.position - transform.position) : lastMovementDirection;
-            ProjectileFactory.Instance.GetProjectile(projectilePrefab, shootingPoint.position, direction, speed, "Enemy");
+            ProjectileFactory.Instance.GetProjectile(projectilePrefab, shootingPoint.position, direction, speed, damage, "Enemy");
 
             OnShoot?.Invoke();
         }
@@ -64,6 +63,8 @@ public class ShootBehavior : MonoBehaviour
 
     private void AlwaysFacePlayer()
     {
+        if (target == null) return;
+
         if (transform.position.x > target.position.x)
         {
             transform.rotation = new Quaternion(0, 0, 0, transform.rotation.w);

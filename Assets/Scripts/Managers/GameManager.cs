@@ -80,7 +80,7 @@ public class GameManager : MonoBehaviour
 
     private void OnDungeonGameStartClicked()
     {
-        StartCoroutine(LoadNamedLevel("Level 3"));
+        StartCoroutine(LoadNamedLevel("Dungeon Crawler"));
     }
 
     private void UnsubscribeFromEvents()
@@ -168,7 +168,6 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
         isLevelPlaying = true;
         elapsedTime = 0f;
-
 
     }
 

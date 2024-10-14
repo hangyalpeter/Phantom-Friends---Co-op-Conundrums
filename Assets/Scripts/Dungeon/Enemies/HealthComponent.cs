@@ -1,54 +1,69 @@
 ﻿using System;
 using UnityEngine;
 
-public class HealthComponent : MonoBehaviour
+public class HealthComponent : MonoBehaviour, IHealthProvider
 {
     public float maxHealth = 100f;
     private float currentHealth;
 
     public event Action OnDied;
-    public event Action OnDamageTaken;
-    public event Action<float> OnDamageTakenWithAmount;
-    public static Action<string> OnEnemyDied;
+    public event Action<float> OnHealthChanged;
+    public static event Action OnEnemyDied;
 
     private bool dieInvoked = false;
 
     public float MaxHealth => maxHealth;
 
+    public float CurrentHealth
+    {
+        get => currentHealth;
+        private set
+        {
+            if (currentHealth != value)
+            {
+                currentHealth = value;
+                OnHealthChanged?.Invoke(currentHealth);
+            }
+        }
+    }
+
     void Start()
     {
-        currentHealth = maxHealth;
-        
+        CurrentHealth = maxHealth;
     }
 
     public void TakeDamage(float damage)
     {
-        currentHealth -= damage;
-        Debug.Log(gameObject.name + " took " + damage + " damage, health left: " + currentHealth);
+        CurrentHealth -= damage;
 
-        OnDamageTaken?.Invoke();
-        OnDamageTakenWithAmount?.Invoke(currentHealth);
-
-        if (currentHealth <= 0 && !dieInvoked)
+        if (CurrentHealth <= 0 && !dieInvoked)
         {
             Die();
         }
+    }
+
+    public void ResetHealth()
+    {
+        CurrentHealth = maxHealth;
     }
 
     private void Die()
     {
 
         dieInvoked = true;
-        if (gameObject.tag == "Player_Child" || gameObject.tag == "PossessedEnemy")
+        if (gameObject.CompareTag("Player_Child") || gameObject.CompareTag("PossessedEnemy") || gameObject.CompareTag("Possessable"))
         {
-            Debug.Log(gameObject.name + " died.");
             OnDied?.Invoke();
+            if (gameObject.GetComponent<PosessableMovement>().IsPossessed)
+            {
+                FindAnyObjectByType<PossessionTimer>()?.StopTimer();
+            }
+            Destroy(gameObject);
             return;
         }
         else
         {
-            OnEnemyDied?.Invoke(gameObject.name);
-            Debug.Log(gameObject.name + " died.");
+            OnEnemyDied?.Invoke();
             Destroy(gameObject);
         }
     }

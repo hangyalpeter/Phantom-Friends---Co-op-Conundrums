@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EnemyBuilder
 {
@@ -14,27 +13,27 @@ public class EnemyBuilder
 
     public EnemyBuilder WithMovement()
     {
-        if (enemyData.canMove)
+        if (enemyData.canMove || enemyData.isBoss)
         {
             FollowPlayerBehavior followPlayerBehaviour = enemyInstance.AddComponent<FollowPlayerBehavior>();
             followPlayerBehaviour.speed = enemyData.speed;
-            // TODO: add player's position as target as function parameter or some other solution than this instead in enemy spawner and in enemy spawner, player should be a [serializefield]
             followPlayerBehaviour.target = GameObject.FindGameObjectWithTag("Player_Child").transform;
+            followPlayerBehaviour.secondTarget = GameObject.FindGameObjectWithTag("Player_Ghost").transform;
         }
         return this;
     }
 
     public EnemyBuilder WithShooting()
     {
-        if (enemyData.canShoot)
+        if (enemyData.canShoot || enemyData.isBoss)
         {
             ShootBehavior shootBehavior = enemyInstance.AddComponent<ShootBehavior>();
-            shootBehavior.interval = enemyData.shootInterval;
             shootBehavior.target = GameObject.FindGameObjectWithTag("Player_Child").transform;
             shootBehavior.projectilePrefab = enemyData.projectilePrefab;
             shootBehavior.shootingPoint = enemyInstance.transform;
             shootBehavior.damage = enemyData.damage;
             shootBehavior.speed = enemyData.projectileSpeed;
+            shootBehavior.spawnInterval = enemyData.shootInterval;
         }
        return this;
     }
@@ -50,7 +49,6 @@ public class EnemyBuilder
         return this;
     }
 
-    // TODO observable for healthbar
     public EnemyBuilder WithHealth()
     {
         HealthComponent healthComponent = enemyInstance.AddComponent<HealthComponent>();
@@ -65,20 +63,28 @@ public class EnemyBuilder
 
     public EnemyBuilder WithRotateShooting()
     {
-        if (enemyData.canRotateShoot)
+        if (enemyInstance.GetComponent<RotateShootingBehavior>() == null)
         {
-            RotateShootingBehavior rotateBehavior = enemyInstance.AddComponent<RotateShootingBehavior>();
-            rotateBehavior.projectilePrefab = enemyData.projectilePrefab;
+            if (enemyData.canRotateShoot || enemyData.isBoss)
+            {
+                RotateShootingBehavior rotateBehavior = enemyInstance.AddComponent<RotateShootingBehavior>();
+                rotateBehavior.projectilePrefab = enemyData.projectilePrefab;
+                rotateBehavior.damage = enemyData.damage;
+            }
         }
         return this;
     }
 
     public EnemyBuilder WithShootInCircle()
     {
-        if (enemyData.canShootInCircle)
+        if (enemyInstance.GetComponent<ShootInCircleBehavior>() == null)
         {
-            ShootInCircleBehavior shootInCircleBehavior = enemyInstance.AddComponent<ShootInCircleBehavior>();
-            shootInCircleBehavior.projectilePrefab = enemyData.projectilePrefab;
+            if (enemyData.canShootInCircle || enemyData.isBoss)
+            {
+                ShootInCircleBehavior shootInCircleBehavior = enemyInstance.AddComponent<ShootInCircleBehavior>();
+                shootInCircleBehavior.projectilePrefab = enemyData.projectilePrefab;
+                shootInCircleBehavior.damage = enemyData.damage;
+            }
         }
         return this;
     }

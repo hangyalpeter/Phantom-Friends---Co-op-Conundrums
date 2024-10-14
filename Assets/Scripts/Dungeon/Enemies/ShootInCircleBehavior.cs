@@ -16,6 +16,8 @@ public class ShootInCircleBehavior : MonoBehaviour
 
     private string collisionTag = "Enemy";
 
+    public float damage = 25f;
+
     private void Start()
     {
         InvokeRepeating(nameof(FireAllProjectilesInCircle), 0f, spawnInterval);
@@ -36,7 +38,7 @@ public class ShootInCircleBehavior : MonoBehaviour
 
             if (ProjectileFactory.Instance != null)
             {
-                ProjectileFactory.Instance.GetProjectile(projectilePrefab, spawnPoint, spawnDirection, projectileSpeed, collisionTag);
+                ProjectileFactory.Instance.GetProjectile(projectilePrefab, spawnPoint, spawnDirection, projectileSpeed, damage, collisionTag);
             }
 
             currentAngle += angleStep;

@@ -16,6 +16,7 @@ TagManager:
   - PossessedEnemy
   - BossHealthBar
   - Boss
+  - Possessable
   layers:
   - Default
   - TransparentFX

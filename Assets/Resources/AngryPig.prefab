@@ -15,6 +15,8 @@ GameObject:
   - component: {fileID: 2043910512449308454}
   - component: {fileID: 7675806000118991018}
   - component: {fileID: -2596202141752781223}
+  - component: {fileID: 1279563049740395090}
+  - component: {fileID: 4057843920162566270}
   m_Layer: 0
   m_Name: AngryPig
   m_TagString: Enemy
@@ -210,3 +212,28 @@ MonoBehaviour:
   healthBar: {fileID: 2626172631244542461, guid: 4e148dfce2ad7884bbeaeb304409b109, type: 3}
   canvas: {fileID: 0}
   healthBarPosition: {x: 380, y: -9, z: 0}
+--- !u!114 &1279563049740395090
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1713941996223979251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d62c12ae31c0bc4ea90059677a990f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyData: {fileID: 11400000, guid: 215f96d49cfb9624a976e01deb4261c0, type: 2}
+--- !u!114 &4057843920162566270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1713941996223979251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08f1aa8692de06c4e8493da797f7d5f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

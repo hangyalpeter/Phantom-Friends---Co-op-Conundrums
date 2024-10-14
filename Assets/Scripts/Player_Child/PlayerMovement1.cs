@@ -16,6 +16,8 @@ public class PlayerMovement1 : MonoBehaviour
 
     private GameObject bulletPrefab;
 
+    public float Damage = 25f;
+
     private Vector2 previousPosition;
     private Vector2 currentPosition;
     private Vector2 lastMovementDirection;
@@ -36,14 +38,14 @@ public class PlayerMovement1 : MonoBehaviour
         previousPosition = transform.position;
         lastMovementDirection = Vector2.right;
 
-        health.OnDamageTaken += TriggerHitAnimation;
+        health.OnHealthChanged += TriggerHitAnimation;
         health.OnDied += OnDied;
 
     }
 
     private void OnDisable()
     {
-        health.OnDamageTaken -= TriggerHitAnimation;
+        health.OnHealthChanged -= TriggerHitAnimation;
         health.OnDied -= OnDied;
     }
 
@@ -75,7 +77,7 @@ public class PlayerMovement1 : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            ProjectileFactory.Instance.GetProjectile(bulletPrefab, transform.position, lastMovementDirection, 20, "Player_Child");
+            ProjectileFactory.Instance.GetProjectile(bulletPrefab, transform.position, lastMovementDirection, 20, Damage, "Player_Child");
         }
     }
 
@@ -125,7 +127,7 @@ public class PlayerMovement1 : MonoBehaviour
 
     }
 
-    private void TriggerHitAnimation() {
+    private void TriggerHitAnimation(float _) {
         anim.SetTrigger("hit");
     
     }

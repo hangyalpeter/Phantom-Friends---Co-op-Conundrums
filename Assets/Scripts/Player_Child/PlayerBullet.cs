@@ -10,7 +10,7 @@ public class PlayerBullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        HealthComponent health = collision.gameObject.GetComponent<HealthComponent>();
+        IHealthProvider health = collision.gameObject.GetComponent<IHealthProvider>();
         Debug.Log(collision.gameObject.name);
         if (collision.gameObject.CompareTag("Player_Child"))
         {
