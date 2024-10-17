@@ -1,17 +1,17 @@
-﻿using UnityEngine;
+﻿using Unity.Netcode;
+using UnityEngine;
 
-public class PossessMediator : MonoBehaviour
+public class PossessMediator : NetworkBehaviour
 {
     private PossessableTransformation currentlyPossessedObject;
-    private GameObject ghost;
     private PossessionTimer possessionTimer;
 
-    public GameObject Ghost => ghost;
+    public GameObject Ghost { get; private set; }
 
     private void Awake()
     {
-        ghost = GameObject.FindGameObjectWithTag("Player_Ghost");
         possessionTimer = GetComponent<PossessionTimer>();
+        StartCoroutine(FindPlayers());
     }
 
     public void RegisterPossessionRequest(PossessableTransformation target)
@@ -25,7 +25,7 @@ public class PossessMediator : MonoBehaviour
             {
                 behavior.OnPossess();
             }
-            ghost.GetComponent<GhostController>().IsPossessed = true;
+            Ghost.GetComponent<GhostController>().ToggleIsPossessed(true);
             currentlyPossessedObject.Possess();
 
             possessionTimer.StartTimer(target, target.PossessionDuration);
@@ -43,7 +43,7 @@ public class PossessMediator : MonoBehaviour
             {
                 behavior.OnDePossess();
             }
-            ghost.GetComponent<GhostController>().IsPossessed = false;
+            Ghost.GetComponent<GhostController>().ToggleIsPossessed(false);
 
             currentlyPossessedObject = null;
 
@@ -57,4 +57,22 @@ public class PossessMediator : MonoBehaviour
     }
 
     public bool IsPossessing() => currentlyPossessedObject != null;
+
+    private System.Collections.IEnumerator FindPlayers()
+    {
+        yield return new WaitUntil(() => NetworkManager.Singleton.IsConnectedClient || NetworkManager.Singleton.IsServer);
+
+        while (Ghost == null)
+        {
+            GameObject ghost = GameObject.FindWithTag("Player_Ghost");
+            if (ghost != null)
+            {
+                Ghost = ghost;
+            }
+
+            yield return new WaitForSeconds(0.5f);
+        }
+    }
+
+
 }

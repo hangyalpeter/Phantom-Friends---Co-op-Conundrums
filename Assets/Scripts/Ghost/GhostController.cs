@@ -1,63 +1,90 @@
 using System;
+using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
-public class GhostController : MonoBehaviour
+public class GhostController : NetworkBehaviour
 {
 
     private PossessMediator mediator;
-
-
-    [SerializeField] private Transform secondPlayer;
-    [SerializeField] private float maxDistanceFromSecondPlayer = 10f;
     
     private Rigidbody2D rb;
     private SpriteRenderer sr;
     private Animator anim;
     private float dirX = 0f;
     private float dirY = 0f;
-    private float moveSpeed = 7f;
+    private readonly float moveSpeed = 7f;
 
-    public bool IsPossessed { get; set; }
+    public bool IsPossessed { get; set; } = false;
 
+    private bool possessRequested = false;
+    private bool dePossessRequested = false;
     private enum MovementState { idle, moving}
+    private NetworkVariable<bool> isFlipped = new NetworkVariable<bool>(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    private NetworkVariable<bool> isSpriteEnabled = new NetworkVariable<bool>(true, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    private NetworkVariable<bool> isPossessedNetwork = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-    void Start()
+    private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
         mediator = FindObjectOfType<PossessMediator>();
 
+        isFlipped.OnValueChanged += (oldValue, newValue) =>
+        {
+            sr.flipX = newValue;
+        };
+
+        isSpriteEnabled.OnValueChanged += (oldValue, newValue) =>
+        {
+            sr.enabled = newValue;
+        };
+
+        isPossessedNetwork.OnValueChanged += (oldValue, newValue) =>
+        {
+            IsPossessed = newValue;
+        };
 
     }
 
-    void Update()
+
+    private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            possessRequested = true;
+        }
+        else if (Input.GetKeyDown(KeyCode.R))
+        {
+            dePossessRequested = true;
+        }
+    }
+
+    void FixedUpdate()
+    {
+        if (!IsOwner) return;
+
         if (Equals(Time.timeScale, 0f))
         {
             return;
         }
 
-        //float distance = Vector2.Distance(transform.position, secondPlayer.position);
-
-        // TODO separate dungeon and puzzle
-
-       /* if (distance > maxDistanceFromSecondPlayer)
+        if (possessRequested)
         {
-            Vector2 direction = (transform.position - secondPlayer.position).normalized;
-            transform.position = secondPlayer.position + new Vector3(direction.x, direction.y, 0) * maxDistanceFromSecondPlayer;
-        }*/
+            possessRequested = false;
+            var target = GetClosestPossessableTarget();
 
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            if (!IsPossessed)
+            if (target != null)
             {
-                var target = GetClosestPossessableTarget();
-                target?.RequestPossession();
+                RequestOwnershipServerRpc(target.NetworkObjectId);
+                target.GetComponent<PossessableTransformation>().RequestPossession();
             }
         }
-        else if (Input.GetKeyDown(KeyCode.R) && IsPossessed)
+
+        if (dePossessRequested)
         {
+            dePossessRequested = false;
             mediator.RegisterDepossessionRequest();
         }
 
@@ -65,10 +92,26 @@ public class GhostController : MonoBehaviour
         dirY = Input.GetAxisRaw("Vertical_Ghost");
         rb.velocity = new Vector2(dirX * moveSpeed, dirY * moveSpeed);
         
-        // TODO argue if animation handling should be separated to a different script
         UpdateAnimationState();
 
     }
+
+     [ServerRpc(RequireOwnership = false)]
+    private void RequestOwnershipServerRpc(ulong targetNetworkObjectId, ServerRpcParams rpcParams = default)
+    {
+
+        if (NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(targetNetworkObjectId, out NetworkObject targetNetworkObject))
+        {
+            // Change ownership to the client who made the request
+            targetNetworkObject.ChangeOwnership(rpcParams.Receive.SenderClientId);
+        }
+        else
+        {
+            Debug.LogWarning($"NetworkObject with ID {targetNetworkObjectId} not found.");
+        }
+
+    }
+
     private void UpdateAnimationState()
     {
         MovementState state;
@@ -76,12 +119,12 @@ public class GhostController : MonoBehaviour
         if (dirX > 0f || dirY > 0f)
         {
             state = MovementState.moving;
-            sr.flipX = true;
+            UpdateFlipX(true);
         }
         else if (dirX < 0f || dirY < 0f)
         {
             state = MovementState.moving;
-            sr.flipX = false;
+            UpdateFlipX(false);
         }
         else
         {
@@ -92,7 +135,52 @@ public class GhostController : MonoBehaviour
  
     }
 
-    
+     private void UpdateFlipX(bool flipX)
+    {
+        if (IsServer) 
+        {
+            isFlipped.Value = flipX;
+        }
+        else if (IsOwner) 
+        {
+            UpdateFlipXServerRpc(flipX);
+        }
+    }
+
+
+    [ServerRpc]
+    private void UpdateFlipXServerRpc(bool flipX)
+    {
+        isFlipped.Value = flipX;
+    }
+
+
+    [ServerRpc]
+    private void ToggleSpriteRendererServerRpc(bool enabled)
+    {
+        isSpriteEnabled.Value = enabled;
+    }
+    public void ToggleIsPossessed(bool isPossessed)
+    {
+        if (IsServer)
+        {
+            isPossessedNetwork.Value = isPossessed;
+            isSpriteEnabled.Value = !isPossessed;
+        }
+        else if (IsOwner)
+        {
+            ToggleIsPossessedServerRpc(isPossessed);
+            ToggleSpriteRendererServerRpc(!isPossessed);
+        }
+    }
+
+    [ServerRpc]
+    private void ToggleIsPossessedServerRpc(bool isPossessed)
+    {
+        isSpriteEnabled.Value = isPossessed;
+    }
+
+
     private PossessableTransformation GetClosestPossessableTarget()
     {
         PossessableTransformation closestTarget = null;

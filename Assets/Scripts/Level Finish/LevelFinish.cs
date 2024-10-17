@@ -9,7 +9,7 @@ public class LevelFinish : MonoBehaviour
     
      private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "Player_Child")
+        if (collision.gameObject.CompareTag("Player_Child"))
         {
             levelFinishSound.Play();
             GameEvents.LevelFinished?.Invoke();

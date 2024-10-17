@@ -1,42 +1,41 @@
+using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
-public class TrampolineJump : MonoBehaviour
+public class TrampolineJump : NetworkBehaviour
 {
     private Animator anim;
     [SerializeField] private float jumpForce = 20f;
-    [SerializeField] private GameObject playerGameObject;
     [SerializeField] private AudioSource trampolineSound;
-    private Rigidbody2D rb;
     void Start()
     {
         anim = GetComponent<Animator>();
-        rb = playerGameObject.GetComponent<Rigidbody2D>();
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.name == "Player_Child")
-        {
-            trampolineSound.Play();
-            anim.SetTrigger("jump");
-            JumpPlayer();
-        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.name == "Player_Child")
+        if (collision.gameObject.CompareTag("Player_Child"))
+        {
+            RequestTrampolineActionServerRpc(collision.gameObject.GetComponent<NetworkObject>());
+        }
+    }
+ 
+    [ServerRpc(RequireOwnership = false)]
+    private void RequestTrampolineActionServerRpc(NetworkObjectReference player)
+    {
+        JumpPlayerClientRpc(player);
+    }
+
+    [ClientRpc]
+    private void JumpPlayerClientRpc(NetworkObjectReference player)
+    {
+        player.TryGet(out NetworkObject playerObject);
+        if (playerObject != null)
         {
             trampolineSound.Play();
             anim.SetTrigger("jump");
-            JumpPlayer();
+            playerObject.GetComponent<Rigidbody2D>().velocity = new Vector2(playerObject.GetComponent<Rigidbody2D>().velocity.x, jumpForce);
         }
 
     }
-
-    public void JumpPlayer()
-    {
-        rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-    }
-   
 }

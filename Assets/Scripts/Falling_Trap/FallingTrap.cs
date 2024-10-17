@@ -1,7 +1,8 @@
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
-public class FallingTrap : MonoBehaviour
+public class FallingTrap : NetworkBehaviour
 {
     private Rigidbody2D rb;
     private bool isAlreadyTriggered = false;
@@ -38,6 +39,7 @@ public class FallingTrap : MonoBehaviour
         {
             bc.enabled = false;
             Destroy(gameObject);
+            NetworkObject.Despawn(gameObject);
         }
     }
 

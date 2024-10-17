@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using Unity.Netcode;
+using UnityEngine;
 
 
-public class PossessableTransformation : MonoBehaviour
+public class PossessableTransformation : NetworkBehaviour
 {
     [SerializeField] private float distanceOffset = 2f;
     [SerializeField] private float possessionDuration = 15f;
@@ -19,7 +20,7 @@ public class PossessableTransformation : MonoBehaviour
     private void Awake()
     {
         mediator = FindObjectOfType<PossessMediator>();
-        Ghost = GameObject.FindGameObjectWithTag("Player_Ghost");
+        Ghost = mediator.Ghost != null ? mediator.Ghost : null;
 
         DepossessedState = new DepossessedState(this);
         PossessedState = new PossessedState(this);
@@ -33,6 +34,10 @@ public class PossessableTransformation : MonoBehaviour
 
     private void Update()
     {
+        if (Ghost == null)
+        {
+            Ghost = mediator.Ghost;
+        }
         currentState.Update();
     }
 
