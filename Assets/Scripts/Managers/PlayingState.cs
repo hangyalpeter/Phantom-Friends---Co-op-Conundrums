@@ -13,16 +13,17 @@ public class PlayingState : IGameState
     public void EnterState()
     {
         Debug.Log("Entered Playing State");
+        UIScreenEvents.HideAllScreens?.Invoke();
         if (context.ElapsedTime <= 0 )
         {
-            context.ElapsedTime = 0f;
+            context.UpdateElapsedTimeSync(0, false);
         }
         Time.timeScale = 1f;
     }
 
     public void UpdateState()
     {
-        context.ElapsedTime += Time.deltaTime;
+        context.UpdateElapsedTimeSync(Time.deltaTime);
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {

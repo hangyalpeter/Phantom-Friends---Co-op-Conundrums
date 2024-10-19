@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PlayerChildLife : MonoBehaviour
+public class PlayerChildLife : NetworkBehaviour
 {
     private Animator animator;
     private Rigidbody2D rb;
@@ -16,9 +17,10 @@ public class PlayerChildLife : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        if (!IsOwner) return;
        if (collision.gameObject.CompareTag("Trap"))
         {
-            Die();
+            DieServerRpc();
         }
     }
 
@@ -28,6 +30,20 @@ public class PlayerChildLife : MonoBehaviour
         rb.bodyType = RigidbodyType2D.Static;
         animator.SetTrigger("death");
     }
+
+    [ServerRpc]
+    private void DieServerRpc()
+    {
+       DieClientRpc();
+    }
+
+    [ClientRpc]
+    private void DieClientRpc()
+    {
+        Die();
+    }
+
+
 
     private void Reset()
     {

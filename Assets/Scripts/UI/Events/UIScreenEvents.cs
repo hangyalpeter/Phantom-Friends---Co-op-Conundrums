@@ -3,6 +3,8 @@ using System;
 public static class UIScreenEvents 
 {
 
+    public static Action HideAllScreens;
+
     public static Action ScreenClosed;
     public static Action MainMenuShown;
     public static Action SettingsShown;
@@ -14,7 +16,6 @@ public static class UIScreenEvents
     public static Action OnNextLevel;
     public static Action LevelSelectShown;
     public static Action DungeonGameOverShown;
-
     public static Action<string> OnLevelSelected;
 
 

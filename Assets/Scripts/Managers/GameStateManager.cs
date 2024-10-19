@@ -1,7 +1,15 @@
-﻿using UnityEngine;
+﻿using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameStateManager : MonoBehaviour
+public enum GameStateType
+{
+    MainMenu,
+    Playing,
+    Paused,
+    GameOver
+}
+public class GameStateManager : NetworkBehaviour
 {
     public IGameState CurrentState { get; private set; }
 
@@ -11,7 +19,11 @@ public class GameStateManager : MonoBehaviour
     public MainMenuState MainMenuState { get; private set; }
 
     public float ElapsedTime { get; set; }
+    private NetworkVariable<float> ElapsedTimeSynced = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
+    public NetworkTime ElapsedTimee;
+
+   
 
     private void OnEnable()
     {
@@ -27,6 +39,21 @@ public class GameStateManager : MonoBehaviour
         GameEvents.DungeonFinished -= TransitionToGameOverState;
         GameEvents.LevelFinished -= TransitionToGameOverState;
         GameEvents.OnNewDungeon -= HandleNewDungeon;
+    }
+
+    public void UpdateElapsedTimeSync(float elapsedTime, bool update=true)
+    {
+        if (IsServer)
+        {
+            if (update)
+            {
+                ElapsedTimeSynced.Value += elapsedTime;
+            }
+            else
+            {
+                ElapsedTimeSynced.Value = elapsedTime;
+            }
+        }
     }
 
     private void HandleNewDungeon()
@@ -48,29 +75,90 @@ public class GameStateManager : MonoBehaviour
         GameOverState = new GameOverState(this);
         MainMenuState = new MainMenuState(this);
 
+        ElapsedTimeSynced.OnValueChanged += (float previousValue, float newValue) =>
+        {
+            ElapsedTime = newValue;
+        };
+
         TransitionToState(MainMenuState);
+
+        UIScreenEvents.MainMenuShown += () => TransitionToState(MainMenuState);
     }
+
+
 
     private void Update()
     {
         CurrentState?.UpdateState();
     }
 
-    public void TransitionToState(IGameState newState)
+    private void TransitionStateee(IGameState newState)
     {
         CurrentState?.ExitState();
-        CurrentState = newState; 
+        CurrentState = newState;
         CurrentState?.EnterState();
+
     }
+
+
+    public void TransitionToState(IGameState newState)
+    {
+        if (IsServer)
+        {
+            TransitionToStateClientRpc(GetGameStateTypeFromState(newState));
+        }
+    }
+
+    [ServerRpc]
+    private void TransitionToStateServerRpc(GameStateType newStateType)
+    {
+        TransitionStateee(GetStateFromType(newStateType));
+    }
+
+    [ClientRpc]
+    private void TransitionToStateClientRpc(GameStateType newStateType)
+    {
+        TransitionStateee(GetStateFromType(newStateType));
+    }
+
+    private GameStateType GetGameStateTypeFromState(IGameState state)
+    {
+        if (state is MainMenuState)
+            return GameStateType.MainMenu;
+        else if (state is PlayingState)
+            return GameStateType.Playing;
+        else if (state is PausedState)
+            return GameStateType.Paused;
+        else if (state is GameOverState)
+            return GameStateType.GameOver;
+
+        return GameStateType.MainMenu; 
+    }
+
+    private IGameState GetStateFromType(GameStateType type)
+    {
+        switch (type)
+        {
+            case GameStateType.MainMenu:
+                return new MainMenuState(this);
+            case GameStateType.Playing:
+                return new PlayingState(this);
+            case GameStateType.Paused:
+                return new PausedState(this);
+            case GameStateType.GameOver:
+                return new GameOverState(this);
+            default:
+                return new MainMenuState(this);
+        }
+    }
+
+
 
     private void ResetElapsedTime()
     {
-        ElapsedTime = 0;
-        if (SceneManager.GetActiveScene().name == "Main Menu")
+        if (IsServer)
         {
-            TransitionToState(MainMenuState);
-        } else
-        {
+            ElapsedTimeSynced.Value = 0;
             TransitionToState(PlayingState);
         }
     }

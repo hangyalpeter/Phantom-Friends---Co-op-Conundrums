@@ -28,8 +28,20 @@ public class PossessMediator : NetworkBehaviour
             Ghost.GetComponent<GhostController>().ToggleIsPossessed(true);
             currentlyPossessedObject.Possess();
 
-            possessionTimer.StartTimer(target, target.PossessionDuration);
+            StartTimerServerRpc(target.PossessionDuration);
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void StartTimerServerRpc(float duration)
+    {
+        StartTimerClientRpc(duration);
+    }
+
+    [ClientRpc]
+    private void StartTimerClientRpc(float duration)
+    {
+        possessionTimer.StartTimer(duration);
     }
 
     public void RegisterDepossessionRequest()
@@ -47,9 +59,22 @@ public class PossessMediator : NetworkBehaviour
 
             currentlyPossessedObject = null;
 
-            possessionTimer.StopTimer();
+            StopTimerServerRpc();
         }
     }
+
+  [ServerRpc(RequireOwnership = false)]
+    private void StopTimerServerRpc()
+    {
+        StopTimerClientRpc();
+    }
+
+    [ClientRpc]
+    private void StopTimerClientRpc()
+    {
+        possessionTimer.StopTimer();
+    }
+
 
     public void UpdateTimerDisplay(float remainingTime)
     {

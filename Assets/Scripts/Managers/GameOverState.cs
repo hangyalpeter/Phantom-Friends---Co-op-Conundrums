@@ -8,7 +8,6 @@ public class GameOverState : IGameState
     public GameOverState(GameStateManager context)
     {
         this.context = context;
-        LevelManager.LevelChanged += () => context.TransitionToState(context.PlayingState);
     }
     public void EnterState()
     {
@@ -17,9 +16,10 @@ public class GameOverState : IGameState
 
         int minutes = (int)(context.ElapsedTime / 60);
         int seconds = (int)(context.ElapsedTime % 60);
-        int milliseconds = (int)((context.ElapsedTime * 1000) % 1000);
+        //int milliseconds = (int)((context.ElapsedTime * 1000) % 1000);
+        float hundreth = (float)((context.ElapsedTime - Mathf.Floor(context.ElapsedTime)) * 100);
 
-        GameEvents.LevelFinishedWithTime?.Invoke(string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds));
+        GameEvents.LevelFinishedWithTime?.Invoke(string.Format("{0:00}:{1:00}:{2:00}", minutes, seconds, hundreth));
 
         var currentLevelName = SceneManager.GetActiveScene().name;
         if (PlayerPrefs.HasKey(currentLevelName + "_BestCompletionTime"))

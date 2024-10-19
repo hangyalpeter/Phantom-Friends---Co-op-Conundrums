@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 
-public class PossessionTimer : MonoBehaviour
+public class PossessionTimer : NetworkBehaviour
 {
     private Coroutine timerCoroutine;
     private TextMeshProUGUI timerText;
@@ -14,7 +15,7 @@ public class PossessionTimer : MonoBehaviour
         timerText = GameObject.FindGameObjectWithTag("TimerText").GetComponent<TextMeshProUGUI>();
     }
 
-    public void StartTimer(PossessableTransformation target, float duration)
+    public void StartTimer(float duration)
     {
         if (timerCoroutine != null)
         {

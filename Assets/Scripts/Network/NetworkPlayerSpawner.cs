@@ -8,30 +8,26 @@ public class NetworkPlayerSpawner : NetworkBehaviour
     [SerializeField] private GameObject playerChildPrefab;
     [SerializeField] private GameObject playerGhostPrefab;
 
-   
-    public override void OnNetworkSpawn()
+    private void Start()
     {
-        if (IsClient && !IsServer) // Clients (excluding the host) request player spawn via ServerRPC
+        if (IsClient && !IsServer)
         {
             RequestSpawnPlayerServerRpc();
         }
 
-        if (IsServer) // The host spawns itself as the server
+        if (IsServer)
         {
-            SpawnPlayer(NetworkManager.Singleton.LocalClientId); // Host spawns its own player
-        }
+            SpawnPlayer(NetworkManager.Singleton.LocalClientId); 
 
-        // couch-coop
-        /*  if (IsServer)
-          {
-              SpawnPlayerPair();
-          }*/
+            //Couch-coop TODO: get it from a singleton if we should make it couch-coop or not, maybe sessionmanager or something like that could store it
+            //SpawnLocalPlayersForCouchCoop();
+        }
     }
+
 
     [ServerRpc(RequireOwnership = false)]
     private void RequestSpawnPlayerServerRpc(ServerRpcParams rpcParams = default)
     {
-        // Server handles the player spawning for the requesting client
         SpawnPlayer(rpcParams.Receive.SenderClientId);
     }
 
@@ -39,39 +35,32 @@ public class NetworkPlayerSpawner : NetworkBehaviour
     {
         GameObject playerPrefabToSpawn;
 
-        // TODO make it choosable later from a dialog maybe? low prio
-
-        // Decide which prefab to spawn based on whether this is the host or a client
+        // TODO make it choosable later from a dialog maybe or switch players every level? low prio
         if (clientId == NetworkManager.Singleton.LocalClientId) // Host player
         {
-            playerPrefabToSpawn = playerChildPrefab; // Host gets playerChildPrefab
+            playerPrefabToSpawn = playerGhostPrefab; // Host gets playerChildPrefab
         }
-        else // Any other client
+        else 
         {
-            playerPrefabToSpawn = playerGhostPrefab; // Clients get playerGhostPrefab
+            playerPrefabToSpawn = playerChildPrefab; // Clients get playerGhostPrefab
         }
 
-        // Instantiate and spawn the player prefab
         GameObject playerInstance = Instantiate(playerPrefabToSpawn, new Vector3(0, 0, 0), Quaternion.identity);
         NetworkObject networkObject = playerInstance.GetComponent<NetworkObject>();
 
-        // Spawn the player object for the specific client
         networkObject.SpawnAsPlayerObject(clientId);
-    }   
-
-
-
-     private void SpawnPlayerPair()
-    {
-        // Spawn Player 1 and assign ownership to the host
-        GameObject player1 = Instantiate(playerChildPrefab);
-        NetworkObject netObj1 = player1.GetComponent<NetworkObject>();
-        netObj1.SpawnWithOwnership(NetworkManager.Singleton.LocalClientId); // Host owns Player 1
-
-        // Spawn Player 2 and also assign ownership to the host
-        GameObject player2 = Instantiate(playerGhostPrefab);
-        NetworkObject netObj2 = player2.GetComponent<NetworkObject>();
-        netObj2.SpawnWithOwnership(NetworkManager.Singleton.LocalClientId); // Host owns Player 2
     }
 
+
+    private void SpawnLocalPlayersForCouchCoop()
+    {
+        GameObject player1Instance = Instantiate(playerChildPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        NetworkObject player1NetworkObject = player1Instance.GetComponent<NetworkObject>();
+        player1NetworkObject.SpawnAsPlayerObject(NetworkManager.Singleton.LocalClientId, destroyWithScene: true);
+
+        GameObject player2Instance = Instantiate(playerGhostPrefab, new Vector3(2, 0, 0), Quaternion.identity); 
+        NetworkObject player2NetworkObject = player2Instance.GetComponent<NetworkObject>();
+        player2NetworkObject.SpawnAsPlayerObject(NetworkManager.Singleton.LocalClientId, destroyWithScene: true);
+    }
+   
 }

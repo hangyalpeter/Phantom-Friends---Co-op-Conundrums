@@ -59,12 +59,25 @@ public class PlayerMovement : NetworkBehaviour
         rb.velocity = new Vector2(dirX * moveSpeed, rb.velocity.y);
         if (jumpRequested)
         {
-            jumpSound.Play();
+            PlayJumpSoundServerRpc();
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
             jumpRequested = false;
         }
        
         UpdateAnimationState();
+    }
+
+    [ServerRpc]
+    private void PlayJumpSoundServerRpc()
+    {
+        PlayJumpSoundClientRpc();
+
+    }
+
+    [ClientRpc]
+    private void PlayJumpSoundClientRpc()
+    {
+        jumpSound.Play();
     }
 
     private void UpdateAnimationState()
