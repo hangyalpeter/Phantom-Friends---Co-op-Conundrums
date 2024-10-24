@@ -90,7 +90,8 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
             SpawnPlayer(NetworkManager.Singleton.LocalClientId, alreadySpawned);
 
             //Couch-coop TODO: get it from a singleton if we should make it couch-coop or not, maybe sessionmanager or something like that could store it
-            //SpawnLocalPlayersForCouchCoop();
+            // TODO move players to first room alreadyspawned thingy
+            //SpawnLocalPlayersForCouchCoop(alreadySpawned);
         }
         PrintRoomGraph();
         PrintGraph(roomGraph);
@@ -564,8 +565,6 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     [ClientRpc]
     private void MoveAllPlayersClientRpc(Vector3Int roomCenter)
     {
-        // Check if this is not the host, because the host's object has already been moved
-        // Get the player object for this client and move it
         NetworkObject playerObject = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject();
 
         if (playerObject != null)
@@ -598,6 +597,27 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         }
 
     }
+    private void SpawnLocalPlayersForCouchCoop(bool alreadySpawned)
+    {
+        if (!alreadySpawned)
+        {
+            GameObject player1Instance = Instantiate(playerChildPrefab, firstRoomCenter, Quaternion.identity);
+            NetworkObject player1NetworkObject = player1Instance.GetComponent<NetworkObject>();
+            player1NetworkObject.SpawnAsPlayerObject(NetworkManager.Singleton.LocalClientId, destroyWithScene: true);
+
+            GameObject player2Instance = Instantiate(playerGhostPrefab, firstRoomCenter, Quaternion.identity);
+            NetworkObject player2NetworkObject = player2Instance.GetComponent<NetworkObject>();
+            player2NetworkObject.SpawnAsPlayerObject(NetworkManager.Singleton.LocalClientId, destroyWithScene: true);
+        }
+        else
+        {
+            GameObject.FindGameObjectWithTag("Player_Child").transform.position = firstRoomCenter;
+            GameObject.FindGameObjectWithTag("Player_Ghost").transform.position = firstRoomCenter;
+        }
+    }
+
+
+
 }
 
 

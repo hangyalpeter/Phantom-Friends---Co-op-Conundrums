@@ -19,11 +19,15 @@ public class HealthBar : NetworkBehaviour
 
     private NetworkVariable<float> networkHealth = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        networkHealth.OnValueChanged += OnNetworkHealthChanged;
+    }
+
     private void Start()
     {
         healthComponent = GetComponent<IHealthProvider>();
-
-        networkHealth.OnValueChanged += OnNetworkHealthChanged;
 
         if (IsServer)
         {

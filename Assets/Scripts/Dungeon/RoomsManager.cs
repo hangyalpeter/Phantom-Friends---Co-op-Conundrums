@@ -37,6 +37,12 @@ public class RoomsManager : NetworkBehaviour
         this.mediator = mediator;
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        StartCoroutine(FindObjects());
+    }
+
     private void Start()
     {
         StartCoroutine(FindObjects());
@@ -57,7 +63,7 @@ public class RoomsManager : NetworkBehaviour
         currentRoom = rooms.First();
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         if (!IsServer) return;
 
@@ -91,6 +97,7 @@ public class RoomsManager : NetworkBehaviour
 
     private bool CheckDungeonWin()
     {
+        Debug.Log(rooms.All(r => r.isFinished));
         return rooms.All(r => r.isFinished);
     }
 
@@ -337,6 +344,7 @@ public class RoomsManager : NetworkBehaviour
 
     private bool CheckIsRoomCleared(Room room)
     {
+        Debug.Log("room.enemies.Count: " + room.enemies.Count);
         return !room.enemies.Any(e => e != null);
     }
 

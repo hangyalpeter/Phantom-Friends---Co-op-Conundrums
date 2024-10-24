@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -23,8 +22,9 @@ public class PlayerManager : NetworkBehaviour
         this.mediator = mediator;
     }
 
-    private void OnEnable()
+    public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
         StartCoroutine(FindObjectsAfterSpawn());
     }
 

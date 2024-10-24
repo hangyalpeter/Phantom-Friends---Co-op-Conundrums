@@ -19,23 +19,26 @@ public class PlayerMovement : NetworkBehaviour
     private bool jumpRequested = false;
 
     private enum MovementState { idle, running, jumping, falling}
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        isFlipped.OnValueChanged += (oldValue, newValue) =>
+        {
+           sr.flipX = newValue;
+        };
+
+        isSpriteEnabled.OnValueChanged += (oldValue, newValue) =>
+        {
+            sr.enabled = newValue;
+        };       
+    }
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         bc = GetComponent<BoxCollider2D>();
         sr = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
-
-        isFlipped.OnValueChanged += (oldValue, newValue) =>
-        {
-            sr.flipX = newValue;
-        };
-
-        isSpriteEnabled.OnValueChanged += (oldValue, newValue) =>
-        {
-            sr.enabled = newValue;
-        };
-
     }
     private void Update()
     {

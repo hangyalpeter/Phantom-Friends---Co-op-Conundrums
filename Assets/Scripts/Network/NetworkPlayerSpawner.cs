@@ -10,11 +10,13 @@ public class NetworkPlayerSpawner : NetworkBehaviour
     {
         if (IsClient && !IsServer)
         {
+            // comment/uncomment for / couch/ online
             RequestSpawnPlayerServerRpc();
         }
 
         if (IsServer)
         {
+            // comment/uncomment for / couch/ online
             SpawnPlayer(NetworkManager.Singleton.LocalClientId);
 
             //Couch-coop TODO: get it from a singleton if we should make it couch-coop or not, maybe sessionmanager or something like that could store it

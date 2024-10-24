@@ -23,7 +23,15 @@ public class GameStateManager : NetworkBehaviour
 
     public NetworkTime ElapsedTimee;
 
-   
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        ElapsedTimeSynced.OnValueChanged += (float previousValue, float newValue) =>
+            {
+                ElapsedTime = newValue;
+            };
+    }
+
 
     private void OnEnable()
     {
@@ -74,11 +82,6 @@ public class GameStateManager : NetworkBehaviour
         PausedState = new PausedState(this);
         GameOverState = new GameOverState(this);
         MainMenuState = new MainMenuState(this);
-
-        ElapsedTimeSynced.OnValueChanged += (float previousValue, float newValue) =>
-        {
-            ElapsedTime = newValue;
-        };
 
         TransitionToState(MainMenuState);
 

@@ -23,12 +23,9 @@ public class GhostController : NetworkBehaviour
     private NetworkVariable<bool> isSpriteEnabled = new NetworkVariable<bool>(true, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<bool> isPossessedNetwork = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-    private void Start()
+    public override void OnNetworkSpawn()
     {
-        rb = GetComponent<Rigidbody2D>();
-        sr = GetComponent<SpriteRenderer>();
-        anim = GetComponent<Animator>();
-        mediator = FindObjectOfType<PossessMediator>();
+        base.OnNetworkSpawn();
 
         isFlipped.OnValueChanged += (oldValue, newValue) =>
         {
@@ -44,6 +41,16 @@ public class GhostController : NetworkBehaviour
         {
             IsPossessed = newValue;
         };
+
+
+    }
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        sr = GetComponent<SpriteRenderer>();
+        anim = GetComponent<Animator>();
+        mediator = FindObjectOfType<PossessMediator>();
 
         HealthComponent.OnPossessedObjectDies += RequestDepossession;
     }

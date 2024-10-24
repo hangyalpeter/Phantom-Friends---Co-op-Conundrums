@@ -23,6 +23,15 @@ public class PlayerMovement1 : NetworkBehaviour
     private Vector2 currentPosition;
     private Vector2 lastMovementDirection;
     private enum MovementState { idle, running, jumping, falling }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        isFlipped.OnValueChanged += (oldValue, newValue) =>
+            {
+                sr.flipX = newValue;
+            };
+    }
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -37,11 +46,6 @@ public class PlayerMovement1 : NetworkBehaviour
 
         health.OnHealthChanged += TriggerHitAnimation;
         health.OnDied += OnDied;
-
-        isFlipped.OnValueChanged += (oldValue, newValue) =>
-            {
-                sr.flipX = newValue;
-            };
     }
 
     private void OnDisable()

@@ -18,11 +18,9 @@ public class PosessableMovement : NetworkBehaviour
     private NetworkVariable<Vector2> velocity = new NetworkVariable<Vector2>();
     private NetworkVariable<bool> isPossessedNetwork = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-    void Start()
+    public override void OnNetworkSpawn()
     {
-        rb = GetComponent<Rigidbody2D>();
-        rbSprite = GetComponent<SpriteRenderer>();
-
+        base.OnNetworkSpawn();
         isPossessedNetwork.OnValueChanged += (oldValue, newValue) =>
         {
             isPossessed = newValue;
@@ -37,6 +35,12 @@ public class PosessableMovement : NetworkBehaviour
         {
             rb.velocity = newValue;
         };
+    }
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        rbSprite = GetComponent<SpriteRenderer>();
     }
 
     private void FixedUpdate()

@@ -2,7 +2,8 @@
 
 public class MovementRestriction : MonoBehaviour
 {
-    public BoxCollider2D boundary; // Reference to the 2D boundary collider
+    [SerializeField]
+    private BoxCollider2D boundary; // Reference to the 2D boundary collider
     private Vector2 minBoundary;
     private Vector2 maxBoundary;
 
