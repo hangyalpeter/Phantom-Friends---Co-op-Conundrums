@@ -17,10 +17,11 @@ GameObject:
   - component: {fileID: -7661881526405102631}
   - component: {fileID: -958592291116680885}
   - component: {fileID: 5464577892021596924}
-  - component: {fileID: 5508542722572620845}
   - component: {fileID: 6606934676148487354}
   - component: {fileID: 3201918563849098284}
   - component: {fileID: -3330379934022514173}
+  - component: {fileID: 1834379698437393297}
+  - component: {fileID: 1147229540294277351}
   m_Layer: 0
   m_Name: Trunk_Enemy_Possessable
   m_TagString: Enemy
@@ -252,7 +253,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80d7c879794dfda4687da0e400131852, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &5508542722572620845
+--- !u!114 &6606934676148487354
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -261,7 +262,59 @@ MonoBehaviour:
   m_GameObject: {fileID: 4637557867027910804}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f747ac1b2c462974596accd11bedab53, type: 3}
+  m_Script: {fileID: 11500000, guid: 532c21893292a724583fecce413021d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  projectilePrefab: {fileID: 4222163408759259628, guid: 720153838f020ab4eb5ec0bdc97b540e, type: 3}
+--- !u!114 &3201918563849098284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4637557867027910804}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4c39adca6789d144b1053351fea4e8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-3330379934022514173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4637557867027910804}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14da29210a2ca6c409dcbf624a4cf411, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  distanceOffset: 2
+  possessionDuration: 15
+--- !u!114 &1834379698437393297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4637557867027910804}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab399bc17cf5248418d03ae486a4ea93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+--- !u!114 &1147229540294277351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4637557867027910804}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   TransitionStateInfoList:
@@ -308,42 +361,3 @@ MonoBehaviour:
     TriggerNameHash: 1203776827
     TransitionIndex: 0
   m_Animator: {fileID: 6221117647652861655}
---- !u!114 &6606934676148487354
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4637557867027910804}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 532c21893292a724583fecce413021d2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  projectilePrefab: {fileID: 4222163408759259628, guid: 720153838f020ab4eb5ec0bdc97b540e, type: 3}
---- !u!114 &3201918563849098284
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4637557867027910804}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4c39adca6789d144b1053351fea4e8a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &-3330379934022514173
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4637557867027910804}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 14da29210a2ca6c409dcbf624a4cf411, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  distanceOffset: 2
-  possessionDuration: 15

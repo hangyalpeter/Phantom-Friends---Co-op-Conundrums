@@ -30,7 +30,7 @@ public class EnemyData : ScriptableObject
 
         if (!isBoss)
         {
-            builder.WithHealth()
+            builder/*.WithHealth()*/
                    .WithMovement()
                    .WithShooting()
                    .WithRotateShooting()

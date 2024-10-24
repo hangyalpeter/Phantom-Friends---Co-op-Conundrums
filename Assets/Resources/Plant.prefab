@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: -7625754660072409723}
   - component: {fileID: 490271171600781668}
   - component: {fileID: -3765275227512537400}
+  - component: {fileID: -4320569132000689604}
   m_Layer: 0
   m_Name: Plant
   m_TagString: Enemy
@@ -277,3 +278,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 145729832598270974, guid: 2c50824df4accf748844d98e9037b71e, type: 3}
+--- !u!114 &-4320569132000689604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6958306681862558131}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab399bc17cf5248418d03ae486a4ea93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100

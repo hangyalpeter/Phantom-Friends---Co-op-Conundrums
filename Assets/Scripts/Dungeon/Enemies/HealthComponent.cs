@@ -18,6 +18,8 @@ public class HealthComponent : NetworkBehaviour, IHealthProvider
 
     public float MaxHealth => maxHealth;
 
+    private NetworkVariable<float> currentHealthNetwork = new NetworkVariable<float>();
+
     public float CurrentHealth
     {
         get => currentHealth;
@@ -26,19 +28,34 @@ public class HealthComponent : NetworkBehaviour, IHealthProvider
             if (currentHealth != value)
             {
                 currentHealth = value;
-                OnHealthChanged?.Invoke(currentHealth);
             }
         }
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        currentHealthNetwork.OnValueChanged += (prev, curr) =>
+        {
+            CurrentHealth = curr;
+            OnHealthChanged?.Invoke(curr);
+        };
+    }
+
     void Start()
     {
-        CurrentHealth = maxHealth;
+        if (IsServer)
+        {
+            currentHealthNetwork.Value = maxHealth;
+        }
     }
 
     public void TakeDamage(float damage)
     {
-        CurrentHealth -= damage;
+        if (IsServer)
+        {
+            currentHealthNetwork.Value -= damage;
+        }
 
         if (CurrentHealth <= 0 && !dieInvoked)
         {
@@ -48,7 +65,7 @@ public class HealthComponent : NetworkBehaviour, IHealthProvider
 
     public void ResetHealth()
     {
-        CurrentHealth = maxHealth;
+        currentHealthNetwork.Value = maxHealth;
     }
 
     private void Die()

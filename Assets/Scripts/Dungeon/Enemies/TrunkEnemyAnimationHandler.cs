@@ -1,6 +1,7 @@
+using Unity.Netcode;
 using UnityEngine;
 
-public class TrunkEnemyAnimationHandler : MonoBehaviour
+public class TrunkEnemyAnimationHandler : NetworkBehaviour
 {
     private enum MovementState { idle, run}
     private Animator anim;
@@ -20,42 +21,46 @@ public class TrunkEnemyAnimationHandler : MonoBehaviour
         healthComponent = GetComponent<HealthComponent>();
         rb = GetComponent<Rigidbody2D>();
 
-        if (shootBehavior != null)
+        if (shootBehavior != null && IsServer)
         {
-            shootBehavior.OnShoot += HandleShootAnimation;
+            shootBehavior.OnShoot += HandleShootinAnimationClientRpc;
         }
 
-        if (healthComponent != null)
+        if (healthComponent != null && IsServer)
         {
-            healthComponent.OnHealthChanged += PlayHitAnimation;
+            healthComponent.OnHealthChanged += PlayHitAnimationClientRpc;
         }
 
     }
 
-    void OnDestroy()
+    private void OnDisable()
     {
 
-        if (shootBehavior != null)
+        if (shootBehavior != null && IsServer)
         {
-            shootBehavior.OnShoot -= HandleShootAnimation;
+            shootBehavior.OnShoot -= HandleShootinAnimationClientRpc;
         }
 
-        if ( healthComponent != null )
+        if (healthComponent != null && IsServer)
         {
-            healthComponent.OnHealthChanged -= PlayHitAnimation;
+            healthComponent.OnHealthChanged -= PlayHitAnimationClientRpc;
         }
+    }
+
+    [ClientRpc]
+    private void HandleShootinAnimationClientRpc()
+    {
+        HandleShootAnimation();
     }
 
     private void HandleShootAnimation()
     {
         anim.SetTrigger("attack");
-
     }
+
 
     void Update()
     {
-
-
         if (!transform.position.Equals(lastPosition) || rb.velocity.magnitude > 0 )
         {
             currentState = MovementState.run;
@@ -69,6 +74,12 @@ public class TrunkEnemyAnimationHandler : MonoBehaviour
 
         anim.SetInteger("state", (int)currentState);
         lastPosition = transform.position;
+    }
+
+    [ClientRpc]
+    private void PlayHitAnimationClientRpc(float _)
+    {
+        PlayHitAnimation(0);
     }
 
     private void PlayHitAnimation(float _)
