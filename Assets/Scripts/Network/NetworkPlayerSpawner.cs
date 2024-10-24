@@ -44,7 +44,7 @@ public class NetworkPlayerSpawner : NetworkBehaviour
         GameObject playerInstance = Instantiate(playerPrefabToSpawn, new Vector3(0, 0, 0), Quaternion.identity);
         NetworkObject networkObject = playerInstance.GetComponent<NetworkObject>();
 
-        networkObject.SpawnAsPlayerObject(clientId);
+        networkObject.SpawnAsPlayerObject(clientId, destroyWithScene: true);
     }
 
 

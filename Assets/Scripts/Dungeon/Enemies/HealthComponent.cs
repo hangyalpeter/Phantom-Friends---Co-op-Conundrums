@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class HealthComponent : NetworkBehaviour, IHealthProvider
@@ -19,8 +17,6 @@ public class HealthComponent : NetworkBehaviour, IHealthProvider
     private bool canDespawn = true;
 
     public float MaxHealth => maxHealth;
-
-    // TODO try to sync the health
 
     public float CurrentHealth
     {

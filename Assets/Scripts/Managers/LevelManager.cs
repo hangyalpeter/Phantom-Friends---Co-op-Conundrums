@@ -82,15 +82,6 @@ public class LevelManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        foreach (NetworkClient client in NetworkManager.Singleton.ConnectedClientsList)
-        {
-            NetworkObject playerObject = client.PlayerObject;
-            if (playerObject != null)
-            {
-                playerObject.Despawn();
-            }
-        }
-
         NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
         UIScreenEvents.ScreenClosed?.Invoke();
         LevelChanged?.Invoke();
@@ -109,16 +100,8 @@ public class LevelManager : NetworkBehaviour
     private void LoadNextLevel()
     {
         if (!IsServer) { return; }
-        foreach (NetworkClient client in NetworkManager.Singleton.ConnectedClientsList)
-        {
-            NetworkObject playerObject = client.PlayerObject;
-            if (playerObject != null)
-            {
-                playerObject.Despawn();
-            }
-        }
-
-        NetworkManager.Singleton.SceneManager.LoadScene((SceneManager.GetActiveScene().buildIndex + 1).ToString(), LoadSceneMode.Single);
+      
+        NetworkManager.Singleton.SceneManager.LoadScene("Level " + (SceneManager.GetActiveScene().buildIndex + 1).ToString(), LoadSceneMode.Single);
 
         UIScreenEvents.ScreenClosed?.Invoke();
         LevelChanged?.Invoke();

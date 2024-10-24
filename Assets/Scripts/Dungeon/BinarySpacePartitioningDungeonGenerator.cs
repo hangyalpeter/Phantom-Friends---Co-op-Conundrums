@@ -551,7 +551,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         {
             GameObject playerInstance = Instantiate(playerPrefabToSpawn, firstRoomCenter, Quaternion.identity);
             NetworkObject networkObject = playerInstance.GetComponent<NetworkObject>();
-            networkObject.SpawnAsPlayerObject(clientId);
+            networkObject.SpawnAsPlayerObject(clientId, destroyWithScene: true);
 
         }
         else

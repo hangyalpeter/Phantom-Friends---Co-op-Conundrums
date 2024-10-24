@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class TrunkEnemyAnimationHandler : MonoBehaviour
@@ -30,7 +27,6 @@ public class TrunkEnemyAnimationHandler : MonoBehaviour
 
         if (healthComponent != null)
         {
-
             healthComponent.OnHealthChanged += PlayHitAnimation;
         }
 
