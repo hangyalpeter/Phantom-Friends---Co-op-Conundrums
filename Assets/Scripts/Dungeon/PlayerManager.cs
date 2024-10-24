@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerManager : MonoBehaviour
+public class PlayerManager : NetworkBehaviour
 {
     private IDungeonMediator mediator;
 
@@ -23,6 +25,16 @@ public class PlayerManager : MonoBehaviour
 
     private void OnEnable()
     {
+        StartCoroutine(FindObjectsAfterSpawn());
+    }
+
+    private IEnumerator FindObjectsAfterSpawn()
+    {
+        while (GameObject.FindGameObjectWithTag("Player_Child") == null || GameObject.FindGameObjectWithTag("Player_Ghost") == null)
+        {
+            yield return null;
+        }
+
         playerGO = GameObject.FindGameObjectWithTag("Player_Child");
         playerMovement1 = playerGO.GetComponent<PlayerMovement1>();
         GameObject ghostGO = GameObject.FindGameObjectWithTag("Player_Ghost");

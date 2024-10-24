@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using Unity.Netcode;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LevelManager : NetworkBehaviour
@@ -104,19 +102,6 @@ public class LevelManager : NetworkBehaviour
         UIScreenEvents.MainMenuShown?.Invoke();
     }
 
-    private IEnumerator LoadMainMenu()
-    {
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("Main Menu");
-
-        while (!asyncLoad.isDone)
-        {
-            yield return null;
-        }
-
-        UIScreenEvents.ScreenClosed?.Invoke();
-        UIScreenEvents.MainMenuShown?.Invoke();
-        LevelChanged?.Invoke();
-    }
     private void OnNextLevel()
     {
         LoadNextLevel();
@@ -145,7 +130,4 @@ public class LevelManager : NetworkBehaviour
         LoadLevel(name);
         LevelChanged?.Invoke();
     }
-
-
-
 }

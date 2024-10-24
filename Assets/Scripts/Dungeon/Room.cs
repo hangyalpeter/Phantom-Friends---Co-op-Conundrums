@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-// TODO: use properties instead
 public class Room
 {
     public BoundsInt bounds;

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 
-public class DungeonManager : MonoBehaviour
+public class DungeonManager : NetworkBehaviour
 {
     private IDungeonMediator mediator;
 
@@ -19,6 +20,7 @@ public class DungeonManager : MonoBehaviour
     public HashSet<Room> Rooms { get { return rooms; } }
 
     public BinarySpacePartitioningDungeonGenerator DungeonGenerator => dungeonGenerator;
+
 
     private void OnEnable()
     {
@@ -37,23 +39,40 @@ public class DungeonManager : MonoBehaviour
 
     private void Start()
     {
-        rooms = dungeonGenerator.GenerateDungeon();
+        rooms = dungeonGenerator.GenerateDungeon(false, PlayerPrefs.GetInt("DungeonSeed"));
+        Debug.Log("seed: " + PlayerPrefs.GetInt("DungeonSeed"));
     }
 
     private void GenerateNewDungeonAfterWin()
     {
+        if (!IsServer) return;
         var possessables = GameObject.FindGameObjectsWithTag("Possessable").Concat(GameObject.FindGameObjectsWithTag("BossHealthBar"));
         foreach (var possessable in possessables)
         {
             Destroy(possessable);
         }
+
+        int seed = System.DateTime.Now.GetHashCode();
         rooms.Clear();
-        rooms.UnionWith(dungeonGenerator.GenerateDungeon());
+        rooms.UnionWith(dungeonGenerator.GenerateDungeon(true, seed));
+
+        GenerateNewDungeonAfterWinClientRpc(seed);
+    }
+    [ClientRpc]
+    private void GenerateNewDungeonAfterWinClientRpc(int seed)
+    {
+        UnityEngine.Random.InitState(seed);
+
+        rooms.Clear();
+        rooms.UnionWith(dungeonGenerator.GenerateDungeon(true, seed));
+
     }
 
     public void IncrementKilledEnemies()
     {
         enemiesKilled++;
+        Debug.Log("Enemies killed: " + enemiesKilled);
+
     }
 
     public void HandlePlayerDeath()
@@ -62,6 +81,14 @@ public class DungeonManager : MonoBehaviour
         OnDungeonFinish?.Invoke(roomsCleared, enemiesKilled, "Game Over", "Restart");
         UIScreenEvents.DungeonGameOverShown?.Invoke();
         GameEvents.DungeonFinished?.Invoke();
+        HandlePlayerDeathClientRpc(roomsCleared, enemiesKilled);
+    }
+
+    [ClientRpc]
+    private void HandlePlayerDeathClientRpc(int roomsCleared, int enemiesKilled)
+    {
+        OnDungeonFinish?.Invoke(roomsCleared, enemiesKilled, "Game Over", "Restart");
+        UIScreenEvents.DungeonGameOverShown?.Invoke();
     }
     public void HandleDungeonWin()
     {
@@ -72,10 +99,18 @@ public class DungeonManager : MonoBehaviour
         var roomsCleared = rooms.Where(x => x.isFinished).Count();
         OnDungeonFinish?.Invoke(roomsCleared, enemiesKilled, "You won!", "New Dungeon");
 
+        HandleDungeonWinClientRpc(roomsCleared, enemiesKilled);
         enemiesKilled = 0;
 
         UIScreenEvents.DungeonGameOverShown?.Invoke();
         GameEvents.DungeonFinished?.Invoke();
+    }
+
+    [ClientRpc]
+    private void HandleDungeonWinClientRpc(int roomsCleared, int enemiesKilled)
+    {
+        OnDungeonFinish?.Invoke(roomsCleared, enemiesKilled, "You won!", "New Dungeon");
+        UIScreenEvents.DungeonGameOverShown?.Invoke();
     }
 
 }

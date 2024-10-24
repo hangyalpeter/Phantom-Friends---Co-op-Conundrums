@@ -1,8 +1,8 @@
+using Unity.Netcode;
 using UnityEngine;
 
-public class Projectile : MonoBehaviour
+public class Projectile : NetworkBehaviour
 {
-    
     public float damage = 25f;
 
     [SerializeField]
@@ -12,7 +12,6 @@ public class Projectile : MonoBehaviour
     {
         collisionTag = tag;
     }
-
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -30,5 +29,5 @@ public class Projectile : MonoBehaviour
 
         Destroy(gameObject);
     }
- 
+
 }

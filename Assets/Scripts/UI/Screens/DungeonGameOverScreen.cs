@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -41,7 +38,6 @@ public class DungeonGameOverScreen : UIScreen
 
     private void SubscribeToEvents()
     {
-        //DungeonLogicHandler.OnDungeonFinish += UpdateLabels;
         DungeonManager.OnDungeonFinish += UpdateLabels;
 
         GameEvents.LevelFinishedWithTime += OnLevelFinish;
@@ -55,13 +51,13 @@ public class DungeonGameOverScreen : UIScreen
 
     private void UnsubscribeFromEvents()
     {
-        //DungeonLogicHandler.OnDungeonFinish -= UpdateLabels;
         DungeonManager.OnDungeonFinish -= UpdateLabels;
         GameEvents.LevelFinishedWithTime -= OnLevelFinish;
     }
 
     private void UpdateLabels(int roomsCleared, int enemiesKilled, string title, string restartLabel)
     {
+        m_GameOverLabel.text = title;
         m_FinishedRoomsLabel.text = "Rooms cleared: " + roomsCleared;
         m_EnemiesKilledLabel.text = "Enemies killed: " + enemiesKilled;
         if (restartLabel == "Restart")

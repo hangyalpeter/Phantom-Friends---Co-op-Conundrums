@@ -16,10 +16,13 @@ MonoBehaviour:
   enemyPrefab: {fileID: 4637557867027910804, guid: 14ab8601dfaff61499c6a8a39f7765e9, type: 3}
   health: 100
   speed: 3
-  damage: 25
+  damage: 15
   projectilePrefab: {fileID: 4222163408759259628, guid: 720153838f020ab4eb5ec0bdc97b540e, type: 3}
   shootInterval: 3
   projectileSpeed: 10
   canMove: 1
   canShoot: 1
   canBePossessed: 0
+  canRotateShoot: 0
+  canShootInCircle: 0
+  isBoss: 0

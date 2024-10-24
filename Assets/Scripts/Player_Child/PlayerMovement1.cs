@@ -1,8 +1,7 @@
-using System;
+using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-public class PlayerMovement1 : MonoBehaviour
+public class PlayerMovement1 : NetworkBehaviour
 {
     private Rigidbody2D rb;
     private BoxCollider2D bc;
@@ -10,11 +9,13 @@ public class PlayerMovement1 : MonoBehaviour
     private Animator anim;
     private HealthComponent health;
 
+    private ProjectileSpawner projectileSpawner;
+
+    private NetworkVariable<bool> isFlipped = new NetworkVariable<bool>(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
     private float dirX = 0f;
     private float dirY = 0f;
     private float moveSpeed = 7f;
-
-    private GameObject bulletPrefab;
 
     public float Damage = 25f;
 
@@ -29,18 +30,18 @@ public class PlayerMovement1 : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
         health = GetComponent<HealthComponent>();
+        projectileSpawner = GetComponent<ProjectileSpawner>();
 
-        bulletPrefab = Resources.Load<GameObject>("PlayerBullet");
-        if (bulletPrefab == null)
-        {
-            Debug.LogError("Couldn't load bullet asset");
-        }
         previousPosition = transform.position;
         lastMovementDirection = Vector2.right;
 
         health.OnHealthChanged += TriggerHitAnimation;
         health.OnDied += OnDied;
 
+        isFlipped.OnValueChanged += (oldValue, newValue) =>
+            {
+                sr.flipX = newValue;
+            };
     }
 
     private void OnDisable()
@@ -52,11 +53,11 @@ public class PlayerMovement1 : MonoBehaviour
     private void OnDied()
     {
         anim.SetTrigger("death");
-
     }
 
     void Update()
     {
+        if (!IsOwner) return;
         if (float.Equals(Time.timeScale, 0f))
         {
             return;
@@ -68,7 +69,6 @@ public class PlayerMovement1 : MonoBehaviour
         UpdateAnimationState();
 
         HandleShooting();
-
     }
 
     private void HandleShooting()
@@ -77,10 +77,9 @@ public class PlayerMovement1 : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            ProjectileFactory.Instance.GetProjectile(bulletPrefab, transform.position, lastMovementDirection, 20, Damage, "Player_Child");
+            projectileSpawner.GetProjectile(transform.position, lastMovementDirection, 20, Damage, "Player_Child");
         }
     }
-
     private void UpdateShootingDirection()
     {
         currentPosition = transform.position;
@@ -90,7 +89,6 @@ public class PlayerMovement1 : MonoBehaviour
         {
             lastMovementDirection = direction.normalized;
         }
-
 
         previousPosition = currentPosition;
     }
@@ -102,12 +100,12 @@ public class PlayerMovement1 : MonoBehaviour
         if (dirX > 0f)
         {
             state = MovementState.running;
-            sr.flipX = false;
+            UpdateFlipX(false);
         }
         else if (dirX < 0f)
         {
             state = MovementState.running;
-            sr.flipX = true;
+            UpdateFlipX(true);
         }
         else
         {
@@ -127,14 +125,26 @@ public class PlayerMovement1 : MonoBehaviour
 
     }
 
-    private void TriggerHitAnimation(float _) {
-        anim.SetTrigger("hit");
-    
+    private void UpdateFlipX(bool flipX)
+    {
+        if (IsServer)
+        {
+            isFlipped.Value = flipX;
+        }
+        else
+        {
+            UpdateFlipXServerRpc(flipX);
+        }
     }
 
-    private bool IsChildGrounded()
+    [ServerRpc]
+    private void UpdateFlipXServerRpc(bool flipX)
     {
-        return Physics2D.BoxCast(bc.bounds.center, bc.bounds.size, 0f, Vector2.down, .1f, LayerMask.GetMask("Ground"));
+        isFlipped.Value = flipX;
+    }
+
+    private void TriggerHitAnimation(float _) {
+        anim.SetTrigger("hit");
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

@@ -22,7 +22,6 @@ public class DungeonMediator : MonoBehaviour, IDungeonMediator
         enemyManager.SetMediator(this);
         dungeonManager.SetMediator(this);
     }
-
   
     public void Notify(Component sender, DungeonEvents eventCode)
     {

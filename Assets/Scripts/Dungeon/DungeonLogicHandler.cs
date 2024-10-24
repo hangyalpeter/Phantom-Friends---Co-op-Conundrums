@@ -44,7 +44,7 @@ public class DungeonLogicHandler : MonoBehaviour
 
     void Start()
     {
-        rooms = dungeonGenerator.GenerateDungeon();
+        rooms = dungeonGenerator.GenerateDungeon(false, PlayerPrefs.GetInt("DungeonSeed"));
         spawner = gameObject.GetComponent<EnemySpawner>();
         playerHealthComponent = player.GetComponent<HealthComponent>();
         playerHealthComponent.OnDied += HandlePlayerDeath;

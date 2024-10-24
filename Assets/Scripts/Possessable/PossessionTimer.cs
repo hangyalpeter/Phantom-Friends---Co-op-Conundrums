@@ -9,6 +9,14 @@ public class PossessionTimer : NetworkBehaviour
     private TextMeshProUGUI timerText;
     private PossessMediator mediator;
 
+    private void OnEnable()
+    {
+        HealthComponent.OnPossessedObjectDies += StopTimer;
+    }
+    private void OnDisable()
+    {
+        HealthComponent.OnPossessedObjectDies -= StopTimer;
+    }
     private void Start()
     {
         mediator = FindObjectOfType<PossessMediator>();
@@ -27,12 +35,28 @@ public class PossessionTimer : NetworkBehaviour
 
     public void StopTimer()
     {
+        StopTimerServerRpc();
+    }
+    private void Stopti()
+    {
         if (timerCoroutine != null)
         {
             StopCoroutine(timerCoroutine);
             timerCoroutine = null;
             ResetTimerDisplay();
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void StopTimerServerRpc()
+    {
+        StopTimerClientRpc();
+    }
+
+    [ClientRpc]
+    private void StopTimerClientRpc()
+    {
+        Stopti();
     }
 
     private IEnumerator TimerCoroutine(float duration)
@@ -45,7 +69,7 @@ public class PossessionTimer : NetworkBehaviour
             yield return new WaitForSeconds(1f);
             remainingTime -= 1f;
         }
-            mediator.RegisterDepossessionRequest();
+        mediator.RegisterDepossessionRequest();
 
     }
 

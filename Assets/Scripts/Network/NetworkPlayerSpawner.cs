@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -17,13 +15,12 @@ public class NetworkPlayerSpawner : NetworkBehaviour
 
         if (IsServer)
         {
-            SpawnPlayer(NetworkManager.Singleton.LocalClientId); 
+            SpawnPlayer(NetworkManager.Singleton.LocalClientId);
 
             //Couch-coop TODO: get it from a singleton if we should make it couch-coop or not, maybe sessionmanager or something like that could store it
             //SpawnLocalPlayersForCouchCoop();
         }
     }
-
 
     [ServerRpc(RequireOwnership = false)]
     private void RequestSpawnPlayerServerRpc(ServerRpcParams rpcParams = default)
@@ -35,7 +32,6 @@ public class NetworkPlayerSpawner : NetworkBehaviour
     {
         GameObject playerPrefabToSpawn;
 
-        // TODO make it choosable later from a dialog maybe or switch players every level? low prio
         if (clientId == NetworkManager.Singleton.LocalClientId) // Host player
         {
             playerPrefabToSpawn = playerGhostPrefab; // Host gets playerChildPrefab

@@ -1,7 +1,9 @@
 using Assets.Scripts.Dungeon;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 {
@@ -21,7 +23,6 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     [SerializeField]
     private TilemapVisualizer tilemapVisualizer;
 
-
     [SerializeField]
     private Transform player;
     [SerializeField]
@@ -31,13 +32,22 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     private HashSet<Vector3Int> corridorPositions = new HashSet<Vector3Int>();
     private readonly HashSet<Vector3Int> floorPositions = new HashSet<Vector3Int>();
 
+    private Dictionary<Vector3Int, List<Vector3Int>> roomGraph = new Dictionary<Vector3Int, List<Vector3Int>>();
     public TilemapVisualizer TilemapVisualizer => tilemapVisualizer;
 
     public bool useStoredSeed = true;
     private int seed;
 
+
+    private Vector3Int firstRoomCenter;
+    private Vector3Int bossRoomCenter = Vector3Int.zero;
+
     [SerializeField]
     private int minimumRoomsCount = 4;
+    [SerializeField]
+    private GameObject playerGhostPrefab;
+    [SerializeField]
+    private GameObject playerChildPrefab;
 
     private void Awake()
     {
@@ -49,8 +59,8 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
             }
             else
             {
-                seed = System.DateTime.Now.GetHashCode(); 
-                PlayerPrefs.SetInt("DungeonSeed", seed); 
+                seed = System.DateTime.Now.GetHashCode();
+                PlayerPrefs.SetInt("DungeonSeed", seed);
             }
             Random.InitState(seed);
         }
@@ -59,16 +69,32 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
     public override void RunProceduralGeneration()
     {
-        GenerateDungeon();
+        GenerateDungeon(false, PlayerPrefs.GetInt("DungeonSeed"));
     }
-  
-    public HashSet<Room> GenerateDungeon()
+
+    public HashSet<Room> GenerateDungeon(bool alreadySpawned, int seed)
     {
         InitializeMap();
         while (rooms.Count < minimumRoomsCount)
         {
             CreateRooms();
         }
+
+        if (IsClient && !IsServer)
+        {
+            RequestSpawnPlayerServerRpc(alreadySpawned);
+        }
+
+        if (IsServer)
+        {
+            SpawnPlayer(NetworkManager.Singleton.LocalClientId, alreadySpawned);
+
+            //Couch-coop TODO: get it from a singleton if we should make it couch-coop or not, maybe sessionmanager or something like that could store it
+            //SpawnLocalPlayersForCouchCoop();
+        }
+        PrintRoomGraph();
+        PrintGraph(roomGraph);
+
         return rooms;
     }
 
@@ -84,7 +110,6 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         WallGenerator.CreateWalls(floorPositions, tilemapVisualizer, rooms);
 
         PlaceDoors();
-        Debug.Log("Rooms count: " + rooms.Count);
 
     }
 
@@ -145,6 +170,8 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         rooms.Clear();
         floorPositions.Clear();
         corridorPositions.Clear();
+        firstRoomCenter = Vector3Int.zero;
+        roomGraph = new Dictionary<Vector3Int, List<Vector3Int>>();
     }
 
     private Color? GenerateRandomColor()
@@ -163,28 +190,178 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
     private HashSet<Vector3Int> ConnectRooms()
     {
-        var bossRoomCenter = Vector3Int.zero;
+        bossRoomCenter = Vector3Int.zero;
         HashSet<Vector3Int> corridors = new HashSet<Vector3Int>();
-        var roomCenters = rooms.Select(x => (Vector3Int.RoundToInt(x.bounds.center))).ToList();
+
+        var roomCenters = rooms.Select(x => Vector3Int.RoundToInt(x.bounds.center)).ToList();
+
         var current = roomCenters[0];
-        player.transform.position = current;
-        ghost.transform.position = current;
+        firstRoomCenter = roomCenters[0];
         roomCenters.Remove(current);
+
+        // Initialize graph with room centers
+        foreach (var roomCenter in rooms.Select(x => Vector3Int.RoundToInt(x.bounds.center)))
+        {
+            roomGraph[roomCenter] = new List<Vector3Int>();
+        }
 
         while (roomCenters.Count > 0)
         {
             var closest = FindClosestRoom(current, roomCenters);
             roomCenters.Remove(closest);
+
             HashSet<Vector3Int> newCorridor = CreateCorridor(current, closest);
+
+            roomGraph[current].Add(closest);
+            roomGraph[closest].Add(current);
+
             current = closest;
             corridors.UnionWith(newCorridor);
         }
-        bossRoomCenter = current;
-        Debug.Log("Boss room center: " + bossRoomCenter);
-        rooms.FirstOrDefault(room => room.floorTilesPositions.Contains(bossRoomCenter)).isBossRoom = true;
+        if (rooms.Count >= 3)
+        {
+            MarkBossRoom();
+        }
+        else
+        {
+            rooms.FirstOrDefault(room => room.floorTilesPositions.Contains(current)).isBossRoom = true;
+        }
+
+
         return corridors;
     }
 
+    private void MarkBossRoom()
+    {
+        var bossRoomCenter = GetNonCutVertices().Last();
+        if (bossRoomCenter == firstRoomCenter)
+        {
+            firstRoomCenter = Vector3Int.RoundToInt(rooms.First(r => r.bounds.center != bossRoomCenter).bounds.center);
+        }
+        rooms.FirstOrDefault(room => room.floorTilesPositions.Contains(bossRoomCenter)).isBossRoom = true;
+    }
+
+    void DFS(Dictionary<Vector3Int, List<Vector3Int>> graph, Vector3Int current, HashSet<Vector3Int> visited)
+    {
+        visited.Add(current);
+        foreach (var neighbor in graph[current])
+        {
+            if (!visited.Contains(neighbor))
+            {
+                DFS(graph, neighbor, visited);
+            }
+        }
+    }
+
+    void RemoveVertex(Dictionary<Vector3Int, List<Vector3Int>> graph, Vector3Int vertex)
+    {
+        graph.Remove(vertex);
+        foreach (var neighbours in graph.Values)
+        {
+            neighbours.Remove(vertex);
+        }
+    }
+
+    Dictionary<Vector3Int, List<Vector3Int>> CloneGraph(Dictionary<Vector3Int, List<Vector3Int>> originalGraph)
+    {
+        var clone = new Dictionary<Vector3Int, List<Vector3Int>>();
+        foreach (var kvp in originalGraph)
+        {
+            clone[kvp.Key] = new List<Vector3Int>(kvp.Value);
+        }
+        return clone;
+    }
+
+    private List<Vector3Int> GetNonCutVertices()
+    {
+        List<Vector3Int> nonCutVertices = new List<Vector3Int>();
+        foreach (var vertex in roomGraph.Keys)
+        {
+            Dictionary<Vector3Int, List<Vector3Int>> modifiedGraph = CloneGraph(roomGraph);
+            modifiedGraph = GetRemainingGraphFromCuttingVertex(modifiedGraph, vertex);
+
+            Vector3Int startVertex = roomGraph.Keys.First(v => v != vertex); // Pick a vertex that isn't the one we're testing
+            HashSet<Vector3Int> visited = new HashSet<Vector3Int>();
+
+            DFS(modifiedGraph, startVertex, visited);
+
+            // If the number of visited nodes equals the total number of nodes minus 1, it's still connected
+            if (visited.Count == roomGraph.Count - 1)
+            {
+                nonCutVertices.Add(vertex);
+            }
+
+        }
+        return nonCutVertices;
+    }
+
+
+
+    private Dictionary<Vector3Int, List<Vector3Int>> GetRemainingGraphFromCuttingVertex(Dictionary<Vector3Int, List<Vector3Int>> graph, Vector3Int vertex)
+    {
+        var roomToCheck = rooms.Where(r => r.floorTilesPositions.Contains(vertex)).First();
+        var modifiedGraph = CloneGraph(graph);
+        foreach (var room in modifiedGraph.Keys.ToList())
+        {
+            List<Vector3Int> neighborsToRemove = new List<Vector3Int>();
+
+            foreach (var neighbor in modifiedGraph[room])
+            {
+                HashSet<Vector3Int> corridor = CreateCorridor(room, neighbor);
+
+                if (roomToCheck.floorTilesPositions.Intersect(corridor).Count() != 0)
+                {
+                    neighborsToRemove.Add(neighbor);
+                }
+            }
+
+            foreach (var neighbor in neighborsToRemove)
+            {
+                modifiedGraph[room].Remove(neighbor);
+                modifiedGraph[neighbor].Remove(room);
+            }
+        }
+        return modifiedGraph;
+    }
+
+
+
+    private void PrintRoomGraph()
+    {
+        HashSet<Vector3Int> visitedRooms = new HashSet<Vector3Int>();
+
+        foreach (var roomCenter in roomGraph.Keys)
+        {
+            if (!visitedRooms.Contains(roomCenter))
+            {
+                PrintRoomAndNeighbors(roomCenter, 0, visitedRooms);
+            }
+        }
+    }
+
+    private void PrintRoomAndNeighbors(Vector3Int roomCenter, int depth, HashSet<Vector3Int> visitedRooms)
+    {
+        visitedRooms.Add(roomCenter);
+
+        string indent = new string('-', depth * 2); // 2 dashes per depth level for clarity
+        Debug.Log(indent + roomCenter);
+
+        foreach (var neighbor in roomGraph[roomCenter])
+        {
+            if (!visitedRooms.Contains(neighbor))
+            {
+                PrintRoomAndNeighbors(neighbor, depth + 1, visitedRooms);
+            }
+        }
+    }
+
+    void PrintGraph(Dictionary<Vector3Int, List<Vector3Int>> roomGraph)
+    {
+        foreach (var room in roomGraph)
+        {
+            Debug.Log("Room: " + room.Key + " Neighbours: " + string.Join(", ", room.Value));
+        }
+    }
 
     void PlaceDoors()
     {
@@ -242,21 +419,6 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
                     queue.Enqueue(neighbor);
                 }
             }
-        }
-
-        //TestDoorGenerationIfAddsToRooms();
-    }
-
-    private void TestDoorGenerationIfAddsToRooms()
-    {
-        foreach (var item in rooms)
-        {
-            foreach (var door in item.doorTilesPositions)
-            {
-                Debug.Log("Door position: " + door);
-                tilemapVisualizer.PaintSingleWall(door, Color.red);
-            }
-
         }
     }
 
@@ -330,11 +492,6 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         }
         return corridor;
     }
-
-
-
-
-
     private Vector3Int FindClosestRoom(Vector3Int current, List<Vector3Int> roomCenters)
     {
         var closest = Vector3Int.zero;
@@ -371,4 +528,76 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         return floor;
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void RequestSpawnPlayerServerRpc(bool alreadySpawned, ServerRpcParams rpcParams = default)
+    {
+        SpawnPlayer(rpcParams.Receive.SenderClientId, alreadySpawned);
+    }
+
+    private void SpawnPlayer(ulong clientId, bool alreadyspawned)
+    {
+        GameObject playerPrefabToSpawn;
+
+        if (clientId == NetworkManager.Singleton.LocalClientId) // Host player
+        {
+            playerPrefabToSpawn = playerChildPrefab; // host get playerChild
+        }
+        else
+        {
+            playerPrefabToSpawn = playerGhostPrefab; // client gets ghost
+        }
+
+        if (!alreadyspawned)
+        {
+            GameObject playerInstance = Instantiate(playerPrefabToSpawn, firstRoomCenter, Quaternion.identity);
+            NetworkObject networkObject = playerInstance.GetComponent<NetworkObject>();
+            networkObject.SpawnAsPlayerObject(clientId);
+
+        }
+        else
+        {
+            MoveAllPlayersClientRpc(firstRoomCenter);
+        }
+
+    }
+
+    [ClientRpc]
+    private void MoveAllPlayersClientRpc(Vector3Int roomCenter)
+    {
+        // Check if this is not the host, because the host's object has already been moved
+        // Get the player object for this client and move it
+        NetworkObject playerObject = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject();
+
+        if (playerObject != null)
+        {
+            playerObject.transform.position = roomCenter;
+        }
+        else
+        {
+            Debug.LogWarning("Player object not found for this client!");
+        }
+    }
+
+    private void MoveAllPlayersToRoom(Vector3Int roomCenter)
+    {
+        // Iterate over all connected clients
+        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+        {
+            // Get the player's NetworkObject for this client
+            NetworkObject playerObject = client.PlayerObject;
+
+            if (playerObject != null)
+            {
+                // Set the player's position to the firstRoomCenter
+                playerObject.transform.position = roomCenter;
+            }
+            else
+            {
+                Debug.LogWarning($"Player object for client {client.ClientId} not found!");
+            }
+        }
+
+    }
 }
+
+

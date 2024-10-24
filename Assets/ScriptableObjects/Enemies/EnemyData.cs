@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewEnemyData", menuName = "Enemies/EnemyData")]
@@ -20,8 +21,10 @@ public class EnemyData : ScriptableObject
     public GameObject CreateEnemy(Vector3 position)
     {
         GameObject enemy = Instantiate(enemyPrefab, position, Quaternion.identity);
-        enemy.name = enemyName;
 
+        NetworkObject networkObject = enemy.GetComponent<NetworkObject>();
+        networkObject.Spawn(destroyWithScene: true);
+        enemy.name = enemyName;
         // the builder checks if it can add the corresponding components
         EnemyBuilder builder = new EnemyBuilder(enemy, this);
 
@@ -37,7 +40,7 @@ public class EnemyData : ScriptableObject
         }
         else
         {
-            builder.WithHealth()
+            builder/*.WithHealth()*/
                    .Build();
         }
 

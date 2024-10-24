@@ -99,5 +99,8 @@ public class PossessMediator : NetworkBehaviour
         }
     }
 
-
+    public void StopTimer() 
+    {
+        StopTimerServerRpc(); 
+    }
 }

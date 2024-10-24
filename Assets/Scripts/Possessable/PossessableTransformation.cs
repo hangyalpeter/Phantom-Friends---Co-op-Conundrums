@@ -1,7 +1,6 @@
 ﻿using Unity.Netcode;
 using UnityEngine;
 
-
 public class PossessableTransformation : NetworkBehaviour
 {
     [SerializeField] private float distanceOffset = 2f;
@@ -69,10 +68,5 @@ public class PossessableTransformation : NetworkBehaviour
         {
             mediator.RegisterPossessionRequest(this);
         }
-    }
-
-    public void RequestDepossession()
-    {
-        mediator.RegisterDepossessionRequest();
     }
 }

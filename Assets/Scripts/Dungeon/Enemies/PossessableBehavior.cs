@@ -1,11 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
-using UnityEditor;
+using Unity.Netcode;
 using UnityEngine;
 
-// TODO separate these behaviors even more or make a parent class which only updates the direction of movement (shooting direction) and descend from that
-public class PossessableBehavior : MonoBehaviour
+// TODO remove class in the future
+public class PossessableBehavior : NetworkBehaviour
 {
     private Vector2 lastMovementDirection;
     private FollowPlayerBehavior followPlayerBehavior;
@@ -21,11 +18,13 @@ public class PossessableBehavior : MonoBehaviour
     private ShootBehavior sb;
     private PosessableMovement pm;
 
+    private ProjectileSpawner projectileSpawner;
 
     public bool IsPossessed => isPossessed;
 
     void Start()
     {
+        projectileSpawner = GetComponent<ProjectileSpawner>();
         sb = GetComponent<ShootBehavior>(); 
         pm = GetComponent<PosessableMovement>();
 
@@ -42,6 +41,7 @@ public class PossessableBehavior : MonoBehaviour
     
     void Update()
     {
+        if (!IsOwner) return;
         HandleShooting();
     }
 
@@ -51,8 +51,7 @@ public class PossessableBehavior : MonoBehaviour
         UpdateShootingDirection();
         if (Input.GetKeyDown(KeyCode.K) && isPossessed && gameObject.tag == "PossessedEnemy")
         {
-            ProjectileFactory.Instance.GetProjectile(bulletPrefab, transform.position, lastMovementDirection, 20, sb.damage , "PossessedEnemy");
-
+            projectileSpawner.GetProjectile(transform.position, lastMovementDirection, 20, sb.damage, "PossessedEnemy");
         }
 
     }
@@ -73,7 +72,6 @@ public class PossessableBehavior : MonoBehaviour
     public void OnPossess()
     {
         gameObject.tag = "PossessedEnemy";
-        pm.SetPossessedTrue();
         sb.enabled = false;
         followPlayerBehavior.enabled = false;
         isPossessed = true;
@@ -82,7 +80,6 @@ public class PossessableBehavior : MonoBehaviour
     public void OnDePossess()
     {
         gameObject.tag = "Enemy";
-        pm.SetPossessedFalse();
         
         sb.enabled = true;
         followPlayerBehavior.enabled = true;

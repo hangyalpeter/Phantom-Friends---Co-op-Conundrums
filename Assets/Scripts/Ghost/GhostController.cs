@@ -1,16 +1,14 @@
-using System;
-using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
 public class GhostController : NetworkBehaviour
 {
-
     private PossessMediator mediator;
     
     private Rigidbody2D rb;
     private SpriteRenderer sr;
     private Animator anim;
+
     private float dirX = 0f;
     private float dirY = 0f;
     private readonly float moveSpeed = 7f;
@@ -20,6 +18,7 @@ public class GhostController : NetworkBehaviour
     private bool possessRequested = false;
     private bool dePossessRequested = false;
     private enum MovementState { idle, moving}
+
     private NetworkVariable<bool> isFlipped = new NetworkVariable<bool>(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<bool> isSpriteEnabled = new NetworkVariable<bool>(true, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<bool> isPossessedNetwork = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -46,8 +45,13 @@ public class GhostController : NetworkBehaviour
             IsPossessed = newValue;
         };
 
+        HealthComponent.OnPossessedObjectDies += RequestDepossession;
     }
 
+    private void OnDisable()
+    {
+        HealthComponent.OnPossessedObjectDies -= RequestDepossession;
+    }
 
     private void Update()
     {
@@ -102,7 +106,6 @@ public class GhostController : NetworkBehaviour
 
         if (NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(targetNetworkObjectId, out NetworkObject targetNetworkObject))
         {
-            // Change ownership to the client who made the request
             targetNetworkObject.ChangeOwnership(rpcParams.Receive.SenderClientId);
         }
         else
@@ -180,7 +183,6 @@ public class GhostController : NetworkBehaviour
         isSpriteEnabled.Value = isPossessed;
     }
 
-
     private PossessableTransformation GetClosestPossessableTarget()
     {
         PossessableTransformation closestTarget = null;
@@ -196,6 +198,11 @@ public class GhostController : NetworkBehaviour
             }
         }
         return closestTarget;
+    }
+
+    private void RequestDepossession()
+    {
+        ToggleIsPossessed(false);
     }
 
 }

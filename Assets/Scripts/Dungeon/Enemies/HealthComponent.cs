@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections;
+using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class HealthComponent : MonoBehaviour, IHealthProvider
+public class HealthComponent : NetworkBehaviour, IHealthProvider
 {
     public float maxHealth = 100f;
     private float currentHealth;
@@ -9,10 +12,15 @@ public class HealthComponent : MonoBehaviour, IHealthProvider
     public event Action OnDied;
     public event Action<float> OnHealthChanged;
     public static event Action OnEnemyDied;
+    public static Action OnPossessedObjectDies;
 
     private bool dieInvoked = false;
 
+    private bool canDespawn = true;
+
     public float MaxHealth => maxHealth;
+
+    // TODO try to sync the health
 
     public float CurrentHealth
     {
@@ -49,22 +57,56 @@ public class HealthComponent : MonoBehaviour, IHealthProvider
 
     private void Die()
     {
-
         dieInvoked = true;
-        if (gameObject.CompareTag("Player_Child") || gameObject.CompareTag("PossessedEnemy") || gameObject.CompareTag("Possessable"))
+        ulong networkObjectId = gameObject.GetComponent<NetworkObject>().NetworkObjectId;
+
+        // Make sure player is not possessable!
+        if (gameObject.CompareTag("Player_Child") || gameObject.GetComponent<PossessableTransformation>() != null)
         {
             OnDied?.Invoke();
+            if (gameObject.CompareTag("Enemy"))
+            {
+                OnEnemyDied?.Invoke();
+            }
             if (gameObject.GetComponent<PosessableMovement>().IsPossessed)
             {
-                FindAnyObjectByType<PossessionTimer>()?.StopTimer();
+                OnPossessedObjectDies?.Invoke();
             }
-            Destroy(gameObject);
-            return;
+            DespawnDeadObject(networkObjectId);
         }
         else
         {
             OnEnemyDied?.Invoke();
-            Destroy(gameObject);
+
+            DespawnDeadObject(networkObjectId);
+        }
+    }
+
+    private void DespawnDeadObject(ulong networkObjectId)
+    {
+        if (!IsServer && IsClient)
+        {
+            RequestDestroyOnServerRpc(networkObjectId);
+        }
+        else
+        {
+            NetworkObject networkObject = NetworkManager.Singleton.SpawnManager.SpawnedObjects[networkObjectId];
+            if (networkObject == null) Debug.LogError("Networkobject null");
+            if (networkObject != null)
+            {
+                networkObject.Despawn(networkObject);
+            }
+
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void RequestDestroyOnServerRpc(ulong networkObjectId)
+    {
+        NetworkObject networkObject = NetworkManager.Singleton.SpawnManager.SpawnedObjects[networkObjectId];
+        if (networkObject != null)
+        {
+            networkObject.Despawn(networkObject);
         }
     }
 }

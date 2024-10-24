@@ -11,6 +11,7 @@ public class DepossessedState : IState
 
     public void Enter()
     {
+        Debug.Log("Enter Depossessed State");
         possessable.Rb.constraints = RigidbodyConstraints2D.FreezeAll;
 
         possessable.GetComponent<PosessableMovement>().SetPossessedFalse();
