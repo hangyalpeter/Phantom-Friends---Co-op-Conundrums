@@ -5,6 +5,7 @@ using UnityEngine.UIElements;
 
 public class MainMenuScreen : UIScreen
 {
+    Button m_ReadyButton;
     Button m_StartButton;
     Button m_LevelSelectButton;
     Button m_SettingsButton;
@@ -15,7 +16,6 @@ public class MainMenuScreen : UIScreen
         SetupButtons();
         RegisterCallbacks();
         DisablePlayButtonsOnClient();
-
     }
 
     private void DisablePlayButtonsOnClient()
@@ -25,14 +25,17 @@ public class MainMenuScreen : UIScreen
             m_StartButton.style.display = DisplayStyle.None;
             m_StartDungeonButton.style.display = DisplayStyle.None;
             m_LevelSelectButton.style.display = DisplayStyle.None;
-            /*m_StartButton.SetEnabled(false);
-            m_StartDungeonButton.SetEnabled(false);
-            m_LevelSelectButton.SetEnabled(false);*/
+        }
+        if (StartingSceneController.ChoosenPlayMode == StartingSceneController.PlayMode.Host || StartingSceneController.ChoosenPlayMode == StartingSceneController.PlayMode.CouchCoop)
+        {
+            m_ReadyButton.style.display = DisplayStyle.None;
         }
     }
 
     private void SetupButtons()
     {
+        m_ReadyButton = m_RootElement.Q<Button>("ready-button");
+
         m_StartButton = m_RootElement.Q<Button>("start-button");
 
         m_LevelSelectButton = m_RootElement.Q<Button>("level-select-button");
@@ -45,11 +48,15 @@ public class MainMenuScreen : UIScreen
 
     private void RegisterCallbacks()
     {
-        m_EventRegistry.RegisterCallback<ClickEvent>(m_StartButton, evt => UIScreenEvents.OnGameStart?.Invoke());
+        m_EventRegistry.RegisterCallback<ClickEvent>(m_ReadyButton, evt => UIScreenEvents.OnClientReady?.Invoke());
+
+        m_EventRegistry.RegisterCallback<ClickEvent>(m_StartButton, evt => UIScreenEvents.OnHostReady?.Invoke(Scene.Level_1));
+
         m_EventRegistry.RegisterCallback<ClickEvent>(m_SettingsButton, evt => UIScreenEvents.SettingsShown?.Invoke());
+
         m_EventRegistry.RegisterCallback<ClickEvent>(m_LevelSelectButton, evt => UIScreenEvents.LevelSelectShown?.Invoke());
         m_EventRegistry.RegisterCallback<ClickEvent>(m_QuitButton, evt => Application.Quit());
-        m_EventRegistry.RegisterCallback<ClickEvent>(m_StartDungeonButton, evt => UIScreenEvents.OnDungeonGameStart?.Invoke());
+        m_EventRegistry.RegisterCallback<ClickEvent>(m_StartDungeonButton, evt => UIScreenEvents.OnHostReady?.Invoke(Scene.Dungeon_Crawler));
     }
 
     public override void Show()

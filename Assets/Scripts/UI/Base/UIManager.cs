@@ -15,6 +15,7 @@ public class UIManager : MonoBehaviour
     UIScreen m_LevelFinishScreen;
     UIScreen m_LevelSelectScreen;
     UIScreen m_DungeonGameOverScreen;
+    UIScreen m_WaitingForPlayersScreen;
 
     UIScreen m_CurrentScreen;
 
@@ -48,6 +49,7 @@ public class UIManager : MonoBehaviour
         m_LevelFinishScreen = new LevelFinishScreen(root.Q<VisualElement>("LevelFinishScreen"));
         m_LevelSelectScreen = new LevelSelectScreen(root.Q<VisualElement>("LevelSelectScreen"));
         m_DungeonGameOverScreen = new DungeonGameOverScreen(root.Q<VisualElement>("DungeonGameOverScreen"));
+        m_WaitingForPlayersScreen = new WaitingForPlayersScreen(root.Q<VisualElement>("WaitingForPlayersScreen"));
 
         RegisterUIScreens();
         HideScreens();
@@ -72,6 +74,12 @@ public class UIManager : MonoBehaviour
         UIScreenEvents.LevelSelectShown += UIScreenEvents_LevelSelectShown;
         UIScreenEvents.OnLevelSelected += UIScreenEvents_LevelSelected;
         UIScreenEvents.DungeonGameOverShown += UIScreenEvents_DungeonGameOverShown;
+        UIScreenEvents.WaitingForPlayersScreenShown += UIScreenEvents_WaitingForPlayersScreenShown;
+    }
+
+    private void UIScreenEvents_WaitingForPlayersScreenShown()
+    {
+        Show(m_WaitingForPlayersScreen, false);
     }
 
     private void UnsubscribeFromEvents()
@@ -87,6 +95,7 @@ public class UIManager : MonoBehaviour
         UIScreenEvents.OnLevelSelected -= UIScreenEvents_LevelSelected;
         UIScreenEvents.DungeonGameOverShown -= UIScreenEvents_DungeonGameOverShown;
         UIScreenEvents.HideAllScreens -= HideScreens;
+        UIScreenEvents.WaitingForPlayersScreenShown -= UIScreenEvents_WaitingForPlayersScreenShown;
     }
 
     private void RegisterUIScreens()
@@ -98,7 +107,8 @@ public class UIManager : MonoBehaviour
             m_PauseScreen,
             m_LevelFinishScreen,
             m_LevelSelectScreen,
-            m_DungeonGameOverScreen
+            m_DungeonGameOverScreen,
+            m_WaitingForPlayersScreen
         };
     }
 

@@ -3,25 +3,23 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 
+public enum Scene {First, Main_Menu, Level_1, Level_2, Dungeon_Crawler };
 public class LevelManager : NetworkBehaviour
 {
     public static LevelManager Instance { get; private set; }
 
     public static Action LevelChanged;
 
-    private bool alreadyLoadedOnce = false;
-
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
         NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += NetworkManager_OnLoadEventCompleted;
-
     }
 
     private void NetworkManager_OnLoadEventCompleted(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
     {
         UIScreenEvents.ScreenClosed?.Invoke();
-        if (sceneName == "Main Menu")
+        if (sceneName == "Main_Menu")
         {
             UIScreenEvents.MainMenuShown?.Invoke();
         }
@@ -42,10 +40,6 @@ public class LevelManager : NetworkBehaviour
     {
         UnSubscribeFromEvents();
     }
-    private void OnGameStartClicked()
-    {
-        LoadLevel("Level 1");
-    }
 
     private void LoadLevel(string levelName)
     {
@@ -57,33 +51,27 @@ public class LevelManager : NetworkBehaviour
 
     private void SubscribeToEvents()
     {
-        UIScreenEvents.OnGameStart += OnGameStartClicked;
-        UIScreenEvents.OnDungeonGameStart += OnDungeonGameStartClicked;
         UIScreenEvents.OnLevelRestart += OnLevelRestartClicked;
         UIScreenEvents.MainMenuClicked += OnMainMenuClicked;
         UIScreenEvents.OnNextLevel += OnNextLevel;
-        UIScreenEvents.OnLevelSelected += OnLevelSelected;
+        UIScreenEvents.OnHostStart += UIScreenEvents_OnHostStart;
 
         GameEvents.OnLevelRestart += OnLevelRestartClicked;
+    }
 
+    private void UIScreenEvents_OnHostStart(Scene scene)
+    {
+        LoadLevel(scene.ToString());
     }
 
     private void UnSubscribeFromEvents()
     {
-        UIScreenEvents.OnGameStart -= OnGameStartClicked;
-        UIScreenEvents.OnDungeonGameStart -= OnDungeonGameStartClicked;
         UIScreenEvents.OnLevelRestart -= OnLevelRestartClicked;
         UIScreenEvents.MainMenuClicked -= OnMainMenuClicked;
         UIScreenEvents.OnNextLevel -= OnNextLevel;
-        UIScreenEvents.OnLevelSelected -= OnLevelSelected;
 
         GameEvents.OnLevelRestart -= OnLevelRestartClicked;
-
-    }
-
-    private void OnDungeonGameStartClicked()
-    {
-        LoadLevel("Dungeon Crawler");
+        UIScreenEvents.OnHostStart -= UIScreenEvents_OnHostStart;
     }
 
     private void OnLevelRestartClicked()
@@ -97,7 +85,7 @@ public class LevelManager : NetworkBehaviour
     private void OnMainMenuClicked()
     {
 
-        LoadLevel("Main Menu");
+        LoadLevel(Scene.Main_Menu.ToString());
         UIScreenEvents.ScreenClosed?.Invoke();
         UIScreenEvents.MainMenuShown?.Invoke();
     }
@@ -106,20 +94,15 @@ public class LevelManager : NetworkBehaviour
     {
         LoadNextLevel();
     }
+
     private void LoadNextLevel()
     {
         if (!IsServer) { return; }
       
-        NetworkManager.Singleton.SceneManager.LoadScene("Level " + (SceneManager.GetActiveScene().buildIndex + 1).ToString(), LoadSceneMode.Single);
+        NetworkManager.Singleton.SceneManager.LoadScene("Level_" + (SceneManager.GetActiveScene().buildIndex + 1).ToString(), LoadSceneMode.Single);
 
         UIScreenEvents.ScreenClosed?.Invoke();
         LevelChanged?.Invoke();
     }
-
-    private void OnLevelSelected(string name)
-    {
-        UIScreenEvents.ScreenClosed?.Invoke();
-        LoadLevel(name);
-        LevelChanged?.Invoke();
-    }
+    
 }

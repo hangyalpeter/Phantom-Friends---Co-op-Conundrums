@@ -17,6 +17,7 @@ TagManager:
   - BossHealthBar
   - Boss
   - Possessable
+  - WaitForPlayersPanel
   layers:
   - Default
   - TransparentFX

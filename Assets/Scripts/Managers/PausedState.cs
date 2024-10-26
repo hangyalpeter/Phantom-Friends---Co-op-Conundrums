@@ -18,6 +18,8 @@ public class PausedState : IGameState
 
         UIScreenEvents.SettingsShown += SettingsShown;
 
+        UIScreenEvents.ScreenClosed += ScreenClosed;
+
         int minutes = (int)(context.ElapsedTime / 60);
         int seconds = (int)(context.ElapsedTime % 60);
         float hundreth = (float)((context.ElapsedTime - Mathf.Floor(context.ElapsedTime)) * 100); 
@@ -31,7 +33,15 @@ public class PausedState : IGameState
     {
         settingsShown = true;
 
-        UIScreenEvents.ScreenClosed += () => settingsShown = false;
+    }
+
+    private void ScreenClosed()
+    {
+        if (!settingsShown)
+        {
+            context.TransitionToState(context.PlayingState);
+        }
+        settingsShown = false;
     }
 
     public void UpdateState()
@@ -44,6 +54,9 @@ public class PausedState : IGameState
 
     public void ExitState()
     {
+        UIScreenEvents.SettingsShown -= SettingsShown;
+        UIScreenEvents.ScreenClosed -= ScreenClosed;
+
         Debug.Log("Exiting Paused State");
         Time.timeScale = 1f;
         UIScreenEvents.ScreenClosed?.Invoke();

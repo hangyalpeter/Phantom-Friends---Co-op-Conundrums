@@ -1,4 +1,6 @@
-﻿using Unity.Netcode;
+﻿using System;
+using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -21,11 +23,11 @@ public class GameStateManager : NetworkBehaviour
     public float ElapsedTime { get; set; }
     private NetworkVariable<float> ElapsedTimeSynced = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-    public NetworkTime ElapsedTimee;
+    private bool isLocalPlayerReady = false;
+    private Dictionary<ulong, bool> playerReadyDictionary;
+    private Scene selectedScene;
 
-    // TODO: is local player ready event for main menu screen,
-    // if you click on ready on client here it sets the local player ready and the network dictionary for players and shows the waiting for players panel,
-    // if you are a host and click on either of the play buttons and the client is not ready it should also hide the buttons and show the panel for waiting for players and make the localplayerready true for the host
+    private Action OnAllReady;
 
     public override void OnNetworkSpawn()
     {
@@ -43,6 +45,60 @@ public class GameStateManager : NetworkBehaviour
         GameEvents.DungeonFinished += TransitionToGameOverState;
         GameEvents.LevelFinished += TransitionToGameOverState;
         GameEvents.OnNewDungeon += HandleNewDungeon;
+        UIScreenEvents.OnClientReady += UIScreenEvents_OnClientReady;
+        UIScreenEvents.OnHostReady += UIScreenEvents_OnHostReady;
+        OnAllReady += OnStartGame;
+    }
+
+    private void OnStartGame()
+    {
+        ResetLocalPlayerReadyClientRpc();
+        UIScreenEvents.OnHostStart?.Invoke(selectedScene);
+        UIScreenEvents.HideAllScreens?.Invoke();
+    }
+
+    [ClientRpc]
+    private void ResetLocalPlayerReadyClientRpc()
+    {
+        isLocalPlayerReady = false;
+        playerReadyDictionary = new Dictionary<ulong, bool>();
+    }
+    private void UIScreenEvents_OnHostReady(Scene scene)
+    {
+        isLocalPlayerReady = true;
+        selectedScene = scene;
+
+        UIScreenEvents.HideAllScreens?.Invoke();
+        UIScreenEvents.WaitingForPlayersScreenShown?.Invoke();
+        SetPlayerReadyServerRpc();
+    }
+
+    private void UIScreenEvents_OnClientReady()
+    {
+        isLocalPlayerReady = true;
+        UIScreenEvents.HideAllScreens?.Invoke();
+        UIScreenEvents.WaitingForPlayersScreenShown?.Invoke();
+
+        SetPlayerReadyServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SetPlayerReadyServerRpc(ServerRpcParams serverRpcParams = default)
+    {
+        playerReadyDictionary[serverRpcParams.Receive.SenderClientId] = true;
+        bool allReady = true;
+        foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+        {
+            if (!playerReadyDictionary.ContainsKey(clientId) || !playerReadyDictionary[clientId])
+            {
+                allReady = false;
+                break;
+            }
+        }
+        if (allReady)
+        {
+            OnAllReady?.Invoke();
+        }
     }
 
     private void OnDisable()
@@ -51,6 +107,9 @@ public class GameStateManager : NetworkBehaviour
         GameEvents.DungeonFinished -= TransitionToGameOverState;
         GameEvents.LevelFinished -= TransitionToGameOverState;
         GameEvents.OnNewDungeon -= HandleNewDungeon;
+        UIScreenEvents.OnClientReady -= UIScreenEvents_OnClientReady;
+        UIScreenEvents.OnHostReady -= UIScreenEvents_OnHostReady;
+        OnAllReady -= OnStartGame;
     }
 
     public void UpdateElapsedTimeSync(float elapsedTime, bool update=true)
@@ -86,13 +145,12 @@ public class GameStateManager : NetworkBehaviour
         PausedState = new PausedState(this);
         GameOverState = new GameOverState(this);
         MainMenuState = new MainMenuState(this);
+        playerReadyDictionary = new Dictionary<ulong, bool>();
 
         TransitionToState(MainMenuState);
 
         UIScreenEvents.MainMenuShown += () => TransitionToState(MainMenuState);
     }
-
-
 
     private void Update()
     {

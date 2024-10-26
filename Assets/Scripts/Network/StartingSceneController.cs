@@ -16,6 +16,8 @@ public class StartingSceneController : MonoBehaviour
     [SerializeField] private Button couchCoopBtn;
     [SerializeField] private Button hostBtn;
     [SerializeField] private Button joinBtn;
+    [SerializeField] private Button quitToDesktopBtn; 
+    [SerializeField] private Button backButton;
 
     [SerializeField] private GameObject disconnectedPanel;
     [SerializeField] private GameObject tryingToConnectPanel;
@@ -37,7 +39,7 @@ public class StartingSceneController : MonoBehaviour
             ChoosenPlayMode = PlayMode.CouchCoop;
             NetworkManager.Singleton.ConnectionApprovalCallback += NetworkManager_ConnectionApprovalCallbackCouchCoop;
             NetworkManager.Singleton.StartHost();
-            NetworkManager.Singleton.SceneManager.LoadScene("Main Menu", LoadSceneMode.Single);
+            NetworkManager.Singleton.SceneManager.LoadScene(Scene.Main_Menu.ToString(), LoadSceneMode.Single);
 
         });
 
@@ -46,7 +48,7 @@ public class StartingSceneController : MonoBehaviour
             ChoosenPlayMode = PlayMode.Host;
             NetworkManager.Singleton.ConnectionApprovalCallback += NetworkManager_ConnectionApprovalCallbackHost;
             NetworkManager.Singleton.StartHost();
-            NetworkManager.Singleton.SceneManager.LoadScene("Main Menu", LoadSceneMode.Single);
+            NetworkManager.Singleton.SceneManager.LoadScene(Scene.Main_Menu.ToString(), LoadSceneMode.Single);
         });
 
         joinBtn.onClick.AddListener(() =>
@@ -66,6 +68,16 @@ public class StartingSceneController : MonoBehaviour
             NetworkManager.Singleton.StartClient();
             ShowTryingToConnectPanel(true);
             NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
+        });
+
+        quitToDesktopBtn.onClick.AddListener(() =>
+        {
+            Application.Quit();
+        });
+
+        backButton.onClick.AddListener(() =>
+        {
+            HideDisconnectMessagePanel();
         });
 
     }
@@ -117,6 +129,7 @@ public class StartingSceneController : MonoBehaviour
         hostBtn.gameObject.SetActive(show);
         couchCoopBtn.gameObject.SetActive(show);
         joinBtn.gameObject.SetActive(show);
+        quitToDesktopBtn.gameObject.SetActive(show);
     }
 
 

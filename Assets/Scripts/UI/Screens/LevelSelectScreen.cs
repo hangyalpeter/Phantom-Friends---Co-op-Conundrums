@@ -48,8 +48,10 @@ public class LevelSelectScreen : UIScreen
 
     private void RegisterCallbacks()
     {
-        m_EventRegistry.RegisterCallback<ClickEvent>(m_Level1Button, evt => UIScreenEvents.OnLevelSelected?.Invoke(m_Level1Button.text));
-        m_EventRegistry.RegisterCallback<ClickEvent>(m_Level2Button, evt => UIScreenEvents.OnLevelSelected?.Invoke(m_Level2Button.text));
+        m_EventRegistry.RegisterCallback<ClickEvent>(m_Level1Button, evt => UIScreenEvents.OnHostReady?.Invoke(Scene.Level_1));
+
+        m_EventRegistry.RegisterCallback<ClickEvent>(m_Level2Button, evt => UIScreenEvents.OnHostReady?.Invoke(Scene.Level_2));
+
         m_EventRegistry.RegisterCallback<ClickEvent>(m_BackButton, evt => UIScreenEvents.ScreenClosed?.Invoke());
     }
 
