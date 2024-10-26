@@ -82,16 +82,22 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
         if (IsClient && !IsServer)
         {
-            RequestSpawnPlayerServerRpc(alreadySpawned);
+            if (StartingSceneController.ChoosenPlayMode != StartingSceneController.PlayMode.CouchCoop)
+            {
+                RequestSpawnPlayerServerRpc(alreadySpawned);
+            }
         }
 
         if (IsServer)
         {
-            SpawnPlayer(NetworkManager.Singleton.LocalClientId, alreadySpawned);
-
-            //Couch-coop TODO: get it from a singleton if we should make it couch-coop or not, maybe sessionmanager or something like that could store it
-            // TODO move players to first room alreadyspawned thingy
-            //SpawnLocalPlayersForCouchCoop(alreadySpawned);
+            if (StartingSceneController.ChoosenPlayMode != StartingSceneController.PlayMode.CouchCoop)
+            {
+                SpawnPlayer(NetworkManager.Singleton.LocalClientId, alreadySpawned);
+            }
+            else
+            {
+                SpawnLocalPlayersForCouchCoop(alreadySpawned);
+            }
         }
         PrintRoomGraph();
         PrintGraph(roomGraph);

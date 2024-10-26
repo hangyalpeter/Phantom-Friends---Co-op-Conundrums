@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
@@ -13,6 +14,21 @@ public class MainMenuScreen : UIScreen
     {
         SetupButtons();
         RegisterCallbacks();
+        DisablePlayButtonsOnClient();
+
+    }
+
+    private void DisablePlayButtonsOnClient()
+    {
+        if (StartingSceneController.ChoosenPlayMode == StartingSceneController.PlayMode.Client)
+        {
+            m_StartButton.style.display = DisplayStyle.None;
+            m_StartDungeonButton.style.display = DisplayStyle.None;
+            m_LevelSelectButton.style.display = DisplayStyle.None;
+            /*m_StartButton.SetEnabled(false);
+            m_StartDungeonButton.SetEnabled(false);
+            m_LevelSelectButton.SetEnabled(false);*/
+        }
     }
 
     private void SetupButtons()

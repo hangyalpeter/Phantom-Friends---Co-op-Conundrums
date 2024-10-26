@@ -27,7 +27,6 @@ public class PausedState : IGameState
         GameEvents.GamePaused?.Invoke(string.Format("{0:00}:{1:00}:{2:00}", minutes, seconds, hundreth));
 
     }
-
     private void SettingsShown()
     {
         settingsShown = true;

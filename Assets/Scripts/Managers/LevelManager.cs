@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 
@@ -9,6 +10,22 @@ public class LevelManager : NetworkBehaviour
     public static Action LevelChanged;
 
     private bool alreadyLoadedOnce = false;
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += NetworkManager_OnLoadEventCompleted;
+
+    }
+
+    private void NetworkManager_OnLoadEventCompleted(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
+    {
+        UIScreenEvents.ScreenClosed?.Invoke();
+        if (sceneName == "Main Menu")
+        {
+            UIScreenEvents.MainMenuShown?.Invoke();
+        }
+    }
 
     private void Awake()
     {
@@ -33,15 +50,6 @@ public class LevelManager : NetworkBehaviour
     private void LoadLevel(string levelName)
     {
         if (!IsServer) return;
-
-        foreach (NetworkClient client in NetworkManager.Singleton.ConnectedClientsList)
-        {
-            NetworkObject playerObject = client.PlayerObject;
-            if (playerObject != null)
-            {
-                playerObject.Despawn();
-            }
-        }
 
         NetworkManager.Singleton.SceneManager.LoadScene(levelName, LoadSceneMode.Single);
         LevelChanged?.Invoke();
@@ -88,6 +96,7 @@ public class LevelManager : NetworkBehaviour
     }
     private void OnMainMenuClicked()
     {
+
         LoadLevel("Main Menu");
         UIScreenEvents.ScreenClosed?.Invoke();
         UIScreenEvents.MainMenuShown?.Invoke();

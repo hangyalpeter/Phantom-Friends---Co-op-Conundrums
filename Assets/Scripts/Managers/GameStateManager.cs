@@ -23,6 +23,10 @@ public class GameStateManager : NetworkBehaviour
 
     public NetworkTime ElapsedTimee;
 
+    // TODO: is local player ready event for main menu screen,
+    // if you click on ready on client here it sets the local player ready and the network dictionary for players and shows the waiting for players panel,
+    // if you are a host and click on either of the play buttons and the client is not ready it should also hide the buttons and show the panel for waiting for players and make the localplayerready true for the host
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -154,8 +158,6 @@ public class GameStateManager : NetworkBehaviour
                 return new MainMenuState(this);
         }
     }
-
-
 
     private void ResetElapsedTime()
     {
