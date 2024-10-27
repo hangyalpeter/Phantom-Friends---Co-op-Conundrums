@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -5,7 +6,6 @@ public class DungeonGameOverScreen : UIScreen
 {
     Button m_RestartButton;
     Button m_MainMenuButton;
-    Button m_ExitButton;
     Button m_NewDungeonButton;
 
     Label m_FinishedRoomsLabel;
@@ -27,12 +27,10 @@ public class DungeonGameOverScreen : UIScreen
         m_NewDungeonButton = m_RootElement.Q<Button>("new-dungeon-button");
 
         m_MainMenuButton = m_RootElement.Q<Button>("main-menu-button");
-        m_ExitButton = m_RootElement.Q<Button>("exit-button");
 
         m_FinishedRoomsLabel = m_RootElement.Q<Label>("finished-rooms-label");
         m_EnemiesKilledLabel = m_RootElement.Q<Label>("enemies-killed-label");
         m_ElapsedTimeLabel = m_RootElement.Q<Label>("elapsed-time-label");
-
 
     }
 
@@ -41,9 +39,34 @@ public class DungeonGameOverScreen : UIScreen
         DungeonManager.OnDungeonFinish += UpdateLabels;
 
         GameEvents.LevelFinishedWithTime += OnLevelFinish;
+        StartingSceneController.PlayModeChanged += StartingSceneController_PlaymodeChanged;
     }
 
-   public override void Disable()
+    private void StartingSceneController_PlaymodeChanged(StartingSceneController.PlayMode mode)
+    {
+        if (mode == StartingSceneController.PlayMode.Client)
+        {
+            m_NewDungeonButton.style.display = DisplayStyle.None;
+            m_RestartButton.style.display = DisplayStyle.None;
+            m_MainMenuButton.style.display = DisplayStyle.None;
+        }
+
+        if (mode == StartingSceneController.PlayMode.Host)
+        {
+            m_NewDungeonButton.style.display = DisplayStyle.Flex;
+            m_RestartButton.style.display = DisplayStyle.Flex;
+            m_MainMenuButton.style.display = DisplayStyle.Flex;
+        }
+
+        if (mode == StartingSceneController.PlayMode.CouchCoop)
+        {
+            m_NewDungeonButton.style.display = DisplayStyle.Flex;
+            m_RestartButton.style.display = DisplayStyle.Flex;
+            m_MainMenuButton.style.display = DisplayStyle.Flex;
+        }
+    }
+
+    public override void Disable()
     {
         base.Disable();
         UnsubscribeFromEvents();
@@ -62,13 +85,20 @@ public class DungeonGameOverScreen : UIScreen
         m_EnemiesKilledLabel.text = "Enemies killed: " + enemiesKilled;
         if (restartLabel == "Restart")
         {
-            m_NewDungeonButton.SetEnabled(false);
-            m_RestartButton.SetEnabled(true);
+
+            if (StartingSceneController.ChoosenPlayMode != StartingSceneController.PlayMode.Client)
+            {
+                m_NewDungeonButton.style.display = DisplayStyle.None;
+                m_RestartButton.style.display = DisplayStyle.Flex;
+            }
         }
         else
         {
-            m_NewDungeonButton.SetEnabled(true);
-            m_RestartButton.SetEnabled(false);
+            if (StartingSceneController.ChoosenPlayMode != StartingSceneController.PlayMode.Client)
+            {
+                m_NewDungeonButton.style.display = DisplayStyle.Flex;
+                m_RestartButton.style.display = DisplayStyle.None;
+            }
         }
     }
 
@@ -79,7 +109,6 @@ public class DungeonGameOverScreen : UIScreen
 
     private void RegisterCallbacks() 
     {
-        m_EventRegistry.RegisterCallback<ClickEvent>(m_ExitButton, evt => Application.Quit());
         m_EventRegistry.RegisterCallback<ClickEvent>(m_RestartButton, evt => UIScreenEvents.OnLevelRestart?.Invoke());
         m_EventRegistry.RegisterCallback<ClickEvent>(m_NewDungeonButton, evt => GameEvents.OnNewDungeon?.Invoke());
         m_EventRegistry.RegisterCallback<ClickEvent>(m_MainMenuButton, evt => UIScreenEvents.MainMenuClicked?.Invoke());

@@ -26,11 +26,37 @@ public class LevelFinishScreen : UIScreen
     private void SubscribeToEvents()
     {
         GameEvents.LevelFinishedWithTime += GameEvents_LevelFinishedWithTime;
+        StartingSceneController.PlayModeChanged += StartingSceneController_PlaymodeChanged;
+    }
+
+    private void StartingSceneController_PlaymodeChanged(StartingSceneController.PlayMode mode)
+    {
+        if (mode == StartingSceneController.PlayMode.Client)
+        {
+            m_RestartButton.style.display = DisplayStyle.None;
+            m_MainMenuButton.style.display = DisplayStyle.None;
+            m_NextLevelButton.style.display = DisplayStyle.None;
+        }
+
+        if (mode == StartingSceneController.PlayMode.Host)
+        {
+            m_RestartButton.style.display = DisplayStyle.Flex;
+            m_MainMenuButton.style.display = DisplayStyle.Flex;
+            m_NextLevelButton.style.display= DisplayStyle.Flex;
+        }
+
+        if (mode == StartingSceneController.PlayMode.CouchCoop)
+        {
+            m_RestartButton.style.display = DisplayStyle.Flex;
+            m_MainMenuButton.style.display = DisplayStyle.Flex;
+            m_NextLevelButton.style.display= DisplayStyle.Flex;
+        }
     }
 
     private void UnsubscribeFromEvents()
     {
         GameEvents.LevelFinishedWithTime -= GameEvents_LevelFinishedWithTime;
+        StartingSceneController.PlayModeChanged -= StartingSceneController_PlaymodeChanged;
     }
 
     private void GameEvents_LevelFinishedWithTime(string time)

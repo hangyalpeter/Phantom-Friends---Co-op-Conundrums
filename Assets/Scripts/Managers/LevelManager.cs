@@ -118,7 +118,17 @@ public class LevelManager : NetworkBehaviour
     {
         if (!IsServer) { return; }
 
-        NetworkManager.Singleton.SceneManager.LoadScene("Level_" + (SceneManager.GetActiveScene().buildIndex + 1).ToString(), LoadSceneMode.Single);
+        // TODO if have time come up with better solution
+
+        string currentSceneName = SceneManager.GetActiveScene().name;
+
+        int currentLevelNumber = int.Parse(currentSceneName.Split('_')[1]);
+
+        int nextLevelNumber = currentLevelNumber + 1;
+
+        string nextSceneName = "Level_" + nextLevelNumber;
+
+        NetworkManager.Singleton.SceneManager.LoadScene(nextSceneName, LoadSceneMode.Single);
 
         UIScreenEvents.ScreenClosed?.Invoke();
         LevelChanged?.Invoke();
