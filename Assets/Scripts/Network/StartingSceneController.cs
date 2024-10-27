@@ -9,34 +9,39 @@ public class StartingSceneController : MonoBehaviour
 
     public static StartingSceneController Instance;
 
-    public enum PlayMode {CouchCoop, Host, Client};
+    private static PlayMode _choosenPlayMode;
 
-    public static PlayMode ChoosenPlayMode {  get; private set; }
+    public enum PlayMode { CouchCoop, Host, Client };
+
+    public static event Action<PlayMode> PlayModeChanged;
+
+    public static PlayMode ChoosenPlayMode
+    {
+        get => _choosenPlayMode;
+        set
+        {
+            _choosenPlayMode = value;
+            PlayModeChanged?.Invoke(_choosenPlayMode);
+        }
+    }
 
     [SerializeField] private Button couchCoopBtn;
     [SerializeField] private Button hostBtn;
     [SerializeField] private Button joinBtn;
-    [SerializeField] private Button quitToDesktopBtn; 
+    [SerializeField] private Button quitToDesktopBtn;
     [SerializeField] private Button backButton;
 
     [SerializeField] private GameObject disconnectedPanel;
     [SerializeField] private GameObject tryingToConnectPanel;
     [SerializeField] private Button retryButton;
 
-    private void Awake()
+    private void SetUpButtonClickListeners()
     {
-        if (Instance != null && Instance != this)
-        {
-            Instance = this;
-            Destroy(this);
-        } else
-        {
-            Instance = this;
-        }
-
         couchCoopBtn.onClick.AddListener(() =>
         {
             ChoosenPlayMode = PlayMode.CouchCoop;
+            NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackHost;
+            NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackCouchCoop;
             NetworkManager.Singleton.ConnectionApprovalCallback += NetworkManager_ConnectionApprovalCallbackCouchCoop;
             NetworkManager.Singleton.StartHost();
             NetworkManager.Singleton.SceneManager.LoadScene(Scene.Main_Menu.ToString(), LoadSceneMode.Single);
@@ -46,6 +51,8 @@ public class StartingSceneController : MonoBehaviour
         hostBtn.onClick.AddListener(() =>
         {
             ChoosenPlayMode = PlayMode.Host;
+            NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackHost;
+            NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackCouchCoop;
             NetworkManager.Singleton.ConnectionApprovalCallback += NetworkManager_ConnectionApprovalCallbackHost;
             NetworkManager.Singleton.StartHost();
             NetworkManager.Singleton.SceneManager.LoadScene(Scene.Main_Menu.ToString(), LoadSceneMode.Single);
@@ -79,12 +86,40 @@ public class StartingSceneController : MonoBehaviour
         {
             HideDisconnectMessagePanel();
         });
-
     }
-    private void Start()
+
+    private void OnEnable()
     {
-        HideDisconnectMessagePanel();
-        ShowTryingToConnectPanel(false);
+        SceneManager.sceneLoaded += SceneManager_sceneLoaded;
+    }
+
+    private void SceneManager_sceneLoaded(UnityEngine.SceneManagement.Scene arg0, LoadSceneMode arg1)
+    {
+        if (arg0.name == Scene.First.ToString())
+        {
+            couchCoopBtn = GameObject.Find("CouchCoopButton").GetComponent<Button>();
+            hostBtn = GameObject.Find("HostButton").GetComponent<Button>();
+            joinBtn = GameObject.Find("JoinButton").GetComponent<Button>();
+            quitToDesktopBtn = GameObject.Find("QuitToDesktopButton").GetComponent<Button>();
+            disconnectedPanel = GameObject.Find("DisconnectPanel");
+            retryButton = GameObject.Find("RetryButton").GetComponent<Button>();
+            backButton = GameObject.Find("BackButton").GetComponent<Button>();
+            tryingToConnectPanel = GameObject.Find("TryingToConnectPanel");
+
+            SetUpButtonClickListeners();
+
+            HideDisconnectMessagePanel();
+            ShowTryingToConnectPanel(false);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        NetworkManager.Singleton.OnClientConnectedCallback -= NetworkManager_OnClientConnectedCallback;
+        NetworkManager.Singleton.OnClientDisconnectCallback -= NetworkManager_OnClientDisconnectCallback;
+        NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackCouchCoop;
+        NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackHost;
+        SceneManager.sceneLoaded -= SceneManager_sceneLoaded;
     }
 
     private void NetworkManager_OnClientConnectedCallback(ulong obj)
@@ -96,6 +131,11 @@ public class StartingSceneController : MonoBehaviour
 
     private void NetworkManager_OnClientDisconnectCallback(ulong obj)
     {
+        if (obj == NetworkManager.ServerClientId)
+        {
+            NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackCouchCoop;
+            NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackHost;
+        }
         ShowTryingToConnectPanel(false);
         ShowDisconnectMessagePanel();
     }
@@ -109,7 +149,7 @@ public class StartingSceneController : MonoBehaviour
         retryButton.gameObject.SetActive(true);
     }
 
-   
+
     private void HideDisconnectMessagePanel()
     {
         disconnectedPanel.gameObject.SetActive(false);
@@ -135,12 +175,22 @@ public class StartingSceneController : MonoBehaviour
 
     private void NetworkManager_ConnectionApprovalCallbackCouchCoop(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
     {
-        response.Approved = false;
+        if (request.ClientNetworkId == NetworkManager.ServerClientId)
+        {
+            response.Approved = true;
+        }
+        else
+        {
+            response.Approved = false;
+        }
     }
 
     private void NetworkManager_ConnectionApprovalCallbackHost(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
     {
-        response.Approved = true;
-    }
+        if (GameStateManager.GetGameStateTypeFromState(GameStateManager.CurrentState) == GameStateType.MainMenu && NetworkManager.Singleton.ConnectedClientsList.Count == 1)
+        {
+            response.Approved = true;
+        }
 
+    }
 }

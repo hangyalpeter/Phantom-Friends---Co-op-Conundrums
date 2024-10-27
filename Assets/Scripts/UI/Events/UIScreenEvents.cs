@@ -20,6 +20,7 @@ public static class UIScreenEvents
     public static Action DungeonGameOverShown;
     public static Action<string> OnLevelSelected;
     public static Action WaitingForPlayersScreenShown;
+    public static Action OnBackToTitleScreen;
 
 
     // Pause/LevelFinish Screen

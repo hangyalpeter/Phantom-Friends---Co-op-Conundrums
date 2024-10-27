@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public enum Scene {First, Main_Menu, Level_1, Level_2, Dungeon_Crawler };
@@ -55,8 +56,25 @@ public class LevelManager : NetworkBehaviour
         UIScreenEvents.MainMenuClicked += OnMainMenuClicked;
         UIScreenEvents.OnNextLevel += OnNextLevel;
         UIScreenEvents.OnHostStart += UIScreenEvents_OnHostStart;
+        UIScreenEvents.OnBackToTitleScreen += UIScreenEvents_OnBackToTitleScreen;
 
         GameEvents.OnLevelRestart += OnLevelRestartClicked;
+        SceneManager.sceneLoaded += SceneManager_sceneLoaded;
+    }
+
+    private void SceneManager_sceneLoaded(UnityEngine.SceneManagement.Scene arg0, LoadSceneMode arg1)
+    {
+        if (arg0.name == "Main_Menu" && StartingSceneController.ChoosenPlayMode == StartingSceneController.PlayMode.Client)
+        {
+            UIScreenEvents.MainMenuShown?.Invoke();
+        }
+    }
+
+    private void UIScreenEvents_OnBackToTitleScreen()
+    {
+        NetworkManager.Singleton.Shutdown();
+        UIScreenEvents.HideAllScreens?.Invoke();
+        SceneManager.LoadScene(Scene.First.ToString());
     }
 
     private void UIScreenEvents_OnHostStart(Scene scene)
@@ -72,6 +90,7 @@ public class LevelManager : NetworkBehaviour
 
         GameEvents.OnLevelRestart -= OnLevelRestartClicked;
         UIScreenEvents.OnHostStart -= UIScreenEvents_OnHostStart;
+        UIScreenEvents.OnBackToTitleScreen -= UIScreenEvents_OnBackToTitleScreen;
     }
 
     private void OnLevelRestartClicked()
@@ -98,11 +117,11 @@ public class LevelManager : NetworkBehaviour
     private void LoadNextLevel()
     {
         if (!IsServer) { return; }
-      
+
         NetworkManager.Singleton.SceneManager.LoadScene("Level_" + (SceneManager.GetActiveScene().buildIndex + 1).ToString(), LoadSceneMode.Single);
 
         UIScreenEvents.ScreenClosed?.Invoke();
         LevelChanged?.Invoke();
     }
-    
+
 }

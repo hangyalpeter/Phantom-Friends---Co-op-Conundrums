@@ -13,7 +13,7 @@ public enum GameStateType
 }
 public class GameStateManager : NetworkBehaviour
 {
-    public IGameState CurrentState { get; private set; }
+    public static IGameState CurrentState { get; private set; }
 
     public PlayingState PlayingState { get; private set; }
     public PausedState PausedState { get; private set; }
@@ -37,8 +37,6 @@ public class GameStateManager : NetworkBehaviour
                 ElapsedTime = newValue;
             };
     }
-
-
     private void OnEnable()
     {
         LevelManager.LevelChanged += ResetElapsedTime;
@@ -186,7 +184,7 @@ public class GameStateManager : NetworkBehaviour
         TransitionStateee(GetStateFromType(newStateType));
     }
 
-    private GameStateType GetGameStateTypeFromState(IGameState state)
+    public static GameStateType GetGameStateTypeFromState(IGameState state)
     {
         if (state is MainMenuState)
             return GameStateType.MainMenu;

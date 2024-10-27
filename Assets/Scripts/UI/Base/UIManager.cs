@@ -5,7 +5,6 @@ using UnityEngine.UIElements;
 
 public class UIManager : MonoBehaviour
 {
-
     [Tooltip("Required UI Document")]
     [SerializeField] UIDocument m_Document;
 

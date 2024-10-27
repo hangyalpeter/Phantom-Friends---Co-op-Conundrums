@@ -15,20 +15,33 @@ public class MainMenuScreen : UIScreen
     {
         SetupButtons();
         RegisterCallbacks();
-        DisablePlayButtonsOnClient();
+        StartingSceneController.PlayModeChanged += DisablePlayButtonsOnClient;
     }
 
-    private void DisablePlayButtonsOnClient()
+    private void DisablePlayButtonsOnClient(StartingSceneController.PlayMode playmode)
     {
-        if (StartingSceneController.ChoosenPlayMode == StartingSceneController.PlayMode.Client)
+        if (playmode == StartingSceneController.PlayMode.Client)
         {
+            m_ReadyButton.style.display = DisplayStyle.Flex;
             m_StartButton.style.display = DisplayStyle.None;
             m_StartDungeonButton.style.display = DisplayStyle.None;
             m_LevelSelectButton.style.display = DisplayStyle.None;
         }
-        if (StartingSceneController.ChoosenPlayMode == StartingSceneController.PlayMode.Host || StartingSceneController.ChoosenPlayMode == StartingSceneController.PlayMode.CouchCoop)
+
+        if (playmode == StartingSceneController.PlayMode.Host)
         {
             m_ReadyButton.style.display = DisplayStyle.None;
+            m_StartButton.style.display = DisplayStyle.Flex;
+            m_StartDungeonButton.style.display = DisplayStyle.Flex;
+            m_LevelSelectButton.style.display = DisplayStyle.Flex;
+        }
+
+        if (playmode == StartingSceneController.PlayMode.CouchCoop)
+        {
+            m_ReadyButton.style.display = DisplayStyle.None;
+            m_StartButton.style.display = DisplayStyle.Flex;
+            m_StartDungeonButton.style.display = DisplayStyle.Flex;
+            m_LevelSelectButton.style.display = DisplayStyle.Flex;
         }
     }
 
@@ -55,7 +68,7 @@ public class MainMenuScreen : UIScreen
         m_EventRegistry.RegisterCallback<ClickEvent>(m_SettingsButton, evt => UIScreenEvents.SettingsShown?.Invoke());
 
         m_EventRegistry.RegisterCallback<ClickEvent>(m_LevelSelectButton, evt => UIScreenEvents.LevelSelectShown?.Invoke());
-        m_EventRegistry.RegisterCallback<ClickEvent>(m_QuitButton, evt => Application.Quit());
+        m_EventRegistry.RegisterCallback<ClickEvent>(m_QuitButton, evt => UIScreenEvents.OnBackToTitleScreen?.Invoke());
         m_EventRegistry.RegisterCallback<ClickEvent>(m_StartDungeonButton, evt => UIScreenEvents.OnHostReady?.Invoke(Scene.Dungeon_Crawler));
     }
 
