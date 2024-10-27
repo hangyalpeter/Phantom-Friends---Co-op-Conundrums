@@ -35,6 +35,28 @@ public class PauseScreen : UIScreen
     private void SubscribeToEvents()
     {
         GameEvents.GamePaused += GameEvents_GamePaused;
+        StartingSceneController.PlayModeChanged += StartingSceneController_PlaymodeChanged;
+    }
+
+    private void StartingSceneController_PlaymodeChanged(StartingSceneController.PlayMode mode)
+    {
+        if (mode == StartingSceneController.PlayMode.Client)
+        {
+            m_RestartButton.style.display = DisplayStyle.None;
+            m_MainMenuButton.style.display = DisplayStyle.None;
+        }
+
+        if (mode == StartingSceneController.PlayMode.Host)
+        {
+            m_RestartButton.style.display = DisplayStyle.Flex;
+            m_MainMenuButton.style.display = DisplayStyle.Flex;
+        }
+
+        if (mode == StartingSceneController.PlayMode.CouchCoop)
+        {
+            m_RestartButton.style.display = DisplayStyle.Flex;
+            m_MainMenuButton.style.display = DisplayStyle.Flex;
+        }
     }
 
     private void GameEvents_GamePaused(string elapsedTime)
