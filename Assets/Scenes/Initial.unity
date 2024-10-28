@@ -543,6 +543,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b4e4e5c40369184fb5e5686bc69cbdc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  networkManager: {fileID: 0}
   couchCoopBtn: {fileID: 0}
   hostBtn: {fileID: 0}
   joinBtn: {fileID: 0}
@@ -551,6 +552,10 @@ MonoBehaviour:
   disconnectedPanel: {fileID: 0}
   tryingToConnectPanel: {fileID: 0}
   retryButton: {fileID: 0}
+  cancelOnPanelButton: {fileID: 0}
+  joinOnPanelBtn: {fileID: 0}
+  joinPanel: {fileID: 0}
+  ipAddressInputField: {fileID: 0}
 --- !u!4 &825801713
 Transform:
   m_ObjectHideFlags: 0
@@ -767,9 +772,9 @@ MonoBehaviour:
   m_MaxConnectAttempts: 10
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
-    Address: 127.0.0.1
+    Address: 192.168.56.1
     Port: 7777
-    ServerListenAddress: 127.0.0.1
+    ServerListenAddress: 0.0.0.0
   DebugSimulator:
     PacketDelayMS: 0
     PacketJitterMS: 0

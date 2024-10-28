@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Net;
+using System.Text.RegularExpressions;
+using TMPro;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -14,6 +18,8 @@ public class StartingSceneController : NetworkBehaviour
     public enum PlayMode { CouchCoop, Host, Client };
 
     public static event Action<PlayMode> PlayModeChanged;
+
+    [SerializeField] private NetworkManager networkManager;
 
     public static PlayMode ChoosenPlayMode
     {
@@ -34,6 +40,16 @@ public class StartingSceneController : NetworkBehaviour
     [SerializeField] private GameObject disconnectedPanel;
     [SerializeField] private GameObject tryingToConnectPanel;
     [SerializeField] private Button retryButton;
+
+    [SerializeField] private Button cancelOnPanelButton;
+    [SerializeField] private Button joinOnPanelBtn;
+    [SerializeField] private GameObject joinPanel;
+    [SerializeField] private TMP_InputField ipAddressInputField;
+    private TMP_Text localIPText;
+    private TMP_Text requiredErrorText;
+    private TMP_Text invalidErrorText;
+
+    private string ipAddress;
 
     private void SetUpButtonClickListeners()
     {
@@ -59,14 +75,27 @@ public class StartingSceneController : NetworkBehaviour
             NetworkManager.Singleton.SceneManager.LoadScene(Scene.Main_Menu.ToString(), LoadSceneMode.Single);
         });
 
-        joinBtn.onClick.AddListener(() =>
+        joinOnPanelBtn.onClick.AddListener(() =>
         {
             ChoosenPlayMode = PlayMode.Client;
-            NetworkManager.Singleton.OnClientStopped += NetowrkManager_OnClientStopped;
+            NetworkManager.Singleton.OnClientStopped += NetworkManager_OnClientStopped;
+            UnityTransport transport = GameObject.Find("NetworkManager").GetComponent<UnityTransport>();
+
+            ipAddress = ipAddressInputField.text;
+            transport.ConnectionData.Address = ipAddressInputField.text;
+
             NetworkManager.Singleton.StartClient();
+            ShowJoinPanel(false);
             ShowTryingToConnectPanel(true);
         });
-
+        joinBtn.onClick.AddListener(() =>
+        {
+            ShowJoinPanel(true);
+        });
+        cancelOnPanelButton.onClick.AddListener(() =>
+        {
+            ShowJoinPanel(false);
+        });
 
         retryButton.onClick.AddListener(() =>
         {
@@ -87,7 +116,7 @@ public class StartingSceneController : NetworkBehaviour
         });
     }
 
-    private void NetowrkManager_OnClientStopped(bool obj)
+    private void NetworkManager_OnClientStopped(bool obj)
     {
         ShowTryingToConnectPanel(false);
         ShowDisconnectMessagePanel();
@@ -110,12 +139,65 @@ public class StartingSceneController : NetworkBehaviour
             retryButton = GameObject.Find("RetryButton").GetComponent<Button>();
             backButton = GameObject.Find("BackButton").GetComponent<Button>();
             tryingToConnectPanel = GameObject.Find("TryingToConnectPanel");
+            joinPanel = GameObject.Find("JoinPanel");
+            joinOnPanelBtn = GameObject.Find("JoinOnPanelButton").GetComponent<Button>();
+            cancelOnPanelButton = GameObject.Find("CancelOnPanelButton").GetComponent<Button>();
+            ipAddressInputField = GameObject.Find("IPAddressInputField").GetComponent<TMP_InputField>();
+            localIPText = GameObject.Find("LocalIPtext").GetComponent<TMP_Text>();
+            localIPText.text = localIPText.text + GetLocalIPAddress();
+            requiredErrorText = GameObject.Find("RequiredErrorText").GetComponent<TMP_Text>();
+            invalidErrorText = GameObject.Find("InvalidErrorText").GetComponent<TMP_Text>();
+
+            ipAddressInputField.text = ipAddress;
 
             SetUpButtonClickListeners();
 
             HideDisconnectMessagePanel();
             ShowTryingToConnectPanel(false);
+            ShowJoinPanel(false);
         }
+    }
+    public string GetLocalIPAddress()
+    {
+        var host = Dns.GetHostEntry(Dns.GetHostName());
+        foreach (var ip in host.AddressList)
+        {
+            if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+            {
+                return ip.ToString(); 
+            }
+        }
+        throw new System.Exception("No network adapters with an IPv4 address in the system!");
+    }
+    private void Update()
+    {
+
+        if (ipAddressInputField == null || requiredErrorText == null || invalidErrorText == null || joinOnPanelBtn == null) return;
+        string ipPattern = @"^([0-9]{1,3}\.){3}[0-9]{1,3}$";
+        if (ipAddressInputField.text.Length == 0 || !Regex.IsMatch(ipAddressInputField.text, ipPattern))
+        {
+            joinOnPanelBtn.gameObject.SetActive(false);
+        }
+        else
+        {
+            joinOnPanelBtn.gameObject.SetActive(true);
+        }
+        if (ipAddressInputField.text.Length == 0)
+        {
+            requiredErrorText.gameObject.SetActive(true);
+        } else
+        {
+
+            requiredErrorText.gameObject.SetActive(false);
+        }
+        if (!Regex.IsMatch(ipAddressInputField.text, ipPattern))
+        {
+            invalidErrorText.gameObject.SetActive(true);
+        } else
+        {
+            invalidErrorText.gameObject.SetActive(false);
+        }
+
     }
 
     public override void OnNetworkDespawn()
@@ -123,7 +205,7 @@ public class StartingSceneController : NetworkBehaviour
         base.OnNetworkDespawn();
         NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackCouchCoop;
         NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackHost;
-        NetworkManager.Singleton.OnClientStopped -= NetowrkManager_OnClientStopped;
+        NetworkManager.Singleton.OnClientStopped -= NetworkManager_OnClientStopped;
     }
 
     private void ShowDisconnectMessagePanel()
@@ -146,6 +228,12 @@ public class StartingSceneController : NetworkBehaviour
     private void ShowTryingToConnectPanel(bool show)
     {
         tryingToConnectPanel.SetActive(show);
+        ShowConnectButtons(!show);
+    }
+
+    private void ShowJoinPanel(bool show)
+    {
+        joinPanel.SetActive(show);
         ShowConnectButtons(!show);
     }
 
