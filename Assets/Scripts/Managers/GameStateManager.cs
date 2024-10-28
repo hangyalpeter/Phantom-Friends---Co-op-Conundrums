@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Netcode;
-using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public enum GameStateType
 {
@@ -14,7 +12,6 @@ public enum GameStateType
 public class GameStateManager : NetworkBehaviour
 {
     public static IGameState CurrentState { get; private set; }
-
     public PlayingState PlayingState { get; private set; }
     public PausedState PausedState { get; private set; }
     public GameOverState GameOverState { get; private set; }
@@ -28,15 +25,56 @@ public class GameStateManager : NetworkBehaviour
     private Scene selectedScene;
 
     private Action OnAllReady;
+    private bool isHostQuitting = false;
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
         ElapsedTimeSynced.OnValueChanged += (float previousValue, float newValue) =>
-            {
-                ElapsedTime = newValue;
-            };
+        {
+            ElapsedTime = newValue;
+        };
+        if (IsServer && StartingSceneController.ChoosenPlayMode != StartingSceneController.PlayMode.CouchCoop)
+        {
+            NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
+        }
+        else if (StartingSceneController.ChoosenPlayMode != StartingSceneController.PlayMode.CouchCoop)
+        {
+            NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback2;
+        }
     }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        NetworkManager.Singleton.OnClientDisconnectCallback -= NetworkManager_OnClientDisconnectCallback;
+        NetworkManager.Singleton.OnClientDisconnectCallback -= NetworkManager_OnClientDisconnectCallback2;
+    }
+
+    private void NetworkManager_OnClientDisconnectCallback(ulong clientId)
+    {
+        if (NetworkManager.Singleton.ConnectedClients.Count == 2)
+        {
+            UIScreenEvents.MainMenuClicked?.Invoke();
+            UIScreenEvents.DisconnectMessageShown?.Invoke("Client disconnected!");
+            TransitionToState(MainMenuState);
+        }
+        else if (NetworkManager.Singleton.ConnectedClients.Count == 1)
+        {
+            UIScreenEvents.OnBackToTitleScreen?.Invoke();
+        }
+    }
+
+
+    private void NetworkManager_OnClientDisconnectCallback2(ulong clientId)
+    {
+        if (clientId == NetworkManager.ServerClientId)
+        {
+            UIScreenEvents.OnBackToTitleScreen?.Invoke();
+            UIScreenEvents.DisconnectMessageShown?.Invoke("Host disconnected!");
+        }
+    }
+
     private void OnEnable()
     {
         LevelManager.LevelChanged += ResetElapsedTime;
@@ -45,7 +83,26 @@ public class GameStateManager : NetworkBehaviour
         GameEvents.OnNewDungeon += HandleNewDungeon;
         UIScreenEvents.OnClientReady += UIScreenEvents_OnClientReady;
         UIScreenEvents.OnHostReady += UIScreenEvents_OnHostReady;
+        UIScreenEvents.Unready += UIScreenEvents_Unready;
         OnAllReady += OnStartGame;
+    }
+
+    private void OnDisable()
+    {
+        LevelManager.LevelChanged -= ResetElapsedTime;
+        GameEvents.DungeonFinished -= TransitionToGameOverState;
+        GameEvents.LevelFinished -= TransitionToGameOverState;
+        GameEvents.OnNewDungeon -= HandleNewDungeon;
+        UIScreenEvents.OnClientReady -= UIScreenEvents_OnClientReady;
+        UIScreenEvents.OnHostReady -= UIScreenEvents_OnHostReady;
+        UIScreenEvents.Unready -= UIScreenEvents_Unready;
+        OnAllReady -= OnStartGame;
+    }
+
+    private void UIScreenEvents_Unready()
+    {
+        UIScreenEvents.MainMenuShown?.Invoke();
+        SetPlayerUnReadyServerRpc();
     }
 
     private void OnStartGame()
@@ -99,15 +156,10 @@ public class GameStateManager : NetworkBehaviour
         }
     }
 
-    private void OnDisable()
+    [ServerRpc(RequireOwnership = false)]
+    private void SetPlayerUnReadyServerRpc(ServerRpcParams serverRpcParams = default)
     {
-        LevelManager.LevelChanged -= ResetElapsedTime;
-        GameEvents.DungeonFinished -= TransitionToGameOverState;
-        GameEvents.LevelFinished -= TransitionToGameOverState;
-        GameEvents.OnNewDungeon -= HandleNewDungeon;
-        UIScreenEvents.OnClientReady -= UIScreenEvents_OnClientReady;
-        UIScreenEvents.OnHostReady -= UIScreenEvents_OnHostReady;
-        OnAllReady -= OnStartGame;
+        playerReadyDictionary[serverRpcParams.Receive.SenderClientId] = false;
     }
 
     public void UpdateElapsedTimeSync(float elapsedTime, bool update=true)
@@ -160,9 +212,7 @@ public class GameStateManager : NetworkBehaviour
         CurrentState?.ExitState();
         CurrentState = newState;
         CurrentState?.EnterState();
-
     }
-
 
     public void TransitionToState(IGameState newState)
     {

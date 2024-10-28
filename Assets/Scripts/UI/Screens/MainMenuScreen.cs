@@ -72,6 +72,13 @@ public class MainMenuScreen : UIScreen
         m_EventRegistry.RegisterCallback<ClickEvent>(m_StartDungeonButton, evt => UIScreenEvents.OnHostReady?.Invoke(Scene.Dungeon_Crawler));
     }
 
+    public override void Disable()
+    {
+        base.Disable();
+
+        StartingSceneController.PlayModeChanged -= DisablePlayButtonsOnClient;
+    }
+
     public override void Show()
     {
         m_RootElement.style.display = DisplayStyle.Flex;

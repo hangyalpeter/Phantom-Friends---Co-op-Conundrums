@@ -15,6 +15,7 @@ public class UIManager : MonoBehaviour
     UIScreen m_LevelSelectScreen;
     UIScreen m_DungeonGameOverScreen;
     UIScreen m_WaitingForPlayersScreen;
+    UIScreen m_DisconnectMessageScreen;
 
     UIScreen m_CurrentScreen;
 
@@ -49,6 +50,7 @@ public class UIManager : MonoBehaviour
         m_LevelSelectScreen = new LevelSelectScreen(root.Q<VisualElement>("LevelSelectScreen"));
         m_DungeonGameOverScreen = new DungeonGameOverScreen(root.Q<VisualElement>("DungeonGameOverScreen"));
         m_WaitingForPlayersScreen = new WaitingForPlayersScreen(root.Q<VisualElement>("WaitingForPlayersScreen"));
+        m_DisconnectMessageScreen = new DisconnectMessageScreen(root.Q<VisualElement>("DisconnectMessageScreen"));
 
         RegisterUIScreens();
         HideScreens();
@@ -74,6 +76,12 @@ public class UIManager : MonoBehaviour
         UIScreenEvents.OnLevelSelected += UIScreenEvents_LevelSelected;
         UIScreenEvents.DungeonGameOverShown += UIScreenEvents_DungeonGameOverShown;
         UIScreenEvents.WaitingForPlayersScreenShown += UIScreenEvents_WaitingForPlayersScreenShown;
+        UIScreenEvents.DisconnectMessageShown += UIScreenEvents_DisconnectMessageShown;
+    }
+
+    private void UIScreenEvents_DisconnectMessageShown(string message)
+    {
+        Show(m_DisconnectMessageScreen, false);
     }
 
     private void UIScreenEvents_WaitingForPlayersScreenShown()
@@ -107,7 +115,8 @@ public class UIManager : MonoBehaviour
             m_LevelFinishScreen,
             m_LevelSelectScreen,
             m_DungeonGameOverScreen,
-            m_WaitingForPlayersScreen
+            m_WaitingForPlayersScreen,
+            m_DisconnectMessageScreen
         };
     }
 

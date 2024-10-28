@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class StartingSceneController : MonoBehaviour
+public class StartingSceneController : NetworkBehaviour
 {
 
     public static StartingSceneController Instance;
@@ -54,6 +54,7 @@ public class StartingSceneController : MonoBehaviour
             NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackHost;
             NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackCouchCoop;
             NetworkManager.Singleton.ConnectionApprovalCallback += NetworkManager_ConnectionApprovalCallbackHost;
+           
             NetworkManager.Singleton.StartHost();
             NetworkManager.Singleton.SceneManager.LoadScene(Scene.Main_Menu.ToString(), LoadSceneMode.Single);
         });
@@ -61,10 +62,9 @@ public class StartingSceneController : MonoBehaviour
         joinBtn.onClick.AddListener(() =>
         {
             ChoosenPlayMode = PlayMode.Client;
+            NetworkManager.Singleton.OnClientStopped += NetowrkManager_OnClientStopped;
             NetworkManager.Singleton.StartClient();
             ShowTryingToConnectPanel(true);
-            NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_OnClientConnectedCallback;
-            NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
         });
 
 
@@ -74,7 +74,6 @@ public class StartingSceneController : MonoBehaviour
             ChoosenPlayMode = PlayMode.Client;
             NetworkManager.Singleton.StartClient();
             ShowTryingToConnectPanel(true);
-            NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
         });
 
         quitToDesktopBtn.onClick.AddListener(() =>
@@ -86,6 +85,12 @@ public class StartingSceneController : MonoBehaviour
         {
             HideDisconnectMessagePanel();
         });
+    }
+
+    private void NetowrkManager_OnClientStopped(bool obj)
+    {
+        ShowTryingToConnectPanel(false);
+        ShowDisconnectMessagePanel();
     }
 
     private void OnEnable()
@@ -113,31 +118,12 @@ public class StartingSceneController : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
+    public override void OnNetworkDespawn()
     {
-        NetworkManager.Singleton.OnClientConnectedCallback -= NetworkManager_OnClientConnectedCallback;
-        NetworkManager.Singleton.OnClientDisconnectCallback -= NetworkManager_OnClientDisconnectCallback;
+        base.OnNetworkDespawn();
         NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackCouchCoop;
         NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackHost;
-        SceneManager.sceneLoaded -= SceneManager_sceneLoaded;
-    }
-
-    private void NetworkManager_OnClientConnectedCallback(ulong obj)
-    {
-        HideDisconnectMessagePanel();
-        ShowTryingToConnectPanel(false);
-    }
-
-
-    private void NetworkManager_OnClientDisconnectCallback(ulong obj)
-    {
-        if (obj == NetworkManager.ServerClientId)
-        {
-            NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackCouchCoop;
-            NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackHost;
-        }
-        ShowTryingToConnectPanel(false);
-        ShowDisconnectMessagePanel();
+        NetworkManager.Singleton.OnClientStopped -= NetowrkManager_OnClientStopped;
     }
 
     private void ShowDisconnectMessagePanel()

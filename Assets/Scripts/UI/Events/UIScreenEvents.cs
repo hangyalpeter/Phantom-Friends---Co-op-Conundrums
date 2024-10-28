@@ -21,6 +21,8 @@ public static class UIScreenEvents
     public static Action<string> OnLevelSelected;
     public static Action WaitingForPlayersScreenShown;
     public static Action OnBackToTitleScreen;
+    public static Action Unready;
+    public static Action<string> DisconnectMessageShown;
 
 
     // Pause/LevelFinish Screen

@@ -1,4 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="DisconnectMessageScreen" src="project://database/Assets/UI/Uxml/DisconnectMessageScreen.uxml?fileID=9197481963319205126&amp;guid=083f8bacc2584424ab762a596b864c80&amp;type=3#DisconnectMessageScreen" />
     <ui:Template name="MainMenuScreen" src="project://database/Assets/UI/Uxml/MainMenuScreen.uxml?fileID=9197481963319205126&amp;guid=a800ae6eea45c5b459f159b9089c8ae3&amp;type=3#MainMenuScreen" />
     <ui:Template name="SettingsScreen" src="project://database/Assets/UI/Uxml/SettingsScreen.uxml?fileID=9197481963319205126&amp;guid=21a275f26c182984ea3e67fcf97f3f77&amp;type=3#SettingsScreen" />
     <ui:Template name="PauseScreen" src="project://database/Assets/UI/Uxml/PauseScreen.uxml?fileID=9197481963319205126&amp;guid=807b287d7f08efe43aa0f538cae5e094&amp;type=3#PauseScreen" />
@@ -6,11 +7,12 @@
     <ui:Template name="LevelSelectScreen" src="project://database/Assets/UI/Uxml/LevelSelectScreen.uxml?fileID=9197481963319205126&amp;guid=27346e396f7d4474b8fb573166c0a418&amp;type=3#LevelSelectScreen" />
     <ui:Template name="DungeonGameOverScreen" src="project://database/Assets/UI/Uxml/DungeonGameOverScreen.uxml?fileID=9197481963319205126&amp;guid=370dddf70cab0aa449ec5db1b35dca43&amp;type=3#DungeonGameOverScreen" />
     <ui:Template name="WaitingForPlayersScreen" src="project://database/Assets/UI/Uxml/WaitingForPlayersScreen.uxml?fileID=9197481963319205126&amp;guid=a5f4171c52573724ab6d8e095a94aa64&amp;type=3#WaitingForPlayersScreen" />
-    <ui:Instance template="MainMenuScreen" name="MainMenuScreen" style="display: flex;" />
-    <ui:Instance template="SettingsScreen" name="SettingsScreen" style="flex-shrink: 1; flex-grow: 1; display: flex; justify-content: flex-start; align-self: auto;" />
-    <ui:Instance template="PauseScreen" name="PauseScreen" style="align-self: center; justify-content: space-around; align-items: stretch; flex-grow: 0; width: 100%; height: 100%; flex-shrink: 0; translate: 0 0; -unity-text-align: upper-left; flex-direction: column; display: flex;" />
-    <ui:Instance template="LevelFinishScreen" name="LevelFinishScreen" style="display: flex; flex-grow: 1; flex-shrink: 1; align-self: auto; justify-content: space-around;" />
-    <ui:Instance template="LevelSelectScreen" name="LevelSelectScreen" style="display: flex;" />
-    <ui:Instance template="DungeonGameOverScreen" name="DungeonGameOverScreen" style="justify-content: flex-start; align-items: stretch; align-self: auto; flex-shrink: 0; flex-grow: 1; display: flex;" />
-    <ui:Instance template="WaitingForPlayersScreen" name="WaitingForPlayersScreen" style="display: flex;" />
+    <ui:Instance template="DisconnectMessageScreen" name="DisconnectMessageScreen" style="display: none; flex-grow: 1;" />
+    <ui:Instance template="MainMenuScreen" name="MainMenuScreen" style="display: none;" />
+    <ui:Instance template="SettingsScreen" name="SettingsScreen" style="flex-shrink: 1; flex-grow: 1; display: none; justify-content: flex-start; align-self: auto;" />
+    <ui:Instance template="PauseScreen" name="PauseScreen" style="align-self: center; justify-content: space-around; align-items: stretch; flex-grow: 0; width: 100%; height: 100%; flex-shrink: 0; translate: 0 0; -unity-text-align: upper-left; flex-direction: column; display: none;" />
+    <ui:Instance template="LevelFinishScreen" name="LevelFinishScreen" style="display: none; flex-grow: 1; flex-shrink: 1; align-self: auto; justify-content: space-around;" />
+    <ui:Instance template="LevelSelectScreen" name="LevelSelectScreen" style="display: none;" />
+    <ui:Instance template="DungeonGameOverScreen" name="DungeonGameOverScreen" style="justify-content: flex-start; align-items: stretch; align-self: auto; flex-shrink: 0; flex-grow: 1; display: none;" />
+    <ui:Instance template="WaitingForPlayersScreen" name="WaitingForPlayersScreen" style="display: none; flex-grow: 1;" />
 </ui:UXML>
