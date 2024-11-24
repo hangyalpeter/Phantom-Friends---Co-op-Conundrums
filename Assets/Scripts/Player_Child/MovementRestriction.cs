@@ -9,24 +9,21 @@ public class MovementRestriction : MonoBehaviour
 
     private void Start()
     {
-        // Get the boundaries from the BoxCollider2D
         Vector2 boundaryCenter = boundary.bounds.center;
-        Vector2 boundarySize = boundary.bounds.extents; // Half the size gives us the extents
+        Vector2 boundarySize = boundary.bounds.extents;
         minBoundary = boundaryCenter - boundarySize;
         maxBoundary = boundaryCenter + boundarySize;
     }
 
     private void Update()
     {
-        // Restrict movement within the boundaries in 2D space
         transform.position = new Vector3(
             Mathf.Clamp(transform.position.x, minBoundary.x, maxBoundary.x),
             Mathf.Clamp(transform.position.y, minBoundary.y, maxBoundary.y),
-            transform.position.z // No clamping on the Z axis since it's 2D
+            transform.position.z 
         );
     }
 
-    // Optional: Draw the boundaries in the editor view for visualization
     private void OnDrawGizmos()
     {
         if (boundary != null)

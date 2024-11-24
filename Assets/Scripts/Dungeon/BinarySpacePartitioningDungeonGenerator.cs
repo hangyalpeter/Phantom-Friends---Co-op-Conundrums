@@ -49,23 +49,18 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     [SerializeField]
     private GameObject playerChildPrefab;
 
-    private void Awake()
+    void OnDrawGizmos()
     {
-        if (useStoredSeed)
+        Gizmos.color = Color.green;
+        foreach (var kvp in roomGraph)
         {
-            if (PlayerPrefs.HasKey("DungeonSeed"))
+            foreach (var neighbor in kvp.Value)
             {
-                seed = PlayerPrefs.GetInt("DungeonSeed");
+                Gizmos.DrawLine(kvp.Key, neighbor);
             }
-            else
-            {
-                seed = System.DateTime.Now.GetHashCode();
-                PlayerPrefs.SetInt("DungeonSeed", seed);
-            }
-            Random.InitState(seed);
         }
-
     }
+
 
     public override void RunProceduralGeneration()
     {
@@ -80,41 +75,48 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
             CreateRooms();
         }
 
-        if (IsClient && !IsServer)
+        
+        if (alreadySpawned)
         {
-            if (StartingSceneController.ChoosenPlayMode != StartingSceneController.PlayMode.CouchCoop)
-            {
-                RequestSpawnPlayerServerRpc(alreadySpawned);
-            }
+            SpawnPlayerCharacters(alreadySpawned);
         }
 
-        if (IsServer)
-        {
-            if (StartingSceneController.ChoosenPlayMode != StartingSceneController.PlayMode.CouchCoop)
-            {
-                SpawnPlayer(NetworkManager.Singleton.LocalClientId, alreadySpawned);
-            }
-            else
-            {
-                SpawnLocalPlayersForCouchCoop(alreadySpawned);
-            }
-        }
-        PrintRoomGraph();
+        // TODO: remove print methods before final turn in
         PrintGraph(roomGraph);
 
         return rooms;
     }
 
+    public void SpawnPlayerCharacters(bool alreadySpawned)
+    {
+        if (StartingSceneController.ChoosenPlayMode != StartingSceneController.PlayMode.CouchCoop)
+        {
+            RequestSpawnPlayerServerRpc(alreadySpawned);
+        }
+        else
+        {
+            SpawnLocalPlayersForCouchCoop(alreadySpawned);
+        }
+    }
+
     private void CreateRooms()
     {
         InitializeMap();
-        rooms = ProceduralGenerationUtilityAlgorithms.BinarySpacePartitioning(new BoundsInt(Vector3Int.zero, new Vector3Int(dungeonWidth, dungeonHeight, 0)), minWidth, minHeight);
+        //rooms = ProceduralGenerationUtilityAlgorithms.BinarySpacePartitioning(new BoundsInt(Vector3Int.zero, new Vector3Int(dungeonWidth, dungeonHeight, 0)), minWidth, minHeight);
+        //rooms = ProceduralGenerationUtilityAlgorithms.BinarySpacePartitioning2(new BoundsInt(Vector3Int.zero, new Vector3Int(dungeonWidth, dungeonHeight, 0)), minWidth, minHeight);
+
+        BinaryTreeNode root = new BinaryTreeNode();
+        var rooms2 = new HashSet<Room>();
+        rooms = ProceduralGenerationUtilityAlgorithmsExperiments.BinarySpacePartitioning3(new BoundsInt(Vector3Int.zero, new Vector3Int(dungeonWidth, dungeonHeight, 0)), minWidth, minHeight, out root);
 
         GenerateRoomPositions();
 
         ConnectRoomsWithCorridors();
 
         WallGenerator.CreateWalls(floorPositions, tilemapVisualizer, rooms);
+        BuildGraphFromCorridors(corridorPositions, rooms);
+        firstRoomCenter = roomGraph.Keys.First();
+        MarkBossRoom();
 
         PlaceDoors();
 
@@ -123,8 +125,15 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     private void ConnectRoomsWithCorridors()
     {
 
-        corridorPositions = ConnectRooms();
-        rooms.First().corridorTilePositions = corridorPositions;
+        // commented out code left for "linear type" dungeon generation
+
+        //corridorPositions = ConnectRooms();
+        //rooms.First().corridorTilePositions = corridorPositions;
+
+        corridorPositions = rooms.First(c => c.corridorTilePositions.Count != 0).corridorTilePositions;
+
+        //rooms.First().corridorTilePositions = corridorPositions;
+
 
 
         RemoveCorridorTilesFromRoomTiles();
@@ -206,7 +215,6 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         firstRoomCenter = roomCenters[0];
         roomCenters.Remove(current);
 
-        // Initialize graph with room centers
         foreach (var roomCenter in rooms.Select(x => Vector3Int.RoundToInt(x.bounds.center)))
         {
             roomGraph[roomCenter] = new List<Vector3Int>();
@@ -278,8 +286,32 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         }
         return clone;
     }
-
     private List<Vector3Int> GetNonCutVertices()
+    {
+        List<Vector3Int> nonCutVertices = new List<Vector3Int>();
+        foreach (var vertex in roomGraph.Keys)
+        {
+            Dictionary<Vector3Int, List<Vector3Int>> modifiedGraph = CloneGraph(roomGraph);
+            RemoveVertex(modifiedGraph, vertex);
+
+            Vector3Int startVertex = roomGraph.Keys.First(v => v != vertex); // Pick a vertex that isn't the one we're testing
+            HashSet<Vector3Int> visited = new HashSet<Vector3Int>();
+
+            DFS(modifiedGraph, startVertex, visited);
+
+            // If the number of visited nodes equals the total number of nodes minus 1, it's still connected
+            if (visited.Count == roomGraph.Count - 1)
+            {
+                nonCutVertices.Add(vertex);
+            }
+
+        }
+        return nonCutVertices;
+    }
+
+
+    // used for the other generation algorithm, left it for future reference
+    private List<Vector3Int> GetNonCutVertices2()
     {
         List<Vector3Int> nonCutVertices = new List<Vector3Int>();
         foreach (var vertex in roomGraph.Keys)
@@ -370,6 +402,78 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         }
     }
 
+
+    void BuildGraphFromCorridors(HashSet<Vector3Int> corridorPositions, HashSet<Room> rooms)
+    {
+
+        foreach (var room in rooms)
+        {
+            var roomCenter = Vector3Int.RoundToInt(room.bounds.center);
+            roomGraph[roomCenter] = new List<Vector3Int>();
+        }
+
+        var visitedCorridors = new HashSet<Vector3Int>();
+        var queue = new Queue<Vector3Int>();
+
+        foreach (var startCorridor in corridorPositions)
+        {
+            if (visitedCorridors.Contains(startCorridor)) continue;
+
+            queue.Enqueue(startCorridor);
+            visitedCorridors.Add(startCorridor);
+
+            // Track rooms connected to this corridor section
+            var connectedRooms = new HashSet<Vector3Int>();
+
+            while (queue.Count > 0)
+            {
+                var current = queue.Dequeue();
+
+                foreach (var neighbor in GetNeighbors(current))
+                {
+                    if (corridorPositions.Contains(neighbor) && !visitedCorridors.Contains(neighbor))
+                    {
+                        queue.Enqueue(neighbor);
+                        visitedCorridors.Add(neighbor);
+                    }
+                    else
+                    {
+                        // Check if the neighbor is part of a room
+                        var room = rooms.FirstOrDefault(r => r.floorTilesPositions.Contains(neighbor));
+                        if (room != null)
+                        {
+                            var roomCenter = Vector3Int.RoundToInt(room.bounds.center);
+                            connectedRooms.Add(roomCenter);
+                        }
+                    }
+                }
+            }
+
+            // Connect all detected rooms in this corridor section
+            var roomCenters = connectedRooms.ToList();
+            for (int i = 0; i < roomCenters.Count; i++)
+            {
+                for (int j = i + 1; j < roomCenters.Count; j++)
+                {
+                    AddEdge(roomGraph, roomCenters[i], roomCenters[j]);
+                }
+            }
+        }
+
+    }
+    void AddEdge(Dictionary<Vector3Int, List<Vector3Int>> graph, Vector3Int room1, Vector3Int room2)
+    {
+        if (!graph[room1].Contains(room2))
+        {
+            graph[room1].Add(room2);
+        }
+        if (!graph[room2].Contains(room1))
+        {
+            graph[room2].Add(room1);
+        }
+    }
+
+
     void PlaceDoors()
     {
         var visited = new HashSet<Vector3Int>();
@@ -394,7 +498,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         {
             var current = queue.Dequeue();
             var currentRoom = rooms.FirstOrDefault(x => x.floorTilesPositions.Contains(current));
-
+            //this is just the check for the doors positions, not "strictly" part of the bfs
             if (IsRoomPosition(current))
             {
                 foreach (var neighbor in GetNeighbors(current))
@@ -403,13 +507,13 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
                     {
                         if (currentRoom.isBossRoom)
                         {
-                            PlaceDoor(current, Color.red);
-                            currentRoom.doorTilesPositions.Add(current);
+                            PlaceDoor(neighbor, Color.red);
+                            currentRoom.doorTilesPositions.Add(neighbor);
                         }
                         else
                         {
-                            PlaceDoor(current, Color.green);
-                            currentRoom.doorTilesPositions.Add(current);
+                            PlaceDoor(neighbor, Color.green);
+                            currentRoom.doorTilesPositions.Add(neighbor);
                         }
 
                     }
@@ -417,6 +521,8 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
                 }
 
             }
+
+            // This is the actual bfs step
 
             foreach (var neighbor in GetNeighbors(current))
             {
@@ -583,26 +689,6 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         }
     }
 
-    private void MoveAllPlayersToRoom(Vector3Int roomCenter)
-    {
-        // Iterate over all connected clients
-        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
-        {
-            // Get the player's NetworkObject for this client
-            NetworkObject playerObject = client.PlayerObject;
-
-            if (playerObject != null)
-            {
-                // Set the player's position to the firstRoomCenter
-                playerObject.transform.position = roomCenter;
-            }
-            else
-            {
-                Debug.LogWarning($"Player object for client {client.ClientId} not found!");
-            }
-        }
-
-    }
     private void SpawnLocalPlayersForCouchCoop(bool alreadySpawned)
     {
         if (!alreadySpawned)
@@ -625,5 +711,4 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
 
 }
-
 

@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 
 
+// TODO: remove class
 public class DungeonLogicHandler : MonoBehaviour
 {
     //public static Action<int, int, string, string> OnDungeonFinish;

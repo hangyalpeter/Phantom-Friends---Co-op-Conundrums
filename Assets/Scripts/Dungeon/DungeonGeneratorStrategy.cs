@@ -12,4 +12,10 @@ namespace Assets.Scripts.Dungeon
     {
         public abstract void RunProceduralGeneration();
     }
+
+    public abstract class DungeonGeneratorStrategyExperiment : MonoBehaviour
+    {
+        public abstract void RunProceduralGeneration();
+    }
+
 }

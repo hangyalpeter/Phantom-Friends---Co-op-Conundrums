@@ -72,4 +72,12 @@ public class PauseScreen : UIScreen
         m_EventRegistry.RegisterCallback<ClickEvent>(m_SettingsButton, evt => UIScreenEvents.SettingsShown?.Invoke());
     }
 
+    public override void Disable()
+    {
+        base.Disable();
+        GameEvents.GamePaused -= GameEvents_GamePaused;
+        StartingSceneController.PlayModeChanged -= StartingSceneController_PlaymodeChanged;
+
+    }
+
 }

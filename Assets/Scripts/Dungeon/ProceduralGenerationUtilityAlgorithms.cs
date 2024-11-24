@@ -102,6 +102,81 @@ public static class ProceduralGenerationUtilityAlgorithms
         roomsQueue.Enqueue(room2);
     }
 
+
+
+
+
+    public static HashSet<Room> BinarySpacePartitioning2(BoundsInt space, int minWidth, int minHeight)
+    {
+        HashSet<Room> rooms = new HashSet<Room>();
+        SplitSpaceRecursively(space, minWidth, minHeight, rooms);
+        return rooms;
+    }
+
+    private static void SplitSpaceRecursively(BoundsInt room, int minWidth, int minHeight, HashSet<Room> rooms)
+    {
+        if (room.size.x >= minWidth && room.size.y >= minHeight)
+        {
+            bool splitVertically = UnityEngine.Random.value > 0.5f;
+            if (splitVertically)
+            {
+                if (room.size.x >= 2 * minWidth)
+                {
+                    SplitVertically(room, minWidth, minHeight, rooms);
+                }
+                else if (room.size.y >= 2 * minHeight)
+                {
+                    SplitHorizontally(room, minWidth, minHeight, rooms);
+                }
+                else
+                {
+                    rooms.Add(new Room(room));
+                }
+            }
+            else
+            {
+                if (room.size.y >= 2 * minHeight)
+                {
+                    SplitHorizontally(room, minWidth, minHeight, rooms);
+                }
+                else if (room.size.x >= 2 * minWidth)
+                {
+                    SplitVertically(room, minWidth, minHeight, rooms);
+                }
+                else
+                {
+                    rooms.Add(new Room(room));
+                }
+            }
+        }
+        else
+        {
+            rooms.Add(new Room(room));
+        }
+    }
+
+    private static void SplitVertically(BoundsInt room, int minWidth, int minHeight, HashSet<Room> rooms)
+    {
+        int split = UnityEngine.Random.Range(minWidth, room.size.x - minWidth);
+
+        BoundsInt room1 = new BoundsInt(room.min, new Vector3Int(split, room.size.y, room.size.z));
+        BoundsInt room2 = new BoundsInt(new Vector3Int(room.min.x + split, room.min.y, room.min.z), new Vector3Int(room.size.x - split, room.size.y, room.size.z));
+
+        SplitSpaceRecursively(room1, minWidth, minHeight, rooms);
+        SplitSpaceRecursively(room2, minWidth, minHeight, rooms);
+    }
+
+    private static void SplitHorizontally(BoundsInt room, int minWidth, int minHeight, HashSet<Room> rooms)
+    {
+        int split = UnityEngine.Random.Range(minHeight, room.size.y - minHeight);
+
+        BoundsInt room1 = new BoundsInt(room.min, new Vector3Int(room.size.x, split, room.size.z));
+        BoundsInt room2 = new BoundsInt(new Vector3Int(room.min.x, room.min.y + split, room.min.z), new Vector3Int(room.size.x, room.size.y - split, room.size.z));
+
+        SplitSpaceRecursively(room1, minWidth, minHeight, rooms);
+        SplitSpaceRecursively(room2, minWidth, minHeight, rooms);
+    }
+
     private static Vector3Int RandomDirection()
     {
         Vector3Int[] directions = new Vector3Int[]
@@ -115,3 +190,4 @@ public static class ProceduralGenerationUtilityAlgorithms
         
     }
 }
+

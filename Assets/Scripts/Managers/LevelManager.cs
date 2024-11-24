@@ -58,7 +58,6 @@ public class LevelManager : NetworkBehaviour
         UIScreenEvents.OnHostStart += UIScreenEvents_OnHostStart;
         UIScreenEvents.OnBackToTitleScreen += UIScreenEvents_OnBackToTitleScreen;
 
-        GameEvents.OnLevelRestart += OnLevelRestartClicked;
         SceneManager.sceneLoaded += SceneManager_sceneLoaded;
     }
 
@@ -117,8 +116,6 @@ public class LevelManager : NetworkBehaviour
     private void LoadNextLevel()
     {
         if (!IsServer) { return; }
-
-        // TODO if have time come up with better solution
 
         string currentSceneName = SceneManager.GetActiveScene().name;
 

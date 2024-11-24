@@ -1005,9 +1005,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minWidth: 20
   minHeight: 20
-  dungeonWidth: 60
-  dungeonHeight: 60
-  roomWidthOffset: 2
+  dungeonWidth: 80
+  dungeonHeight: 80
+  roomWidthOffset: 5
   tilemapVisualizer: {fileID: 1030782645}
   player: {fileID: 0}
   ghost: {fileID: 0}
@@ -1870,7 +1870,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db570f5a17607cb49a5fdb6a9356c438, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dungeonGenerator: {fileID: 849193265}
+  dungeonGenerator: {fileID: 0}
 --- !u!4 &1808054176
 Transform:
   m_ObjectHideFlags: 0

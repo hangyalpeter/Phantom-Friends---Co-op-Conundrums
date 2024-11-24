@@ -25,7 +25,7 @@ public class CameraController : MonoBehaviour
 
     }
 
-    private void FixedUpdate()
+    private void LateUpdate()
     {
         if (childTransform != null && ghostTransform != null)
         {
@@ -52,7 +52,7 @@ public class CameraController : MonoBehaviour
         Vector3 targetPosition = GetCenterPointOfChildAndGhost();
         targetPosition.z = transform.position.z;
 
-        transform.position = new Vector3(GetCenterPointOfChildAndGhost().x, GetCenterPointOfChildAndGhost().y, transform.position.z);
+        //transform.position = new Vector3(GetCenterPointOfChildAndGhost().x, GetCenterPointOfChildAndGhost().y, transform.position.z);
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref cameraVelocity, smoothTime);
 
     }

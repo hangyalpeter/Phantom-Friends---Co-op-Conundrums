@@ -39,8 +39,13 @@ public class DungeonManager : NetworkBehaviour
 
     private void Start()
     {
-        rooms = dungeonGenerator.GenerateDungeon(false, PlayerPrefs.GetInt("DungeonSeed"));
+        if (IsServer)
+        {
+            int seed = PlayerPrefs.HasKey("DungeonSeed") ? PlayerPrefs.GetInt("DungeonSeed") : System.DateTime.Now.GetHashCode();
+            GenerateNewDungeonAtStartClientRpc(seed);
+        }
         Debug.Log("seed: " + PlayerPrefs.GetInt("DungeonSeed"));
+        dungeonGenerator.SpawnPlayerCharacters(false);
     }
 
     private void GenerateNewDungeonAfterWin()
@@ -67,12 +72,19 @@ public class DungeonManager : NetworkBehaviour
         rooms.UnionWith(dungeonGenerator.GenerateDungeon(true, seed));
 
     }
+    [ClientRpc]
+    private void GenerateNewDungeonAtStartClientRpc(int seed)
+    {
+        UnityEngine.Random.InitState(seed);
+
+        rooms = dungeonGenerator.GenerateDungeon(false, seed);
+    }
+
+
 
     public void IncrementKilledEnemies()
     {
         enemiesKilled++;
-        Debug.Log("Enemies killed: " + enemiesKilled);
-
     }
 
     public void HandlePlayerDeath()

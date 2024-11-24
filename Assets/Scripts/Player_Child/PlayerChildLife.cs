@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -9,6 +10,7 @@ public class PlayerChildLife : NetworkBehaviour
     private Animator animator;
     private Rigidbody2D rb;
     [SerializeField] private AudioSource deathSound;
+    public static event Action OnPlayerChildDeath;
     void Start()
     {
        animator = GetComponent<Animator>();
@@ -24,11 +26,18 @@ public class PlayerChildLife : NetworkBehaviour
         }
     }
 
+    private IEnumerator DelayDeathScreenShow()
+    {
+        yield return new WaitForSeconds(0.5f);
+        OnPlayerChildDeath?.Invoke();
+    }
+
     private void Die()
     {
         deathSound.Play();
         rb.bodyType = RigidbodyType2D.Static;
         animator.SetTrigger("death");
+        StartCoroutine(DelayDeathScreenShow());
     }
 
     [ServerRpc]

@@ -19,24 +19,26 @@ public class GameOverState : IGameState
         //int milliseconds = (int)((context.ElapsedTime * 1000) % 1000);
         float hundreth = (float)((context.ElapsedTime - Mathf.Floor(context.ElapsedTime)) * 100);
 
-        GameEvents.LevelFinishedWithTime?.Invoke(string.Format("{0:00}:{1:00}:{2:00}", minutes, seconds, hundreth));
 
         var currentLevelName = SceneManager.GetActiveScene().name;
         if (PlayerPrefs.HasKey(currentLevelName + "_BestCompletionTime"))
-        {
+       {
             var bestCompletionTime = PlayerPrefs.GetFloat(currentLevelName + "_BestCompletionTime");
             if (context.ElapsedTime < bestCompletionTime)
             {
                 PlayerPrefs.SetFloat(currentLevelName + "_BestCompletionTime", context.ElapsedTime);
                 PlayerPrefs.Save();
+                GameEvents.BestTimesChanged?.Invoke();
             }
         }
         else
         {
             PlayerPrefs.SetFloat(currentLevelName + "_BestCompletionTime", context.ElapsedTime);
             PlayerPrefs.Save();
+            GameEvents.BestTimesChanged?.Invoke();
         }
 
+        GameEvents.LevelFinishedWithTime?.Invoke(string.Format("{0:00}:{1:00}:{2:00}", minutes, seconds, hundreth));
 
     }
 

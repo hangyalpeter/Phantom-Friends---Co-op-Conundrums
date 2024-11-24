@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+// TODO: remove class
 public class TestGridPositions : MonoBehaviour
 {
     [SerializeField]

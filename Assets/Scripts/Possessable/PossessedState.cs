@@ -11,11 +11,6 @@ public class PossessedState : IState
 
     public void Enter()
     {
-        if (possessable.GetComponent<HealthComponent>() != null)
-        {
-            possessable.GetComponent<HealthComponent>().OnDied += Exit;
-        }
-
         possessable.Ghost.GetComponent<Rigidbody2D>().transform.position = possessable.Rb.gameObject.transform.position;
         possessable.Ghost.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
 

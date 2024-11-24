@@ -97,7 +97,6 @@ public class RoomsManager : NetworkBehaviour
 
     private bool CheckDungeonWin()
     {
-        Debug.Log(rooms.All(r => r.isFinished));
         return rooms.All(r => r.isFinished);
     }
 
@@ -154,12 +153,6 @@ public class RoomsManager : NetworkBehaviour
                     StartCoroutine(DelayCloseBossRoom(room));
                 }
 
-            }
-            // TODO: remove this feature, left in for debugging
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                player.transform.position = currentRoom.bounds.center;
-                ghost.transform.position = currentRoom.bounds.center;
             }
         }
     }
@@ -344,7 +337,6 @@ public class RoomsManager : NetworkBehaviour
 
     private bool CheckIsRoomCleared(Room room)
     {
-        Debug.Log("room.enemies.Count: " + room.enemies.Count);
         return !room.enemies.Any(e => e != null);
     }
 

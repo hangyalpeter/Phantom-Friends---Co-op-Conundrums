@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
+public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategyExperiment
 {
     [SerializeField]
     private RandomWalkDungeonGenerator randomWalkDungeonGenerator;
@@ -91,12 +91,10 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
 
             if (IsRoomPosition(current))
             {
-                Debug.Log("Current is room position: " + current);
                 foreach (var neighbor in GetNeighbors(current))
                 {
                     if (corridorsFlat.Contains(neighbor))
                     {
-                        Debug.Log("Placing door at: " + current);
                         PlaceDoor(current);
                     }
                 }

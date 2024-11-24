@@ -34,7 +34,6 @@ public class HealthBar : NetworkBehaviour
             if (healthComponent != null)
             {
                 networkHealth.Value = healthComponent.MaxHealth;
-                Debug.Log(healthComponent.MaxHealth);
                 healthComponent.OnHealthChanged += SetHealthOnServer;
             }
         }

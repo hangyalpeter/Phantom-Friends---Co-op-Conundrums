@@ -56,9 +56,7 @@ public class UIManager : MonoBehaviour
         HideScreens();
 
         Debug.Log("UI Manager Initialized");
-        m_CurrentScreen = m_MainMenuScreen;
-        m_History.Push(m_MainMenuScreen);
-        m_MainMenuScreen.ShowImmediately();
+        Show(m_MainMenuScreen);
     }
 
     private void SubscribeToEvents()
@@ -138,10 +136,6 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            if (m_CurrentScreen == m_PauseScreen)
-            {
-                UIScreenEvents.PauseClosed?.Invoke();
-            }
             m_CurrentScreen.HideImmediately();
         }
     }
@@ -179,18 +173,16 @@ public class UIManager : MonoBehaviour
 
         screen.ShowImmediately();
         m_CurrentScreen = screen;
-        Debug.Log("Current Screen: " + m_CurrentScreen.ToString());
-        Debug.Log("History Count: " + m_History.Count);
     }
 
    private void UIScreenEvents_PauseShown()
     {
-        Show(m_PauseScreen, false);
+        Show(m_PauseScreen);
     }
 
     private void UIScreenEvents_LevelFinishShown()
     {
-        Show(m_LevelFinishScreen, false);
+        Show(m_LevelFinishScreen);
     }
 
     private void UIScreenEvents_LevelSelectShown()
@@ -200,10 +192,8 @@ public class UIManager : MonoBehaviour
 
     private void UIScreenEvents_DungeonGameOverShown()
     {
-        Show(m_DungeonGameOverScreen, false);
+        Show(m_DungeonGameOverScreen);
     }
-
-
 
     private void UIScreenEvents_LevelSelected(string obj)
     {

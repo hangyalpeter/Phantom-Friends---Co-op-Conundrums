@@ -7,7 +7,7 @@ public class DungeonGenerator : MonoBehaviour
 {
 
     [SerializeField]
-    private DungeonGeneratorStrategy dungeonGenerator;
+    private DungeonGeneratorStrategyExperiment dungeonGenerator;
 
     public void RunProceduralGeneration()
     {
