@@ -2,7 +2,7 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerMovement1 : NetworkBehaviour
+public class PlayerMovementDungeon : NetworkBehaviour
 {
     private Rigidbody2D rb;
     private BoxCollider2D bc;

@@ -16,7 +16,7 @@ public class PlayerManager : NetworkBehaviour
 
     private GameObject playerGO;
 
-    private PlayerMovement1 playerMovement1;
+    private PlayerMovementDungeon playerMovement1;
     public void SetMediator(IDungeonMediator mediator)
     {
         this.mediator = mediator;
@@ -36,7 +36,7 @@ public class PlayerManager : NetworkBehaviour
         }
 
         playerGO = GameObject.FindGameObjectWithTag("Player_Child");
-        playerMovement1 = playerGO.GetComponent<PlayerMovement1>();
+        playerMovement1 = playerGO.GetComponent<PlayerMovementDungeon>();
         GameObject ghostGO = GameObject.FindGameObjectWithTag("Player_Ghost");
         player = playerGO.transform;
         ghost = ghostGO.transform;
