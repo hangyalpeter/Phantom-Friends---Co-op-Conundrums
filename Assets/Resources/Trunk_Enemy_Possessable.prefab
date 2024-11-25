@@ -20,8 +20,8 @@ GameObject:
   - component: {fileID: 6606934676148487354}
   - component: {fileID: 3201918563849098284}
   - component: {fileID: -3330379934022514173}
-  - component: {fileID: 1834379698437393297}
   - component: {fileID: 1147229540294277351}
+  - component: {fileID: -284675604842149594}
   m_Layer: 0
   m_Name: Trunk_Enemy_Possessable
   m_TagString: Enemy
@@ -292,19 +292,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   distanceOffset: 2
   possessionDuration: 15
---- !u!114 &1834379698437393297
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4637557867027910804}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab399bc17cf5248418d03ae486a4ea93, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 100
 --- !u!114 &1147229540294277351
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -361,3 +348,16 @@ MonoBehaviour:
     TriggerNameHash: 1203776827
     TransitionIndex: 0
   m_Animator: {fileID: 6221117647652861655}
+--- !u!114 &-284675604842149594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4637557867027910804}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4963be5090c787947b26ea1a97fe80cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100

@@ -52,12 +52,12 @@ public class GhostController : NetworkBehaviour
         anim = GetComponent<Animator>();
         mediator = FindObjectOfType<PossessMediator>();
 
-        HealthComponent.OnPossessedObjectDies += RequestDepossession;
+        PossessableHealth.OnPossessedObjectDies += RequestDepossession;
     }
 
     private void OnDisable()
     {
-        HealthComponent.OnPossessedObjectDies -= RequestDepossession;
+        PossessableHealth.OnPossessedObjectDies -= RequestDepossession;
     }
 
     private void Update()

@@ -2,23 +2,17 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class HealthComponent : NetworkBehaviour, IHealthProvider
+public abstract class HealthBase : NetworkBehaviour
 {
     public float maxHealth = 100f;
     private float currentHealth;
-
-    public event Action OnDied;
-    public event Action<float> OnHealthChanged;
-    public static event Action OnEnemyDied;
-    public static Action OnPossessedObjectDies;
-
-    private bool dieInvoked = false;
-
-    private bool canDespawn = true;
-
     public float MaxHealth => maxHealth;
 
-    private NetworkVariable<float> currentHealthNetwork = new NetworkVariable<float>();
+    public Action OnDied;
+    public Action<float> OnHealthChanged;
+
+    protected bool dieInvoked = false;
+    protected NetworkVariable<float> currentHealthNetwork = new NetworkVariable<float>();
 
     public float CurrentHealth
     {
@@ -28,6 +22,7 @@ public class HealthComponent : NetworkBehaviour, IHealthProvider
             if (currentHealth != value)
             {
                 currentHealth = value;
+                OnHealthChanged?.Invoke(currentHealth);
             }
         }
     }
@@ -38,11 +33,10 @@ public class HealthComponent : NetworkBehaviour, IHealthProvider
         currentHealthNetwork.OnValueChanged += (prev, curr) =>
         {
             CurrentHealth = curr;
-            OnHealthChanged?.Invoke(curr);
         };
     }
 
-    void Start()
+    protected virtual void Start()
     {
         if (IsServer)
         {
@@ -63,39 +57,7 @@ public class HealthComponent : NetworkBehaviour, IHealthProvider
         }
     }
 
-    public void ResetHealth()
-    {
-        currentHealthNetwork.Value = maxHealth;
-    }
-
-    private void Die()
-    {
-        dieInvoked = true;
-        ulong networkObjectId = gameObject.GetComponent<NetworkObject>().NetworkObjectId;
-
-        // Make sure player is not possessable!
-        if (gameObject.CompareTag("Player_Child") || gameObject.GetComponent<PossessableTransformation>() != null)
-        {
-            OnDied?.Invoke();
-            if (gameObject.CompareTag("Enemy") || gameObject.CompareTag("PossessedEnemy"))
-            {
-                OnEnemyDied?.Invoke();
-            }
-            if (gameObject.GetComponent<PosessableMovement>().IsPossessed)
-            {
-                OnPossessedObjectDies?.Invoke();
-            }
-            DespawnDeadObject(networkObjectId);
-        }
-        else
-        {
-            OnEnemyDied?.Invoke();
-
-            DespawnDeadObject(networkObjectId);
-        }
-    }
-
-    private void DespawnDeadObject(ulong networkObjectId)
+    protected void DespawnDeadObject(ulong networkObjectId)
     {
         if (!IsServer && IsClient)
         {
@@ -113,6 +75,7 @@ public class HealthComponent : NetworkBehaviour, IHealthProvider
         }
     }
 
+
     [ServerRpc(RequireOwnership = false)]
     private void RequestDestroyOnServerRpc(ulong networkObjectId)
     {
@@ -122,5 +85,12 @@ public class HealthComponent : NetworkBehaviour, IHealthProvider
             networkObject.Despawn(networkObject);
         }
     }
+
+    public void ResetHealth()
+    {
+        currentHealthNetwork.Value = maxHealth;
+    }
+
+    protected abstract void Die();
 }
 

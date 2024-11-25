@@ -1,8 +1,9 @@
 ﻿using Assets.Scripts.Dungeon;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -77,16 +78,17 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
 
         GenerateRoomPositions();
 
-        ConnectRoomsWithCorridors();
 
+        ConnectRoomsWithCorridors();
         WallGenerator.CreateWalls(floorPositions, tilemapVisualizer, rooms);
 
         BuildGraphFromCorridors(corridorPositions, rooms);
         MarkBossRoom();
+        //FindBossRoom();
 
         PlaceDoors();
     }
- 
+
 
     private void ConnectRoomsWithCorridors()
     {
@@ -258,6 +260,20 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
         return clone;
     }
 
+    private List<Vector3Int> GetNonCutVertices3()
+    {
+        var bossroomPositions = new List<Vector3Int>();
+        bool bossroom = false;
+        foreach (var room in rooms)
+        {
+            bossroom = FindBossRoomHelper(room);
+            if (bossroom)
+            {
+                bossroomPositions.Add(Vector3Int.RoundToInt(room.bounds.center));
+            }
+        }
+        return bossroomPositions;
+    }
     private List<Vector3Int> GetNonCutVertices()
     {
         List<Vector3Int> nonCutVertices = new List<Vector3Int>();
@@ -351,6 +367,7 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
     }
 
 
+    // TODO: this is the slow solution
     void FindBossRoom()
     {
         var roomsArray = rooms.ToArray();
@@ -361,34 +378,85 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
 
         //BuildRoomGraph(rooms, corridorPositions);
 
-        BuildGraphFromCorridors(corridorPositions, rooms);
-        MarkBossRoom();
+        //BuildGraphFromCorridors(corridorPositions, rooms);
+        //MarkBossRoom();
 
-        // TODO: this is the slow solution
 
-        /*        foreach (var room in rooms)
-                {
-                    bossroom = FindBossRoomHelper(room);
-                    if (bossroom)
-                    {
-                        bossroomPosition.Add(room);
-                        //break;
-                    }
-                }*/
-        //bossroomPosition.First().isBossRoom = true;
+        /* foreach (var room in rooms)
+         {
+             bossroom = FindBossRoomHelper(room);
+             if (bossroom)
+             {
+                 bossroomPosition.Add(room);
+             }
+         }
+         bossroomPosition.Last().isBossRoom = true;*/
 
-        int i = 0;
-        foreach (var item in bossroomPosition)
+
+        var bossroomPositions = new ConcurrentBag<Room>();
+
+        // Parallelize the check for each room
+      /*  Parallel.ForEach(rooms, room =>
         {
-            if (i > 2)
+            if (FindBossRoomHelper(room))
             {
-                item.isBossRoom = true;
-                break;
+                bossroomPositions.Add(room);
             }
-            i++;
-        }
+        });
+
+        // Mark the last room in the result as the boss room
+        if (bossroomPositions.Any())
+        {
+            bossroomPositions.Last().isBossRoom = true;
+            if (firstRoomCenter == bossroomPositions.Last().bounds.center)
+            {
+                firstRoomCenter = Vector3Int.RoundToInt(rooms.First(r => !r.isBossRoom).bounds.center);
+
+            }
+        }*/
 
     }
+
+    bool FindBossRoomHelper2(Room roomToExclude)
+    {
+        var visited = new HashSet<Vector3Int>();
+        var queue = new Queue<Vector3Int>();
+        var visitedRooms = new HashSet<Room>();
+
+        var copiedRooms = rooms.Where(r => r != roomToExclude);
+        var start = copiedRooms.First();
+
+        var corridorsss = new HashSet<Vector3Int>();
+        foreach (var tile in roomToExclude.floorTilesPositions) {
+            foreach (var neighbour in GetNeighbors(tile)) { 
+                if (corridorPositions.Contains(neighbour))
+                {
+                    corridorsss.Add(neighbour);
+                }
+            }
+        }
+        BuildGraphFromCorridors(corridorPositions.Except(corridorsss).ToHashSet(), copiedRooms.ToHashSet());
+
+        queue.Enqueue(Vector3Int.RoundToInt(start.bounds.center));
+        visited.Add(Vector3Int.RoundToInt(start.bounds.center));
+
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+
+            foreach (var neighbor in roomGraph[current])
+            {
+                if (!visited.Contains(neighbor))
+                {
+                    visited.Add(neighbor);
+                    queue.Enqueue(neighbor);
+                }
+            }
+        }
+        return visitedRooms.Count() == copiedRooms.Count();
+    }
+
+
 
     bool FindBossRoomHelper(Room roomToExclude)
     {
@@ -396,9 +464,25 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
         var queue = new Queue<Vector3Int>();
         var visitedRooms = new HashSet<Room>();
 
+        var corridorsss = new HashSet<Vector3Int>();
 
         var copiedRooms = rooms.Where(r => r != roomToExclude);
-        var copiedFloorpos = floorPositions.Except(roomToExclude.floorTilesPositions);
+        Debug.Log("copiedFloorpos: " + copiedRooms.Count());
+        Debug.Log("originalFloorpos: " + rooms.Count());
+
+        foreach (var tile in roomToExclude.floorTilesPositions)
+        {
+            foreach (var neighbour in GetNeighbors(tile))
+            {
+                if (corridorPositions.Contains(neighbour))
+                {
+                    corridorsss.Add(neighbour);
+                }
+            }
+        }
+
+        var copiedFloorpos = floorPositions.Except(roomToExclude.floorTilesPositions).Except(corridorsss);
+
 
         var startPosition = copiedFloorpos.First();
 
@@ -426,8 +510,6 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
         }
         return visitedRooms.Count() == copiedRooms.Count();
     }
-
-
 
     void OnDrawGizmos()
     {
@@ -544,13 +626,13 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
                     {
                         if (currentRoom.isBossRoom)
                         {
-                            PlaceDoor(neighbor, Color.red);
-                            currentRoom.doorTilesPositions.Add(neighbor);
+                            PlaceDoor(current, Color.red);
+                            currentRoom.doorTilesPositions.Add(current);
                         }
                         else
                         {
-                            PlaceDoor(neighbor, Color.green);
-                            currentRoom.doorTilesPositions.Add(neighbor);
+                            PlaceDoor(current, Color.green);
+                            currentRoom.doorTilesPositions.Add(current);
                         }
 
                     }

@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 5801915199489069600}
   - component: {fileID: 3372699790591132228}
   - component: {fileID: 1886962593782680920}
-  - component: {fileID: 3398218039224685553}
   - component: {fileID: 5690261370204033718}
   - component: {fileID: 6711691034101349474}
   - component: {fileID: 7416098167156861161}
@@ -23,6 +22,7 @@ GameObject:
   - component: {fileID: 8870641890530714670}
   - component: {fileID: -8380412020745608542}
   - component: {fileID: -6837765947311525651}
+  - component: {fileID: 3706758144911354161}
   m_Layer: 0
   m_Name: Player_Child_Dungeon
   m_TagString: Player_Child
@@ -382,19 +382,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &3398218039224685553
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 540280608441340586}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab399bc17cf5248418d03ae486a4ea93, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 400
 --- !u!114 &5690261370204033718
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -507,7 +494,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 540280608441340586}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 859a67317cc1c154498c1fb325cbeb55, type: 3}
+  m_Script: {fileID: 11500000, guid: a3f2b510e52b5eb4888b0d813003367c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Damage: 25
@@ -527,3 +514,16 @@ MonoBehaviour:
   healthBarPrefab: {fileID: 7533081973548320398, guid: 91ba35a0801f3e1468552cad79725ea9, type: 3}
   canvas: {fileID: 0}
   healthBarPosition: {x: 40, y: -9, z: 0}
+--- !u!114 &3706758144911354161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 540280608441340586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e5848a853f2c104ea2de54cddcc1dfd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 400

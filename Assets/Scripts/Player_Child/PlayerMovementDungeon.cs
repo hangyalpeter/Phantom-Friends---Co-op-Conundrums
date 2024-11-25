@@ -8,7 +8,7 @@ public class PlayerMovementDungeon : NetworkBehaviour
     private BoxCollider2D bc;
     private SpriteRenderer sr;
     private Animator anim;
-    private HealthComponent health;
+    private HealthBase health;
 
     private ProjectileSpawner projectileSpawner;
 
@@ -39,7 +39,7 @@ public class PlayerMovementDungeon : NetworkBehaviour
         bc = GetComponent<BoxCollider2D>();
         sr = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
-        health = GetComponent<HealthComponent>();
+        health = GetComponent<HealthBase>();
         projectileSpawner = GetComponent<ProjectileSpawner>();
 
         previousPosition = transform.position;

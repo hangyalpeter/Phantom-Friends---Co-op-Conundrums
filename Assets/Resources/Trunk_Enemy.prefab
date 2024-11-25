@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 5464577892021596924}
   - component: {fileID: 5508542722572620845}
   - component: {fileID: 6606934676148487354}
-  - component: {fileID: -2353492056058375796}
+  - component: {fileID: -2246955634315240934}
   m_Layer: 0
   m_Name: Trunk_Enemy
   m_TagString: Enemy
@@ -320,7 +320,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 4222163408759259628, guid: 720153838f020ab4eb5ec0bdc97b540e, type: 3}
---- !u!114 &-2353492056058375796
+--- !u!114 &-2246955634315240934
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -329,7 +329,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4637557867027910804}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab399bc17cf5248418d03ae486a4ea93, type: 3}
+  m_Script: {fileID: 11500000, guid: 4963be5090c787947b26ea1a97fe80cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100

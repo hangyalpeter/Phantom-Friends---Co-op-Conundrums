@@ -8,7 +8,7 @@ public class TrunkEnemyAnimationHandler : NetworkBehaviour
     private Vector3 lastPosition;
     private ShootBehavior shootBehavior;
 
-    private HealthComponent healthComponent;
+    private HealthBase healthComponent;
     private Rigidbody2D rb;
 
     MovementState currentState = MovementState.idle;
@@ -18,7 +18,7 @@ public class TrunkEnemyAnimationHandler : NetworkBehaviour
         anim = GetComponent<Animator>();
         lastPosition = transform.position;
         shootBehavior = GetComponent<ShootBehavior>();
-        healthComponent = GetComponent<HealthComponent>();
+        healthComponent = GetComponent<HealthBase>();
         rb = GetComponent<Rigidbody2D>();
 
         if (shootBehavior != null && IsServer)

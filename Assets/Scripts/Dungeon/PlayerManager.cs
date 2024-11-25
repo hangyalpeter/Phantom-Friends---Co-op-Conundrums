@@ -9,7 +9,7 @@ public class PlayerManager : NetworkBehaviour
     private Transform player;
     private Transform ghost;
 
-    private IHealthProvider healthProvider;
+    private PlayerHealth healthProvider;
 
     public Transform Player => player;
     public Transform Ghost => ghost;
@@ -40,7 +40,7 @@ public class PlayerManager : NetworkBehaviour
         GameObject ghostGO = GameObject.FindGameObjectWithTag("Player_Ghost");
         player = playerGO.transform;
         ghost = ghostGO.transform;
-        healthProvider = playerGO.GetComponent<IHealthProvider>();
+        healthProvider = playerGO.GetComponent<PlayerHealth>();
         healthProvider.OnDied += Die;
     }
 
@@ -59,7 +59,7 @@ public class PlayerManager : NetworkBehaviour
 
     public void ResetHealth()
     {
-        playerGO.GetComponent<HealthComponent>().ResetHealth();
+        playerGO.GetComponent<PlayerHealth>().ResetHealth();
     }
 
     public void IncreaseDamage(float damage)

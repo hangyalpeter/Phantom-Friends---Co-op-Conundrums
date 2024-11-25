@@ -7,7 +7,7 @@ public class HealthBar : NetworkBehaviour
     [SerializeField]
     private Slider healthSlider;
 
-    private IHealthProvider healthComponent;
+    private HealthBase healthComponent;
 
     [SerializeField]
     private GameObject healthBarPrefab;
@@ -27,7 +27,7 @@ public class HealthBar : NetworkBehaviour
 
     private void Start()
     {
-        healthComponent = GetComponent<IHealthProvider>();
+        healthComponent = GetComponent<HealthBase>();
 
         if (IsServer)
         {

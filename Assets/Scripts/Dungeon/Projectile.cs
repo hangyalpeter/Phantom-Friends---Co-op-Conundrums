@@ -15,7 +15,7 @@ public class Projectile : NetworkBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        IHealthProvider health = collision.gameObject.GetComponent<IHealthProvider>();
+        HealthBase health = collision.gameObject.GetComponent<HealthBase>();
 
         if (collision.gameObject.CompareTag(collisionTag) || collision.gameObject.CompareTag("Player_Ghost"))
         {

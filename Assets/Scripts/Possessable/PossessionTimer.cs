@@ -11,11 +11,11 @@ public class PossessionTimer : NetworkBehaviour
 
     private void OnEnable()
     {
-        HealthComponent.OnPossessedObjectDies += StopTimer;
+        PossessableHealth.OnPossessedObjectDies += StopTimer;
     }
     private void OnDisable()
     {
-        HealthComponent.OnPossessedObjectDies -= StopTimer;
+        PossessableHealth.OnPossessedObjectDies -= StopTimer;
     }
     private void Start()
     {

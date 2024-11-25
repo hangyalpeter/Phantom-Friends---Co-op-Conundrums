@@ -4,9 +4,9 @@ public interface IHealthProvider
 {
     float MaxHealth { get; }
     float CurrentHealth { get; }
-    event Action<float> OnHealthChanged;
+    public event Action<float> OnHealthChanged;
     static event Action OnEnemyDied;
-    event Action OnDied;
+    public event Action OnDied;
     public void TakeDamage(float damage);
 
 }

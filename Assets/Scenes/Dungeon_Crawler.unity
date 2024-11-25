@@ -1005,14 +1005,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minWidth: 20
   minHeight: 20
-  dungeonWidth: 80
-  dungeonHeight: 80
+  dungeonWidth: 50
+  dungeonHeight: 50
   roomWidthOffset: 5
   tilemapVisualizer: {fileID: 1030782645}
   player: {fileID: 0}
   ghost: {fileID: 0}
   useStoredSeed: 1
-  minimumRoomsCount: 1
   playerGhostPrefab: {fileID: 7039017418748102765, guid: a05b6d8607c3a984e8ad728a52873f33, type: 3}
   playerChildPrefab: {fileID: 540280608441340586, guid: 65ed9484e490e2b46ad4028156241c82, type: 3}
 --- !u!4 &849193266

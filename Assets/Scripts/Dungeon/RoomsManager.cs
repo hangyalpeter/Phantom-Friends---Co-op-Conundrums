@@ -63,7 +63,7 @@ public class RoomsManager : NetworkBehaviour
         currentRoom = rooms.First();
     }
 
-    private void LateUpdate()
+    private void Update()
     {
         if (!IsServer) return;
 

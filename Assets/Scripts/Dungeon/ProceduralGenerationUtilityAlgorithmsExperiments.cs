@@ -15,7 +15,7 @@ public static class ProceduralGenerationUtilityAlgorithmsExperiments
     public static Dictionary<Vector3Int, List<Vector3Int>> roomGraph = new Dictionary<Vector3Int, List<Vector3Int>>();
     private static Vector3Int firstRoomCenter;
 
-    private static HashSet<Room> rooms = new HashSet<Room>();
+    //private static HashSet<Room> rooms = new HashSet<Room>();
     public static HashSet<Vector3Int> RandomWalk(Vector3Int start, int length)
     {
         HashSet<Vector3Int> path = new HashSet<Vector3Int>();
@@ -275,6 +275,7 @@ public static class ProceduralGenerationUtilityAlgorithmsExperiments
 
     public static HashSet<Room> BinarySpacePartitioning3(BoundsInt space, int minWidth, int minHeight, out BinaryTreeNode root2)
     {
+        HashSet<Room> rooms = new HashSet<Room>();
         BinaryTreeNode root = SplitSpaceRecursively(space, minWidth, minHeight);
         CollectRooms(root, rooms);
 
@@ -309,12 +310,12 @@ public static class ProceduralGenerationUtilityAlgorithmsExperiments
         if (node.left != null && node.right != null)
         {
 
-            var centers = rooms.Select(r => Vector3Int.RoundToInt(r.bounds.center));
-
             var siblingCorridor = CreateCorridor(
                 Vector3Int.RoundToInt(node.left.room.bounds.center),
                 Vector3Int.RoundToInt(node.right.room.bounds.center)
             );
+            //node.left.room.corridorTilePositions.UnionWith(siblingCorridor);
+            //node.right.room.corridorTilePositions.UnionWith(siblingCorridor);
 
             siblingCorridors.UnionWith(siblingCorridor);
         }
@@ -344,7 +345,9 @@ public static class ProceduralGenerationUtilityAlgorithmsExperiments
             }
             corridor.Add(position);
             corridor.Add(position + Vector3Int.up);
+            corridor.Add(position + Vector3Int.up + Vector3Int.up);
             corridor.Add(position + Vector3Int.down);
+            corridor.Add(position + Vector3Int.down + Vector3Int.down);
         }
 
         while (position.y != destination.y)
@@ -358,8 +361,10 @@ public static class ProceduralGenerationUtilityAlgorithmsExperiments
                 position += Vector3Int.down;
             }
             corridor.Add(position);
-            corridor.Add(position + Vector3Int.left); 
+            corridor.Add(position + Vector3Int.left);
+            corridor.Add(position + Vector3Int.left + Vector3Int.left);
             corridor.Add(position + Vector3Int.right);
+            corridor.Add(position + Vector3Int.right + Vector3Int.right);
         }
 
         return corridor;

@@ -847,8 +847,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minWidth: 20
   minHeight: 20
-  dungeonWidth: 80
-  dungeonHeight: 80
+  dungeonWidth: 50
+  dungeonHeight: 50
   roomWidthOffset: 5
   tilemapVisualizer: {fileID: 1030782645}
   useStoredSeed: 1

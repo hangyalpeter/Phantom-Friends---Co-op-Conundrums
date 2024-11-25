@@ -14,10 +14,10 @@ GameObject:
   - component: {fileID: 7572626112178734136}
   - component: {fileID: 2347113342378874396}
   - component: {fileID: 8047012288512709059}
-  - component: {fileID: 3383817700827245401}
   - component: {fileID: 3054460499715816893}
   - component: {fileID: 648625436990847034}
   - component: {fileID: 1158475075896127463}
+  - component: {fileID: -3119342265690297869}
   m_Layer: 0
   m_Name: PossessableBox
   m_TagString: Possessable
@@ -190,19 +190,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1.3482777, y: 1.2408243}
   m_EdgeRadius: 0
---- !u!114 &3383817700827245401
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 380759389136876573}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab399bc17cf5248418d03ae486a4ea93, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 50
 --- !u!114 &3054460499715816893
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -265,3 +252,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80d7c879794dfda4687da0e400131852, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-3119342265690297869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 380759389136876573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1b217db997f03041a1a533d0c9fc4e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 50
