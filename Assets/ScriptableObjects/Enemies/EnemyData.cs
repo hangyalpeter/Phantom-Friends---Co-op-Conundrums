@@ -23,14 +23,14 @@ public class EnemyData : ScriptableObject
         GameObject enemy = Instantiate(enemyPrefab, position, Quaternion.identity);
 
         NetworkObject networkObject = enemy.GetComponent<NetworkObject>();
-        networkObject.Spawn(destroyWithScene: true);
+        //networkObject.Spawn(destroyWithScene: true);
         enemy.name = enemyName;
         // the builder checks if it can add the corresponding components
         EnemyBuilder builder = new EnemyBuilder(enemy, this);
 
         if (!isBoss)
         {
-            builder/*.WithHealth()*/
+            builder.WithHealth()
                    .WithMovement()
                    .WithShooting()
                    .WithRotateShooting()
@@ -40,10 +40,11 @@ public class EnemyData : ScriptableObject
         }
         else
         {
-            builder/*.WithHealth()*/
+            builder.WithHealth()
                    .Build();
         }
 
+        networkObject.Spawn(destroyWithScene: true);
         return enemy;
     }
 }

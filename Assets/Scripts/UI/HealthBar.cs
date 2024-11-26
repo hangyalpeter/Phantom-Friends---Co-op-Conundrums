@@ -16,6 +16,7 @@ public class HealthBar : NetworkBehaviour
     private GameObject healthBarInstance;
     [SerializeField]
     private Vector3 healthBarPosition = new Vector3(380, -9, 0);
+    private bool maxhealthInitialized = false;
 
     private NetworkVariable<float> networkHealth = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
@@ -104,6 +105,11 @@ public class HealthBar : NetworkBehaviour
     {
         if (healthSlider != null)
         {
+            if (!maxhealthInitialized)
+            {
+                healthSlider.maxValue = health;
+                maxhealthInitialized = true;
+            }
             healthSlider.value = health;
         }
     }

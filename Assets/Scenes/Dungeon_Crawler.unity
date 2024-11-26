@@ -1572,6 +1572,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   roomEnemiesData:
   - {fileID: 11400000, guid: 1e93461fd07f3d640b36bc53838d474d, type: 2}
+  - {fileID: 11400000, guid: b40ec3858137a3745a5c4a029937d228, type: 2}
+  - {fileID: 11400000, guid: 5eef44e209c25064d83adfa166f3e954, type: 2}
   bossEnemiesData:
   - {fileID: 11400000, guid: 215f96d49cfb9624a976e01deb4261c0, type: 2}
   possessableObjects:

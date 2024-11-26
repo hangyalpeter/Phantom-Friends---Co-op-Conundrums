@@ -9,11 +9,13 @@ public class RoomsManager : NetworkBehaviour
 {
     [SerializeField]
     private List<EnemyData> roomEnemiesData = new List<EnemyData>();
+    private List<EnemyData> clonedEnemiesData = new List<EnemyData>();
 
     private int numberOfEnemiesToGenerate = 1;
 
     [SerializeField]
     private List<EnemyData> bossEnemiesData = new List<EnemyData>();
+    private List<EnemyData> clonedBossEnemiesData = new List<EnemyData>();
 
     [SerializeField]
     private List<GameObject> possessableObjects = new List<GameObject>();
@@ -46,6 +48,17 @@ public class RoomsManager : NetworkBehaviour
     private void Start()
     {
         StartCoroutine(FindObjects());
+
+        foreach (var originalEnemy in roomEnemiesData)
+        {
+            EnemyData clonedEnemy = Instantiate(originalEnemy);
+            clonedEnemiesData.Add(clonedEnemy);
+        }
+        foreach (var originalBoss in bossEnemiesData)
+        {
+            EnemyData clonedBoss = Instantiate(originalBoss);
+            clonedBossEnemiesData.Add(clonedBoss);
+        }
     }
 
     private IEnumerator FindObjects()
@@ -202,7 +215,7 @@ public class RoomsManager : NetworkBehaviour
         int i = 0;
         while(i < numberOfEnemiesToGenerate)
         {
-            var randomEnemy = roomEnemiesData[UnityEngine.Random.Range(0, roomEnemiesData.Count)];
+            var randomEnemy = clonedEnemiesData[UnityEngine.Random.Range(0, clonedEnemiesData.Count)];
             Vector3 position = potentialSwawnPositions.ElementAt(UnityEngine.Random.Range(0, potentialSwawnPositions.Count()));
             room.enemies.Add(spawner.SpawnEnemy(randomEnemy, position));
             i++;
@@ -241,7 +254,7 @@ public class RoomsManager : NetworkBehaviour
             n.Spawn(destroyWithScene: true);
         }
 
-        room.enemies.Add(spawner.SpawnEnemy(bossEnemiesData.First(), room.bounds.center));
+        room.enemies.Add(spawner.SpawnEnemy(clonedBossEnemiesData.First(), room.bounds.center));
         room.spawned = true;
 
     }
@@ -348,12 +361,12 @@ public class RoomsManager : NetworkBehaviour
         // because this modifies the scriptable object's properties
         // so it remains after play seession is over
 
-        bossEnemiesData.ForEach(b =>
+        clonedBossEnemiesData.ForEach(b =>
         {
             b.health = b.health * 1.2f;
             b.damage = b.damage * 1.05f;
         });
-        roomEnemiesData.ForEach(e =>
+        clonedEnemiesData.ForEach(e =>
         {
             e.health = e.health * 1.2f;
             e.damage = e.damage * 1.05f;
