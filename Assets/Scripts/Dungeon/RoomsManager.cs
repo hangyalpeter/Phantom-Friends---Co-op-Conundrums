@@ -1,17 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 
-public class RoomsManager : MonoBehaviour
+public class RoomsManager : NetworkBehaviour
 {
     [SerializeField]
     private List<EnemyData> roomEnemiesData = new List<EnemyData>();
+    private List<EnemyData> clonedEnemiesData = new List<EnemyData>();
 
-    private int numberOfEnemiesToGenerate = 3;
+    private int numberOfEnemiesToGenerate = 2;
 
     [SerializeField]
     private List<EnemyData> bossEnemiesData = new List<EnemyData>();
+    private List<EnemyData> clonedBossEnemiesData = new List<EnemyData>();
 
     [SerializeField]
     private List<GameObject> possessableObjects = new List<GameObject>();
@@ -35,8 +38,35 @@ public class RoomsManager : MonoBehaviour
         this.mediator = mediator;
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        StartCoroutine(FindObjects());
+    }
+
     private void Start()
     {
+        StartCoroutine(FindObjects());
+
+        foreach (var originalEnemy in roomEnemiesData)
+        {
+            EnemyData clonedEnemy = Instantiate(originalEnemy);
+            clonedEnemiesData.Add(clonedEnemy);
+        }
+        foreach (var originalBoss in bossEnemiesData)
+        {
+            EnemyData clonedBoss = Instantiate(originalBoss);
+            clonedBossEnemiesData.Add(clonedBoss);
+        }
+    }
+
+    private IEnumerator FindObjects()
+    {
+        while (GameObject.FindGameObjectWithTag("Player_Child") == null || GameObject.FindGameObjectWithTag("Player_Ghost") == null)
+        {
+            yield return null;
+        }
+
         rooms = mediator.GetManager<DungeonManager>().Rooms;
         dungeonGenerator = mediator.GetManager<DungeonManager>().DungeonGenerator;
         spawner = GetComponent<EnemySpawner>();
@@ -47,32 +77,28 @@ public class RoomsManager : MonoBehaviour
 
     private void Update()
     {
-        if (player != null)
+        if (!IsServer) return;
+
+        if (player != null && ghost != null)
         {
-
             CheckPlayerEnteredRoom();
-            foreach (var room in rooms)
+            var currentActualRoompos = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { currentRoom.bounds });
+            var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.transform.position);
+            if (currentActualRoompos.Contains(playerPosition) && isClosed)
             {
-                var actualRooms = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
-                var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.transform.position);
-                if (actualRooms.Contains(playerPosition) && isClosed)
+                if (CheckIsRoomCleared(currentRoom))
                 {
-                    if (CheckIsRoomCleared(room))
-                    {
-                        room.isFinished = true;
-                        isClosed = false;
-                        OpenAllFinishedRooms();
+                    currentRoom.isFinished = true;
+                    isClosed = false;
+                    OpenAllFinishedRooms();
 
-                        if (CheckDungeonWin())
-                        {
-                            NotifyDungeonWin();
-                        }
+                    if (CheckDungeonWin())
+                    {
+                        NotifyDungeonWin();
                     }
                 }
             }
-
         }
-
     }
 
     private bool CheckDungeonWin()
@@ -82,25 +108,33 @@ public class RoomsManager : MonoBehaviour
 
     private void OpenAllFinishedRooms()
     {
-
         foreach (var room in rooms)
         {
             if (!room.isBossRoom)
             {
-                foreach (var door in room.doorTilesPositions)
-                {
-                    dungeonGenerator.TilemapVisualizer.PaintOpenGateTile(door, null);
-                }
+                OpenRoomClientRpc(room.bounds.center);
             }
             else if (room.isBossRoom && rooms.Where(r => !r.isBossRoom).All(x => x.isFinished))
             {
-                foreach (var door in room.doorTilesPositions)
-                {
-                    dungeonGenerator.TilemapVisualizer.PaintOpenGateTile(door, null);
-                }
+                OpenRoomClientRpc(room.bounds.center);
             }
         }
 
+    }
+
+    private void OpenRoom(Vector3 roomCenter)
+    {
+        var room = rooms.First(r => r.bounds.center == roomCenter);
+        foreach (var door in room.doorTilesPositions)
+        {
+            dungeonGenerator.TilemapVisualizer.PaintOpenGateTile(door, null);
+        }
+    }
+
+    [ClientRpc]
+    private void OpenRoomClientRpc(Vector3 center)
+    {
+        OpenRoom(center);
     }
 
     private void CheckPlayerEnteredRoom()
@@ -110,12 +144,9 @@ public class RoomsManager : MonoBehaviour
             var roomPositions = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
             var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.transform.position);
             var ghostPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(ghost.transform.position);
-            Debug.Log("playerpositon: " + playerPosition);
 
             if (roomPositions.Contains(playerPosition) && roomPositions.Contains(ghostPosition) && !room.isFinished && !room.isBossRoom && !room.isVisited)
             {
-                Debug.Log("Player entered room" + room.bounds.center);
-
                 if (!isClosingRoom)
                 {
                     StartCoroutine(DelayCloseCurrentRoom(room));
@@ -123,26 +154,17 @@ public class RoomsManager : MonoBehaviour
             }
             else if (roomPositions.Contains(playerPosition) && roomPositions.Contains(ghostPosition) && !room.isFinished && room.isBossRoom && !room.isVisited)
             {
-                Debug.Log("Player entered boss room" + room.bounds.center);
-
                 if (!isClosingRoom)
                 {
                     StartCoroutine(DelayCloseBossRoom(room));
                 }
 
             }
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                player.transform.position = currentRoom.bounds.center;
-                ghost.transform.position = currentRoom.bounds.center;
-            }
         }
-
     }
 
     private IEnumerator DelayCloseCurrentRoom(Room room)
     {
-
         isClosingRoom = true;
         yield return new WaitForSeconds(1f);
 
@@ -172,6 +194,7 @@ public class RoomsManager : MonoBehaviour
     }
     private void SpawnEnemies(Room room)
     {
+        if (!IsServer) return;
         var neighborOffsets = new List<Vector3Int>{
                     Vector3Int.right,
                     Vector3Int.left,
@@ -183,26 +206,28 @@ public class RoomsManager : MonoBehaviour
         IEnumerable<Vector3Int> potentialSwawnPositions = CalculatePotentialSpawnPositions(room, wallAndNeighborPositions);
 
         int i = 0;
-        while(i < numberOfEnemiesToGenerate)
+        while (i < numberOfEnemiesToGenerate)
         {
-            var randomEnemy = roomEnemiesData[Random.Range(0, roomEnemiesData.Count)];
-            Vector3 position = potentialSwawnPositions.ElementAt(Random.Range(0, potentialSwawnPositions.Count()));
+            var randomEnemy = clonedEnemiesData[UnityEngine.Random.Range(0, clonedEnemiesData.Count)];
+            Vector3 position = potentialSwawnPositions.ElementAt(UnityEngine.Random.Range(0, potentialSwawnPositions.Count()));
             room.enemies.Add(spawner.SpawnEnemy(randomEnemy, position));
             i++;
         }
 
         foreach (var possessable in possessableObjects)
         {
-            Vector3 position = potentialSwawnPositions.ElementAt(Random.Range(0, potentialSwawnPositions.Count()));
-            Instantiate(possessable, position, Quaternion.identity);
+            Vector3 position = potentialSwawnPositions.ElementAt(UnityEngine.Random.Range(0, potentialSwawnPositions.Count()));
+            var p = Instantiate(possessable, position, Quaternion.identity);
+            NetworkObject n = p.GetComponent<NetworkObject>();
+            n.Spawn(destroyWithScene: true);
         }
 
         room.spawned = true;
-
     }
 
     private void SpawnBoss(Room room)
     {
+        if (!IsServer) return;
         var neighborOffsets = new List<Vector3Int>{
                     Vector3Int.right,
                     Vector3Int.left,
@@ -212,15 +237,17 @@ public class RoomsManager : MonoBehaviour
         HashSet<Vector3Int> wallAndNeighborPositions = GetWallNeighborPositions(room, neighborOffsets);
 
         IEnumerable<Vector3Int> potentialSwawnPositions = CalculatePotentialSpawnPositions(room, wallAndNeighborPositions);
-        Vector3 spawnPosition = potentialSwawnPositions.ElementAt(Random.Range(0, potentialSwawnPositions.Count()));
+        Vector3 spawnPosition = potentialSwawnPositions.ElementAt(UnityEngine.Random.Range(0, potentialSwawnPositions.Count()));
 
         foreach (var possessable in possessableObjects)
         {
-            Vector3 position = potentialSwawnPositions.ElementAt(Random.Range(0, potentialSwawnPositions.Count()));
-            Instantiate(possessable, position, Quaternion.identity);
+            Vector3 position = potentialSwawnPositions.ElementAt(UnityEngine.Random.Range(0, potentialSwawnPositions.Count()));
+            var p = Instantiate(possessable, position, Quaternion.identity);
+            NetworkObject n = p.GetComponent<NetworkObject>();
+            n.Spawn(destroyWithScene: true);
         }
 
-        room.enemies.Add(spawner.SpawnEnemy(bossEnemiesData.First(), room.bounds.center));
+        room.enemies.Add(spawner.SpawnEnemy(clonedBossEnemiesData.First(), room.bounds.center));
         room.spawned = true;
 
     }
@@ -249,7 +276,6 @@ public class RoomsManager : MonoBehaviour
         var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.transform.position);
         var ghostPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(ghost.transform.position);
 
-
         List<Vector3Int> offsets = new List<Vector3Int>
         {
             new Vector3Int(0, 0, 0),   // Center (original position)
@@ -270,7 +296,7 @@ public class RoomsManager : MonoBehaviour
             {
                 validPositions.Add(item);
             }
-            
+
         }
 
         const int offsetRange = 2;
@@ -296,32 +322,62 @@ public class RoomsManager : MonoBehaviour
 
         if (flag)
         {
-            foreach (var door in currentPlayerRoom.doorTilesPositions)
-            {
-                dungeonGenerator.TilemapVisualizer.PaintDoorTile(door, Color.red);
-            }
+            CloseRoomWithDoorsClientRpc(currentPlayerRoom.bounds.center);
         }
         return flag;
     }
+
+    [ClientRpc]
+    private void CloseRoomWithDoorsClientRpc(Vector3 currentPlayerRoomCenter)
+    {
+        CloseRoomWithDoors(currentPlayerRoomCenter);
+    }
+    private void CloseRoomWithDoors(Vector3 currentPlayerRoomCenter)
+    {
+        var room = rooms.First(r => r.bounds.center == currentPlayerRoomCenter);
+        foreach (var door in room.doorTilesPositions)
+        {
+            dungeonGenerator.TilemapVisualizer.PaintDoorTile(door, Color.red);
+        }
+    }
+
     private bool CheckIsRoomCleared(Room room)
     {
-        return !room.enemies.Any(e => e != null);
+        return room.enemies.All(e =>
+        {
+            if (e != null)
+            {
+                return e.GetComponent<HealthBase>().CurrentHealth <= 0;
+            }
+            else
+            {
+                return true;
+            }
+        });
     }
 
     private void NotifyDungeonWin()
     {
         mediator.Notify(this, DungeonEvents.DungeonWin);
-        bossEnemiesData.ForEach(b =>
+
+        clonedBossEnemiesData.ForEach(b =>
         {
             b.health = b.health * 1.2f;
             b.damage = b.damage * 1.05f;
         });
-        roomEnemiesData.ForEach(e =>
+        clonedEnemiesData.ForEach(e =>
         {
             e.health = e.health * 1.2f;
             e.damage = e.damage * 1.05f;
         });
         numberOfEnemiesToGenerate++;
+        DungeonWinClientRpc();
+
     }
 
+    [ClientRpc]
+    private void DungeonWinClientRpc()
+    {
+        Destroy(GameObject.FindGameObjectWithTag("BossHealthBar"));
+    }
 }

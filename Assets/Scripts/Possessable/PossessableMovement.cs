@@ -1,10 +1,8 @@
+using Unity.Netcode;
 using UnityEngine;
 
-public class PosessableMovement : MonoBehaviour
+public class PosessableMovement : NetworkBehaviour
 {
-
-    [SerializeField] private Transform secondPlayer;
-    [SerializeField] private float maxDistanceFromSecondPlayer = 35f;
 
     private float dirX = 0f;
     private float dirY = 0f;
@@ -17,15 +15,38 @@ public class PosessableMovement : MonoBehaviour
 
     public bool IsPossessed => isPossessed;
 
+    private NetworkVariable<Vector2> velocity = new NetworkVariable<Vector2>();
+    private NetworkVariable<bool> isPossessedNetwork = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        isPossessedNetwork.OnValueChanged += (oldValue, newValue) =>
+        {
+            isPossessed = newValue;
+            if (newValue == true)
+            {
+                rb.constraints = RigidbodyConstraints2D.None;
+                rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            }
+        };
+
+        velocity.OnValueChanged += (oldValue, newValue) =>
+        {
+            rb.velocity = newValue;
+        };
+    }
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         rbSprite = GetComponent<SpriteRenderer>();
-        secondPlayer = GameObject.FindGameObjectWithTag("Player_Child").transform;
     }
 
-    void Update()
+    private void FixedUpdate()
     {
+        if (!IsOwner || !isPossessed || Equals(Time.timeScale, 0f)) { return; }
+
         if (dirX > 0)
         {
             transform.rotation = new Quaternion(0, 180, 0, transform.rotation.w);
@@ -35,39 +56,47 @@ public class PosessableMovement : MonoBehaviour
             transform.rotation = new Quaternion(0, 0, 0, transform.rotation.w);
         }
 
-        if (isPossessed && !Equals(Time.timeScale, 0f))
-        {
-            Move();
-        }
-   
-    }
-    private void Move()
-    {
-        float distance = Vector2.Distance(gameObject.transform.position, secondPlayer.position);
-
-        //TODO: don't allow player and ghost to be too far away
-
-        /* if (distance > maxDistanceFromSecondPlayer)
-         {
-             Vector2 direction = (transform.position - secondPlayer.position).normalized;
-             transform.position = secondPlayer.position + new Vector3(direction.x, direction.y, 0) * maxDistanceFromSecondPlayer;
-         }
- */
-
         dirX = Input.GetAxisRaw("Horizontal_Ghost");
         dirY = Input.GetAxisRaw("Vertical_Ghost");
 
-        rb.velocity = new Vector2(dirX * moveSpeed, dirY * moveSpeed);
+        UpdateVelocityServerRpc(new Vector2(dirX * moveSpeed, dirY * moveSpeed));
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void UpdateVelocityServerRpc(Vector2 velocityNew)
+    {
+        velocity.Value = velocityNew;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void TogglePossessedServerRpc(bool possessed)
+    {
+        isPossessedNetwork.Value = possessed;
+    }
+
 
     public void SetPossessedTrue()
     {
-        isPossessed = true;
+        if (IsServer)
+        {
+            isPossessedNetwork.Value = true;
+        }
+        else
+        {
+            TogglePossessedServerRpc(true);
+        }
     }
     public void SetPossessedFalse()
     {
-        isPossessed = false;
-
-        rb.velocity = Vector2.zero;
+        if (IsServer)
+        {
+            isPossessedNetwork.Value = false;
+            velocity.Value = Vector2.zero;
+        }
+        else
+        {
+            TogglePossessedServerRpc(false);
+            UpdateVelocityServerRpc(Vector2.zero);
+        }
     }
 }

@@ -1,13 +1,29 @@
 ﻿using System;
-using System.Collections;
-using UnityEngine;
+using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine.SceneManagement;
 
-public class LevelManager : MonoBehaviour
+public enum Scene { First, Main_Menu, Level_1, Level_2, Dungeon_Crawler };
+public class LevelManager : NetworkBehaviour
 {
     public static LevelManager Instance { get; private set; }
 
     public static Action LevelChanged;
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += NetworkManager_OnLoadEventCompleted;
+    }
+
+    private void NetworkManager_OnLoadEventCompleted(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
+    {
+        UIScreenEvents.ScreenClosed?.Invoke();
+        if (sceneName == "Main_Menu")
+        {
+            UIScreenEvents.MainMenuShown?.Invoke();
+        }
+    }
 
     private void Awake()
     {
@@ -25,108 +41,93 @@ public class LevelManager : MonoBehaviour
         UnSubscribeFromEvents();
     }
 
-    public void LoadLevel(string levelName)
+    private void LoadLevel(string levelName)
     {
-        StartCoroutine(LoadLevelAsync(levelName));
-    }
-    private void OnGameStartClicked()
-    {
-        StartCoroutine(LoadLevelAsync("Level 1"));
-    }
+        if (!IsServer) return;
 
-    private IEnumerator LoadLevelAsync(string levelName)
-    {
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelName);
-
-        while (!asyncLoad.isDone)
-        {
-            yield return null;
-        }
-
+        NetworkManager.Singleton.SceneManager.LoadScene(levelName, LoadSceneMode.Single);
         LevelChanged?.Invoke();
-
     }
 
     private void SubscribeToEvents()
     {
-        UIScreenEvents.OnGameStart += OnGameStartClicked;
-        UIScreenEvents.OnDungeonGameStart += OnDungeonGameStartClicked;
         UIScreenEvents.OnLevelRestart += OnLevelRestartClicked;
         UIScreenEvents.MainMenuClicked += OnMainMenuClicked;
         UIScreenEvents.OnNextLevel += OnNextLevel;
-        UIScreenEvents.OnLevelSelected += OnLevelSelected;
+        UIScreenEvents.OnHostStart += UIScreenEvents_OnHostStart;
+        UIScreenEvents.OnBackToTitleScreen += UIScreenEvents_OnBackToTitleScreen;
 
-        GameEvents.OnLevelRestart += OnLevelRestartClicked;
+        SceneManager.sceneLoaded += SceneManager_sceneLoaded;
+    }
 
+    private void SceneManager_sceneLoaded(UnityEngine.SceneManagement.Scene arg0, LoadSceneMode arg1)
+    {
+        if (arg0.name == "Main_Menu" && StartingSceneController.ChoosenPlayMode == StartingSceneController.PlayMode.Client)
+        {
+            UIScreenEvents.MainMenuShown?.Invoke();
+        }
+    }
+
+    private void UIScreenEvents_OnBackToTitleScreen()
+    {
+        NetworkManager.Singleton.Shutdown();
+        UIScreenEvents.HideAllScreens?.Invoke();
+        SceneManager.LoadScene(Scene.First.ToString());
+    }
+
+    private void UIScreenEvents_OnHostStart(Scene scene)
+    {
+        LoadLevel(scene.ToString());
     }
 
     private void UnSubscribeFromEvents()
     {
-        UIScreenEvents.OnGameStart -= OnGameStartClicked;
-        UIScreenEvents.OnDungeonGameStart -= OnDungeonGameStartClicked;
         UIScreenEvents.OnLevelRestart -= OnLevelRestartClicked;
         UIScreenEvents.MainMenuClicked -= OnMainMenuClicked;
         UIScreenEvents.OnNextLevel -= OnNextLevel;
-        UIScreenEvents.OnLevelSelected -= OnLevelSelected;
 
         GameEvents.OnLevelRestart -= OnLevelRestartClicked;
-
-    }
-
-
-    private void OnDungeonGameStartClicked()
-    {
-        StartCoroutine(LoadLevelAsync("Dungeon Crawler"));
+        UIScreenEvents.OnHostStart -= UIScreenEvents_OnHostStart;
+        UIScreenEvents.OnBackToTitleScreen -= UIScreenEvents_OnBackToTitleScreen;
     }
 
     private void OnLevelRestartClicked()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        if (!IsServer) return;
+
+        NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
         UIScreenEvents.ScreenClosed?.Invoke();
         LevelChanged?.Invoke();
     }
     private void OnMainMenuClicked()
     {
-        StartCoroutine(LoadMainMenu());
-    }
 
-    private IEnumerator LoadMainMenu()
-    {
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("Main Menu");
-
-        while (!asyncLoad.isDone)
-        {
-            yield return null;
-        }
-
+        LoadLevel(Scene.Main_Menu.ToString());
         UIScreenEvents.ScreenClosed?.Invoke();
         UIScreenEvents.MainMenuShown?.Invoke();
-        LevelChanged?.Invoke();
     }
+
     private void OnNextLevel()
     {
-        StartCoroutine(LoadNextLevel());
+        LoadNextLevel();
     }
-    private IEnumerator LoadNextLevel()
-    {
-        // TODO: consider loading level x +1 instead of buildindex+1
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
 
-        while (!asyncLoad.isDone)
-        {
-            yield return null;
-        }
+    private void LoadNextLevel()
+    {
+        if (!IsServer) { return; }
+
+        string currentSceneName = SceneManager.GetActiveScene().name;
+
+        int currentLevelNumber = int.Parse(currentSceneName.Split('_')[1]);
+
+        int nextLevelNumber = currentLevelNumber + 1;
+
+        string nextSceneName = "Level_" + nextLevelNumber;
+
+        NetworkManager.Singleton.SceneManager.LoadScene(nextSceneName, LoadSceneMode.Single);
+
         UIScreenEvents.ScreenClosed?.Invoke();
         LevelChanged?.Invoke();
     }
-
-    private void OnLevelSelected(string name)
-    {
-        UIScreenEvents.ScreenClosed?.Invoke();
-        StartCoroutine(LoadLevelAsync(name));
-        LevelChanged?.Invoke();
-    }
-
-
 
 }

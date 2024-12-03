@@ -14,5 +14,5 @@ public class CollectibleApple : MonoBehaviour
             Destroy(gameObject);
         }
     }
-   
+
 }

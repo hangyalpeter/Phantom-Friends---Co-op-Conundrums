@@ -2,7 +2,7 @@
 {
     public void EnterState(BossController boss, EnemyBuilder builder)
     {
-       builder.WithRotateShooting().Build();
+        builder.WithRotateShooting().Build();
     }
 
     public void ExitState(BossController boss)

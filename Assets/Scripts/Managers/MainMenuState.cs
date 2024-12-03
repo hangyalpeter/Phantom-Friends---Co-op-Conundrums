@@ -1,4 +1,7 @@
-﻿public class MainMenuState : IGameState
+﻿
+using UnityEngine;
+
+public class MainMenuState : IGameState
 {
     private GameStateManager context;
     public MainMenuState(GameStateManager context)
@@ -8,7 +11,6 @@
 
     public void EnterState()
     {
-
     }
     public void UpdateState()
     {

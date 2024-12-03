@@ -42,7 +42,7 @@ public class EventRegistry : IDisposable
         m_UnregisterActions += () => bindableElement.UnregisterCallback(eventCallback);
     }
 
-    public void RegisterDropdownValueChangedCallback(BindableElement bindableElement, Action<string> callback) 
+    public void RegisterDropdownValueChangedCallback(BindableElement bindableElement, Action<string> callback)
     {
         EventCallback<ChangeEvent<string>> eventCallback = new EventCallback<ChangeEvent<string>>(evt => callback(evt.newValue));
         bindableElement.RegisterCallback(eventCallback);

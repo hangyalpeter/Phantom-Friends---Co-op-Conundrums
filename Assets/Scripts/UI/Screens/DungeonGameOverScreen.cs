@@ -1,14 +1,9 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 public class DungeonGameOverScreen : UIScreen
 {
     Button m_RestartButton;
     Button m_MainMenuButton;
-    Button m_ExitButton;
     Button m_NewDungeonButton;
 
     Label m_FinishedRoomsLabel;
@@ -21,7 +16,6 @@ public class DungeonGameOverScreen : UIScreen
         SubscribeToEvents();
         RegisterCallbacks();
     }
-
     private void SetupButtons()
     {
         m_GameOverLabel = m_RootElement.Q<Label>("game-over-label");
@@ -30,24 +24,43 @@ public class DungeonGameOverScreen : UIScreen
         m_NewDungeonButton = m_RootElement.Q<Button>("new-dungeon-button");
 
         m_MainMenuButton = m_RootElement.Q<Button>("main-menu-button");
-        m_ExitButton = m_RootElement.Q<Button>("exit-button");
 
         m_FinishedRoomsLabel = m_RootElement.Q<Label>("finished-rooms-label");
         m_EnemiesKilledLabel = m_RootElement.Q<Label>("enemies-killed-label");
         m_ElapsedTimeLabel = m_RootElement.Q<Label>("elapsed-time-label");
 
-
     }
-
     private void SubscribeToEvents()
     {
-        //DungeonLogicHandler.OnDungeonFinish += UpdateLabels;
         DungeonManager.OnDungeonFinish += UpdateLabels;
 
         GameEvents.LevelFinishedWithTime += OnLevelFinish;
+        StartingSceneController.PlayModeChanged += StartingSceneController_PlaymodeChanged;
     }
+    private void StartingSceneController_PlaymodeChanged(StartingSceneController.PlayMode mode)
+    {
+        if (mode == StartingSceneController.PlayMode.Client)
+        {
+            m_NewDungeonButton.style.display = DisplayStyle.None;
+            m_RestartButton.style.display = DisplayStyle.None;
+            m_MainMenuButton.style.display = DisplayStyle.None;
+        }
 
-   public override void Disable()
+        if (mode == StartingSceneController.PlayMode.Host)
+        {
+            m_NewDungeonButton.style.display = DisplayStyle.Flex;
+            m_RestartButton.style.display = DisplayStyle.Flex;
+            m_MainMenuButton.style.display = DisplayStyle.Flex;
+        }
+
+        if (mode == StartingSceneController.PlayMode.CouchCoop)
+        {
+            m_NewDungeonButton.style.display = DisplayStyle.Flex;
+            m_RestartButton.style.display = DisplayStyle.Flex;
+            m_MainMenuButton.style.display = DisplayStyle.Flex;
+        }
+    }
+    public override void Disable()
     {
         base.Disable();
         UnsubscribeFromEvents();
@@ -55,39 +68,41 @@ public class DungeonGameOverScreen : UIScreen
 
     private void UnsubscribeFromEvents()
     {
-        //DungeonLogicHandler.OnDungeonFinish -= UpdateLabels;
         DungeonManager.OnDungeonFinish -= UpdateLabels;
         GameEvents.LevelFinishedWithTime -= OnLevelFinish;
     }
-
     private void UpdateLabels(int roomsCleared, int enemiesKilled, string title, string restartLabel)
     {
+        m_GameOverLabel.text = title;
         m_FinishedRoomsLabel.text = "Rooms cleared: " + roomsCleared;
         m_EnemiesKilledLabel.text = "Enemies killed: " + enemiesKilled;
         if (restartLabel == "Restart")
         {
-            m_NewDungeonButton.SetEnabled(false);
-            m_RestartButton.SetEnabled(true);
+
+            if (StartingSceneController.ChoosenPlayMode != StartingSceneController.PlayMode.Client)
+            {
+                m_NewDungeonButton.style.display = DisplayStyle.None;
+                m_RestartButton.style.display = DisplayStyle.Flex;
+            }
         }
         else
         {
-            m_NewDungeonButton.SetEnabled(true);
-            m_RestartButton.SetEnabled(false);
+            if (StartingSceneController.ChoosenPlayMode != StartingSceneController.PlayMode.Client)
+            {
+                m_NewDungeonButton.style.display = DisplayStyle.Flex;
+                m_RestartButton.style.display = DisplayStyle.None;
+            }
         }
     }
-
     private void OnLevelFinish(string time)
     {
         m_ElapsedTimeLabel.text = "Elapsed time: " + time;
     }
 
-    private void RegisterCallbacks() 
+    private void RegisterCallbacks()
     {
-        m_EventRegistry.RegisterCallback<ClickEvent>(m_ExitButton, evt => Application.Quit());
         m_EventRegistry.RegisterCallback<ClickEvent>(m_RestartButton, evt => UIScreenEvents.OnLevelRestart?.Invoke());
         m_EventRegistry.RegisterCallback<ClickEvent>(m_NewDungeonButton, evt => GameEvents.OnNewDungeon?.Invoke());
         m_EventRegistry.RegisterCallback<ClickEvent>(m_MainMenuButton, evt => UIScreenEvents.MainMenuClicked?.Invoke());
     }
-
-
 }

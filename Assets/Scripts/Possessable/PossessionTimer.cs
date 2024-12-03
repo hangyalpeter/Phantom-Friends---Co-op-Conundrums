@@ -1,20 +1,29 @@
 ﻿using System.Collections;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 
-public class PossessionTimer : MonoBehaviour
+public class PossessionTimer : NetworkBehaviour
 {
     private Coroutine timerCoroutine;
     private TextMeshProUGUI timerText;
     private PossessMediator mediator;
 
+    private void OnEnable()
+    {
+        PossessableHealth.OnPossessedObjectDies += StopTimer;
+    }
+    private void OnDisable()
+    {
+        PossessableHealth.OnPossessedObjectDies -= StopTimer;
+    }
     private void Start()
     {
         mediator = FindObjectOfType<PossessMediator>();
         timerText = GameObject.FindGameObjectWithTag("TimerText").GetComponent<TextMeshProUGUI>();
     }
 
-    public void StartTimer(PossessableTransformation target, float duration)
+    public void StartTimer(float duration)
     {
         if (timerCoroutine != null)
         {
@@ -26,12 +35,28 @@ public class PossessionTimer : MonoBehaviour
 
     public void StopTimer()
     {
+        StopTimerServerRpc();
+    }
+    private void Stopti()
+    {
         if (timerCoroutine != null)
         {
             StopCoroutine(timerCoroutine);
             timerCoroutine = null;
             ResetTimerDisplay();
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void StopTimerServerRpc()
+    {
+        StopTimerClientRpc();
+    }
+
+    [ClientRpc]
+    private void StopTimerClientRpc()
+    {
+        Stopti();
     }
 
     private IEnumerator TimerCoroutine(float duration)
@@ -44,7 +69,7 @@ public class PossessionTimer : MonoBehaviour
             yield return new WaitForSeconds(1f);
             remainingTime -= 1f;
         }
-            mediator.RegisterDepossessionRequest();
+        mediator.RegisterDepossessionRequest();
 
     }
 

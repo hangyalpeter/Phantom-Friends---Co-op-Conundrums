@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ShootInCircleBehavior : MonoBehaviour
@@ -11,15 +9,17 @@ public class ShootInCircleBehavior : MonoBehaviour
 
     private int numberOfProjectiles = 10;
 
-    // TODO maybe make it a parameter for enemydata
     private float spawnInterval = 3f;
 
     private string collisionTag = "Enemy";
+
+    private ProjectileSpawner projectileSpawner;
 
     public float damage = 25f;
 
     private void Start()
     {
+        projectileSpawner = GetComponent<ProjectileSpawner>();
         InvokeRepeating(nameof(FireAllProjectilesInCircle), 0f, spawnInterval);
     }
 
@@ -32,14 +32,9 @@ public class ShootInCircleBehavior : MonoBehaviour
         {
             float angleInRadians = currentAngle * Mathf.Deg2Rad;
             Vector2 spawnDirection = new Vector2(Mathf.Cos(angleInRadians), Mathf.Sin(angleInRadians)).normalized;
-
             Vector2 spawnPoint = (Vector2)transform.position + spawnDirection * spawnRadius;
 
-
-            if (ProjectileFactory.Instance != null)
-            {
-                ProjectileFactory.Instance.GetProjectile(projectilePrefab, spawnPoint, spawnDirection, projectileSpeed, damage, collisionTag);
-            }
+            projectileSpawner.GetProjectile(spawnPoint, spawnDirection, projectileSpeed, damage, collisionTag);
 
             currentAngle += angleStep;
         }

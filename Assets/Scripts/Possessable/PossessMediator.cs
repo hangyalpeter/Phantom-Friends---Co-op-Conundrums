@@ -1,17 +1,25 @@
-﻿using UnityEngine;
+﻿using Unity.Netcode;
+using UnityEngine;
 
-public class PossessMediator : MonoBehaviour
+public class PossessMediator : NetworkBehaviour
 {
     private PossessableTransformation currentlyPossessedObject;
-    private GameObject ghost;
     private PossessionTimer possessionTimer;
 
-    public GameObject Ghost => ghost;
+    private GameObject Ghost;
 
     private void Awake()
     {
-        ghost = GameObject.FindGameObjectWithTag("Player_Ghost");
         possessionTimer = GetComponent<PossessionTimer>();
+        StartCoroutine(FindPlayers());
+    }
+
+    private void Update()
+    {
+        if (IsPossessing())
+        {
+            Ghost.GetComponent<Rigidbody2D>().transform.position = currentlyPossessedObject.gameObject.transform.position;
+        }
     }
 
     public void RegisterPossessionRequest(PossessableTransformation target)
@@ -25,36 +33,76 @@ public class PossessMediator : MonoBehaviour
             {
                 behavior.OnPossess();
             }
-            ghost.GetComponent<GhostController>().IsPossessed = true;
-            currentlyPossessedObject.Possess();
+            Ghost.GetComponent<GhostController>().ToggleIsPossessed(true);
+            Ghost.GetComponent<Rigidbody2D>().transform.position = target.gameObject.transform.position;
+            Ghost.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+            target.GetComponent<PosessableMovement>().SetPossessedTrue();
 
-            possessionTimer.StartTimer(target, target.PossessionDuration);
+            StartTimerServerRpc(target.PossessionDuration);
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void StartTimerServerRpc(float duration)
+    {
+        StartTimerClientRpc(duration);
+    }
+
+    [ClientRpc]
+    private void StartTimerClientRpc(float duration)
+    {
+        possessionTimer.StartTimer(duration);
     }
 
     public void RegisterDepossessionRequest()
     {
         if (currentlyPossessedObject != null)
         {
-            currentlyPossessedObject.Depossess();
+            currentlyPossessedObject.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
+
+            currentlyPossessedObject.GetComponent<PosessableMovement>().SetPossessedFalse();
 
             var behavior = currentlyPossessedObject.GetComponent<PossessableBehavior>();
             if (behavior != null)
             {
                 behavior.OnDePossess();
             }
-            ghost.GetComponent<GhostController>().IsPossessed = false;
+            Ghost.GetComponent<GhostController>().ToggleIsPossessed(false);
 
             currentlyPossessedObject = null;
 
-            possessionTimer.StopTimer();
+            StopTimerServerRpc();
         }
     }
 
-    public void UpdateTimerDisplay(float remainingTime)
+    [ServerRpc(RequireOwnership = false)]
+    private void StopTimerServerRpc()
     {
-        possessionTimer.UpdateTimerDisplay(remainingTime);
+        StopTimerClientRpc();
     }
 
+    [ClientRpc]
+    private void StopTimerClientRpc()
+    {
+        possessionTimer.StopTimer();
+    }
+
+
     public bool IsPossessing() => currentlyPossessedObject != null;
+
+    private System.Collections.IEnumerator FindPlayers()
+    {
+        yield return new WaitUntil(() => NetworkManager.Singleton.IsConnectedClient || NetworkManager.Singleton.IsServer);
+
+        while (Ghost == null)
+        {
+            GameObject ghost = GameObject.FindWithTag("Player_Ghost");
+            if (ghost != null)
+            {
+                Ghost = ghost;
+            }
+
+            yield return new WaitForSeconds(0.5f);
+        }
+    }
 }

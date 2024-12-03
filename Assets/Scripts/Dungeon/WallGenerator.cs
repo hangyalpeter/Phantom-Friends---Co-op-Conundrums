@@ -1,12 +1,10 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 public static class WallGenerator
 {
-    public static void CreateWalls(HashSet<Vector3Int> floorPositions, TilemapVisualizer tilemapVisualizer, HashSet<Room>? rooms )
+    public static void CreateWalls(HashSet<Vector3Int> floorPositions, TilemapVisualizer tilemapVisualizer, HashSet<Room>? rooms)
     {
         var directions = new Vector3Int[]
         {
@@ -16,7 +14,7 @@ public static class WallGenerator
             Vector3Int.left,
             Vector3Int.right
         };
-        
+
         var wallPositionsList = FindWallsInDirections(floorPositions, directions, rooms);
         foreach (var wallPosition in wallPositionsList)
         {

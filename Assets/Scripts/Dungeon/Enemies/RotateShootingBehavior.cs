@@ -17,6 +17,8 @@ public class RotateShootingBehavior : MonoBehaviour
 
     private float currentAngle = 0f;
 
+    private ProjectileSpawner projectileSpawner;
+
     public string collisionTag = "Enemy";
 
     public float damage = 25f;
@@ -26,6 +28,7 @@ public class RotateShootingBehavior : MonoBehaviour
     private void Start()
     {
         GetComponent<SpriteRenderer>().flipX = true;
+        projectileSpawner = GetComponent<ProjectileSpawner>();
         StartCoroutine(SpawnProjectiles());
     }
 
@@ -34,7 +37,7 @@ public class RotateShootingBehavior : MonoBehaviour
         while (true)
         {
             SpawnProjectileInCircle();
-            yield return new WaitForSeconds(spawnInterval); 
+            yield return new WaitForSeconds(spawnInterval);
         }
     }
 
@@ -42,14 +45,12 @@ public class RotateShootingBehavior : MonoBehaviour
     {
         float angleInRadians = currentAngle * Mathf.Deg2Rad;
 
-        float angle = Time.time * rotationSpeed;
         Vector3 spawnDirection = new Vector2(Mathf.Cos(angleInRadians), Mathf.Sin(angleInRadians)).normalized;
-
 
         Vector3 spawnPoint = transform.position + spawnDirection * spawnRadius;
 
-        ProjectileFactory.Instance.GetProjectile(projectilePrefab, spawnPoint, spawnDirection, projectileSpeed, damage, collisionTag);
-        
+        projectileSpawner.GetProjectile(spawnPoint, spawnDirection, projectileSpeed, damage, collisionTag);
+
         float angleInDegrees = Mathf.Atan2(spawnDirection.y, spawnDirection.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angleInDegrees);
 

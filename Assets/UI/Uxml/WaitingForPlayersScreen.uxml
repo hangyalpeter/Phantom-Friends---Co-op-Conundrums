@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Uss/action-button.uss?fileID=7433441132597879392&amp;guid=6a33bf1d1ff57d549976958e8333ccf6&amp;type=3#action-button" />
+    <Style src="project://database/Assets/UI/Uss/level-select-button.uss?fileID=7433441132597879392&amp;guid=128016b0c2bddcc40be13ff4e8b9d6a1&amp;type=3#level-select-button" />
+    <ui:VisualElement style="flex-grow: 1; flex-direction: column; justify-content: center;">
+        <ui:Label tabindex="-1" text="Waiting for players..." parse-escape-sequences="true" display-tooltip-when-elided="true" name="waiting-for-label" style="justify-content: flex-end; align-self: center; align-items: center; flex-direction: column; margin-top: 0; top: auto; font-size: 50px;" />
+        <ui:Button text="Unready" parse-escape-sequences="true" display-tooltip-when-elided="true" name="unready-button" class="action-buttons" style="margin-left: 4px; margin-right: 2px; justify-content: center; align-self: center; margin-top: 30px;" />
+    </ui:VisualElement>
+</ui:UXML>

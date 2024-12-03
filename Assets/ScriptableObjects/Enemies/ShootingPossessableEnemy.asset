@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ShootingPossessableEnemy
   m_EditorClassIdentifier: 
   enemyName: ShootingPossessableEnemy
-  enemyPrefab: {fileID: 4637557867027910804, guid: 14ab8601dfaff61499c6a8a39f7765e9, type: 3}
+  enemyPrefab: {fileID: 4637557867027910804, guid: 26c990291dc16094a8ed68b27a1363ed, type: 3}
   health: 100
   speed: 3
   damage: 10

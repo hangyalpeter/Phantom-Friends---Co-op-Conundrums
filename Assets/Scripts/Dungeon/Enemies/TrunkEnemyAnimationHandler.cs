@@ -1,16 +1,14 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class TrunkEnemyAnimationHandler : MonoBehaviour
+public class TrunkEnemyAnimationHandler : NetworkBehaviour
 {
-    private enum MovementState { idle, run}
+    private enum MovementState { idle, run }
     private Animator anim;
     private Vector3 lastPosition;
     private ShootBehavior shootBehavior;
 
-    private HealthComponent healthComponent;
+    private HealthBase healthComponent;
     private Rigidbody2D rb;
 
     MovementState currentState = MovementState.idle;
@@ -20,47 +18,50 @@ public class TrunkEnemyAnimationHandler : MonoBehaviour
         anim = GetComponent<Animator>();
         lastPosition = transform.position;
         shootBehavior = GetComponent<ShootBehavior>();
-        healthComponent = GetComponent<HealthComponent>();
+        healthComponent = GetComponent<HealthBase>();
         rb = GetComponent<Rigidbody2D>();
 
-        if (shootBehavior != null)
+        if (shootBehavior != null && IsServer)
         {
-            shootBehavior.OnShoot += HandleShootAnimation;
+            shootBehavior.OnShoot += HandleShootinAnimationClientRpc;
         }
 
-        if (healthComponent != null)
+        if (healthComponent != null && IsServer)
         {
-
-            healthComponent.OnHealthChanged += PlayHitAnimation;
+            healthComponent.OnHealthChanged += PlayHitAnimationClientRpc;
         }
 
     }
 
-    void OnDestroy()
+    private void OnDisable()
     {
 
-        if (shootBehavior != null)
+        if (shootBehavior != null && IsServer)
         {
-            shootBehavior.OnShoot -= HandleShootAnimation;
+            shootBehavior.OnShoot -= HandleShootinAnimationClientRpc;
         }
 
-        if ( healthComponent != null )
+        if (healthComponent != null && IsServer)
         {
-            healthComponent.OnHealthChanged -= PlayHitAnimation;
+            healthComponent.OnHealthChanged -= PlayHitAnimationClientRpc;
         }
+    }
+
+    [ClientRpc]
+    private void HandleShootinAnimationClientRpc()
+    {
+        HandleShootAnimation();
     }
 
     private void HandleShootAnimation()
     {
         anim.SetTrigger("attack");
-
     }
+
 
     void Update()
     {
-
-
-        if (!transform.position.Equals(lastPosition) || rb.velocity.magnitude > 0 )
+        if (!transform.position.Equals(lastPosition) || rb.velocity.magnitude > 0)
         {
             currentState = MovementState.run;
 
@@ -73,6 +74,12 @@ public class TrunkEnemyAnimationHandler : MonoBehaviour
 
         anim.SetInteger("state", (int)currentState);
         lastPosition = transform.position;
+    }
+
+    [ClientRpc]
+    private void PlayHitAnimationClientRpc(float _)
+    {
+        PlayHitAnimation(0);
     }
 
     private void PlayHitAnimation(float _)

@@ -14,7 +14,6 @@ public class DungeonMediator : MonoBehaviour, IDungeonMediator
     [SerializeField]
     private DungeonManager dungeonManager;
 
-
     private void Awake()
     {
         playerManager.SetMediator(this);
@@ -23,7 +22,6 @@ public class DungeonMediator : MonoBehaviour, IDungeonMediator
         dungeonManager.SetMediator(this);
     }
 
-  
     public void Notify(Component sender, DungeonEvents eventCode)
     {
         switch (eventCode)

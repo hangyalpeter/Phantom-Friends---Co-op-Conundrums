@@ -35,7 +35,7 @@ public class EnemyBuilder
             shootBehavior.speed = enemyData.projectileSpeed;
             shootBehavior.spawnInterval = enemyData.shootInterval;
         }
-       return this;
+        return this;
     }
 
     public EnemyBuilder withPossessable()
@@ -51,7 +51,7 @@ public class EnemyBuilder
 
     public EnemyBuilder WithHealth()
     {
-        HealthComponent healthComponent = enemyInstance.AddComponent<HealthComponent>();
+        EnemyHealth healthComponent = enemyInstance.AddComponent<EnemyHealth>();
         healthComponent.maxHealth = enemyData.health;
         return this;
     }

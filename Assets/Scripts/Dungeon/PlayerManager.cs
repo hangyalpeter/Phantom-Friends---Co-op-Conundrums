@@ -1,34 +1,46 @@
-﻿using System;
+﻿using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerManager : MonoBehaviour
+public class PlayerManager : NetworkBehaviour
 {
     private IDungeonMediator mediator;
 
     private Transform player;
     private Transform ghost;
 
-    private IHealthProvider healthProvider;
+    private PlayerHealth healthProvider;
 
     public Transform Player => player;
     public Transform Ghost => ghost;
 
     private GameObject playerGO;
 
-    private PlayerMovement1 playerMovement1;
+    private PlayerMovementDungeon playerMovementDungeon;
     public void SetMediator(IDungeonMediator mediator)
     {
         this.mediator = mediator;
     }
 
-    private void OnEnable()
+    public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+        StartCoroutine(FindObjectsAfterSpawn());
+    }
+
+    private IEnumerator FindObjectsAfterSpawn()
+    {
+        while (GameObject.FindGameObjectWithTag("Player_Child") == null || GameObject.FindGameObjectWithTag("Player_Ghost") == null)
+        {
+            yield return null;
+        }
+
         playerGO = GameObject.FindGameObjectWithTag("Player_Child");
-        playerMovement1 = playerGO.GetComponent<PlayerMovement1>();
+        playerMovementDungeon = playerGO.GetComponent<PlayerMovementDungeon>();
         GameObject ghostGO = GameObject.FindGameObjectWithTag("Player_Ghost");
         player = playerGO.transform;
         ghost = ghostGO.transform;
-        healthProvider = playerGO.GetComponent<IHealthProvider>();
+        healthProvider = playerGO.GetComponent<PlayerHealth>();
         healthProvider.OnDied += Die;
     }
 
@@ -47,12 +59,12 @@ public class PlayerManager : MonoBehaviour
 
     public void ResetHealth()
     {
-        playerGO.GetComponent<HealthComponent>().ResetHealth();
+        playerGO.GetComponent<PlayerHealth>().ResetHealth();
     }
 
     public void IncreaseDamage(float damage)
     {
-        playerMovement1.Damage = playerMovement1.Damage * damage;
+        playerMovementDungeon.Damage = playerMovementDungeon.Damage * damage;
 
     }
 

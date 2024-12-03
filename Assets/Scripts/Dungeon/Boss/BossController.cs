@@ -11,7 +11,6 @@ public class BossController : MonoBehaviour
 
     private void Awake()
     {
-        // Create the EnemyBuilder based on the current boss instance
         enemyBuilder = new EnemyBuilder(this.gameObject, enemyData);
     }
 
@@ -45,7 +44,6 @@ public class BossController : MonoBehaviour
         if (behavior != null)
         {
             Destroy(behavior);
-            //behavior.gameObject.SetActive(false);
         }
     }
 }

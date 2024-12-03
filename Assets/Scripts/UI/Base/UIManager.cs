@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class UIManager : MonoBehaviour
 {
-
     [Tooltip("Required UI Document")]
     [SerializeField] UIDocument m_Document;
 
@@ -15,6 +13,8 @@ public class UIManager : MonoBehaviour
     UIScreen m_LevelFinishScreen;
     UIScreen m_LevelSelectScreen;
     UIScreen m_DungeonGameOverScreen;
+    UIScreen m_WaitingForPlayersScreen;
+    UIScreen m_DisconnectMessageScreen;
 
     UIScreen m_CurrentScreen;
 
@@ -48,14 +48,13 @@ public class UIManager : MonoBehaviour
         m_LevelFinishScreen = new LevelFinishScreen(root.Q<VisualElement>("LevelFinishScreen"));
         m_LevelSelectScreen = new LevelSelectScreen(root.Q<VisualElement>("LevelSelectScreen"));
         m_DungeonGameOverScreen = new DungeonGameOverScreen(root.Q<VisualElement>("DungeonGameOverScreen"));
+        m_WaitingForPlayersScreen = new WaitingForPlayersScreen(root.Q<VisualElement>("WaitingForPlayersScreen"));
+        m_DisconnectMessageScreen = new DisconnectMessageScreen(root.Q<VisualElement>("DisconnectMessageScreen"));
 
         RegisterUIScreens();
         HideScreens();
 
-        Debug.Log("UI Manager Initialized");
-        m_CurrentScreen = m_MainMenuScreen;
-        m_History.Push(m_MainMenuScreen);
-        m_MainMenuScreen.ShowImmediately();
+        Show(m_MainMenuScreen);
     }
 
     private void SubscribeToEvents()
@@ -65,12 +64,25 @@ public class UIManager : MonoBehaviour
         UIScreenEvents.ScreenClosed += UIScreenEvents_ScreenClosed;
         UIScreenEvents.OnGameStart += HideScreens;
         UIScreenEvents.OnDungeonGameStart += HideScreens;
+        UIScreenEvents.HideAllScreens += HideScreens;
 
         UIScreenEvents.PauseShown += UIScreenEvents_PauseShown;
         UIScreenEvents.LevelFinishShown += UIScreenEvents_LevelFinishShown;
         UIScreenEvents.LevelSelectShown += UIScreenEvents_LevelSelectShown;
         UIScreenEvents.OnLevelSelected += UIScreenEvents_LevelSelected;
         UIScreenEvents.DungeonGameOverShown += UIScreenEvents_DungeonGameOverShown;
+        UIScreenEvents.WaitingForPlayersScreenShown += UIScreenEvents_WaitingForPlayersScreenShown;
+        UIScreenEvents.DisconnectMessageShown += UIScreenEvents_DisconnectMessageShown;
+    }
+
+    private void UIScreenEvents_DisconnectMessageShown(string message)
+    {
+        Show(m_DisconnectMessageScreen, false);
+    }
+
+    private void UIScreenEvents_WaitingForPlayersScreenShown()
+    {
+        Show(m_WaitingForPlayersScreen, false);
     }
 
     private void UnsubscribeFromEvents()
@@ -85,6 +97,8 @@ public class UIManager : MonoBehaviour
         UIScreenEvents.LevelSelectShown -= UIScreenEvents_LevelSelectShown;
         UIScreenEvents.OnLevelSelected -= UIScreenEvents_LevelSelected;
         UIScreenEvents.DungeonGameOverShown -= UIScreenEvents_DungeonGameOverShown;
+        UIScreenEvents.HideAllScreens -= HideScreens;
+        UIScreenEvents.WaitingForPlayersScreenShown -= UIScreenEvents_WaitingForPlayersScreenShown;
     }
 
     private void RegisterUIScreens()
@@ -96,7 +110,9 @@ public class UIManager : MonoBehaviour
             m_PauseScreen,
             m_LevelFinishScreen,
             m_LevelSelectScreen,
-            m_DungeonGameOverScreen
+            m_DungeonGameOverScreen,
+            m_WaitingForPlayersScreen,
+            m_DisconnectMessageScreen
         };
     }
 
@@ -118,10 +134,6 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            if (m_CurrentScreen == m_PauseScreen)
-            {
-                UIScreenEvents.PauseClosed?.Invoke();
-            }
             m_CurrentScreen.HideImmediately();
         }
     }
@@ -159,18 +171,16 @@ public class UIManager : MonoBehaviour
 
         screen.ShowImmediately();
         m_CurrentScreen = screen;
-        Debug.Log("Current Screen: " + m_CurrentScreen.ToString());
-        Debug.Log("History Count: " + m_History.Count);
     }
 
-   private void UIScreenEvents_PauseShown()
+    private void UIScreenEvents_PauseShown()
     {
-        Show(m_PauseScreen, false);
+        Show(m_PauseScreen);
     }
 
     private void UIScreenEvents_LevelFinishShown()
     {
-        Show(m_LevelFinishScreen, false);
+        Show(m_LevelFinishScreen);
     }
 
     private void UIScreenEvents_LevelSelectShown()
@@ -180,10 +190,8 @@ public class UIManager : MonoBehaviour
 
     private void UIScreenEvents_DungeonGameOverShown()
     {
-        Show(m_DungeonGameOverScreen, false);
+        Show(m_DungeonGameOverScreen);
     }
-
-
 
     private void UIScreenEvents_LevelSelected(string obj)
     {

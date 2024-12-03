@@ -1,61 +1,110 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HealthBar : MonoBehaviour
+public class HealthBar : NetworkBehaviour
 {
     [SerializeField]
-    //public Slider healthSlider;
     private Slider healthSlider;
 
-    private IHealthProvider healthComponent;
+    private HealthBase healthComponent;
 
     [SerializeField]
-    private GameObject healthBar;
+    private GameObject healthBarPrefab;
     [SerializeField]
     private GameObject canvas;
-
+    private GameObject healthBarInstance;
     [SerializeField]
     private Vector3 healthBarPosition = new Vector3(380, -9, 0);
+    private bool maxhealthInitialized = false;
 
-    void Start()
+    private NetworkVariable<float> networkHealth = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public override void OnNetworkSpawn()
     {
-        if (healthSlider == null)
-        {
-            canvas = GameObject.Find("Canvas");
-            GameObject h = Instantiate(healthBar, healthBarPosition,  Quaternion.identity);
-            h.transform.SetParent(canvas.transform, false);
-            healthSlider = h.GetComponent<Slider>();
-        }
+        base.OnNetworkSpawn();
+        networkHealth.OnValueChanged += OnNetworkHealthChanged;
+    }
 
-        healthComponent = GetComponent<IHealthProvider>();
-        if (healthComponent != null)
+    private void Start()
+    {
+        healthComponent = GetComponent<HealthBase>();
+
+        if (IsServer)
         {
-            healthComponent.OnHealthChanged += SetHealth;
-            SetMaxHealth(healthComponent.MaxHealth);
+            if (healthComponent != null)
+            {
+                networkHealth.Value = healthComponent.MaxHealth;
+                healthComponent.OnHealthChanged += SetHealthOnServer;
+            }
+        }
+    }
+    private void Update()
+    {
+        if (IsClient)
+        {
+            SetupHealthBar();
         }
     }
 
     private void OnDisable()
     {
-        if (healthComponent != null)
+        if (healthComponent != null && IsServer)
         {
-            healthComponent.OnHealthChanged -= SetHealth;
+            healthComponent.OnHealthChanged -= SetHealthOnServer;
         }
 
+        if (networkHealth != null)
+        {
+            networkHealth.OnValueChanged -= OnNetworkHealthChanged;
+        }
     }
-
-    private void SetMaxHealth(float health)
+    private void SetHealthOnServer(float health)
     {
-        healthSlider.maxValue = health;
-        healthSlider.value = health;
-
+        networkHealth.Value = health;
     }
+    private void OnNetworkHealthChanged(float oldHealth, float newHealth)
+    {
+        if (healthSlider != null)
+        {
+            if (newHealth <= 0)
+            {
+                Destroy(healthBarInstance);
+            }
 
+            SetHealth(newHealth);
+        }
+    }
+    private void SetupHealthBar()
+    {
+        if (healthSlider == null)
+        {
+            canvas = GameObject.Find("Canvas");
+            healthBarInstance = Instantiate(healthBarPrefab, healthBarPosition, Quaternion.identity);
+            healthBarInstance.transform.SetParent(canvas.transform, false);
+            healthSlider = healthBarInstance.GetComponent<Slider>();
+
+            SetMaxHealth(healthComponent.MaxHealth);
+        }
+    }
+    private void SetMaxHealth(float maxHealth)
+    {
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHealth;
+            healthSlider.value = maxHealth;
+        }
+    }
     private void SetHealth(float health)
     {
-        healthSlider.value = health;
+        if (healthSlider != null)
+        {
+            if (!maxhealthInitialized)
+            {
+                healthSlider.maxValue = health;
+                maxhealthInitialized = true;
+            }
+            healthSlider.value = health;
+        }
     }
-
-
-   
 }
+

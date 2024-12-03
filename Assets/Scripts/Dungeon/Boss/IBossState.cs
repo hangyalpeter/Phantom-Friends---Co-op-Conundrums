@@ -4,7 +4,7 @@
 
     void ExitState(BossController boss);
     void UpdateState(BossController boss);
-    IBossState GetNextState(); 
+    IBossState GetNextState();
 
 }
 

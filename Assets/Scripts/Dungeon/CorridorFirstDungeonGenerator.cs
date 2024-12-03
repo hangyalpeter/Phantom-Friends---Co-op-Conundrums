@@ -1,11 +1,10 @@
 using Assets.Scripts.Dungeon;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
+public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategyExperiment
 {
     [SerializeField]
     private RandomWalkDungeonGenerator randomWalkDungeonGenerator;
@@ -31,7 +30,6 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
         CorridorFirstDungeonGeneration();
 
     }
-
     private void CorridorFirstDungeonGeneration()
     {
         floorPositions.Clear();
@@ -60,7 +58,7 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
         //PlaceDoors();
     }
 
- 
+
     void PlaceDoors()
     {
         var visited = new HashSet<Vector3Int>();
@@ -79,7 +77,7 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
         {
             startPosition = flooTile;
             break;
-            
+
         }
 
         queue.Enqueue(startPosition);
@@ -91,12 +89,10 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
 
             if (IsRoomPosition(current))
             {
-                Debug.Log("Current is room position: " + current);
                 foreach (var neighbor in GetNeighbors(current))
                 {
                     if (corridorsFlat.Contains(neighbor))
                     {
-                        Debug.Log("Placing door at: " + current);
                         PlaceDoor(current);
                     }
                 }
@@ -148,7 +144,7 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
     private List<Vector3Int> WidenCorridor(List<Vector3Int> corridors)
     {
         List<Vector3Int> widenedCorridor = new List<Vector3Int>();
-        for (int i = 0;i < corridors.Count; i++)
+        for (int i = 0; i < corridors.Count; i++)
         {
             for (int j = 0; j < 3; j++)
             {
@@ -197,7 +193,7 @@ public class CorridorFirstDungeonGenerator : DungeonGeneratorStrategy
             Vector3Int.right
         };
         int neighbourCount = 0;
-        foreach (var direction in directions )
+        foreach (var direction in directions)
         {
             if (floorPositions.Contains(position + direction))
             {

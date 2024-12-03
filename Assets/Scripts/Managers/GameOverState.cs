@@ -8,18 +8,15 @@ public class GameOverState : IGameState
     public GameOverState(GameStateManager context)
     {
         this.context = context;
-        LevelManager.LevelChanged += () => context.TransitionToState(context.PlayingState);
     }
     public void EnterState()
     {
-        Debug.Log("Entered Game Over State");
         Time.timeScale = 0f;
 
         int minutes = (int)(context.ElapsedTime / 60);
         int seconds = (int)(context.ElapsedTime % 60);
-        int milliseconds = (int)((context.ElapsedTime * 1000) % 1000);
+        float hundreth = (float)((context.ElapsedTime - Mathf.Floor(context.ElapsedTime)) * 100);
 
-        GameEvents.LevelFinishedWithTime?.Invoke(string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds));
 
         var currentLevelName = SceneManager.GetActiveScene().name;
         if (PlayerPrefs.HasKey(currentLevelName + "_BestCompletionTime"))
@@ -29,14 +26,17 @@ public class GameOverState : IGameState
             {
                 PlayerPrefs.SetFloat(currentLevelName + "_BestCompletionTime", context.ElapsedTime);
                 PlayerPrefs.Save();
+                GameEvents.BestTimesChanged?.Invoke();
             }
         }
         else
         {
             PlayerPrefs.SetFloat(currentLevelName + "_BestCompletionTime", context.ElapsedTime);
             PlayerPrefs.Save();
+            GameEvents.BestTimesChanged?.Invoke();
         }
 
+        GameEvents.LevelFinishedWithTime?.Invoke(string.Format("{0:00}:{1:00}:{2:00}", minutes, seconds, hundreth));
 
     }
 
@@ -47,7 +47,6 @@ public class GameOverState : IGameState
 
     public void ExitState()
     {
-        Debug.Log("Exiting Game Over State");
         Time.timeScale = 1f;
     }
 }

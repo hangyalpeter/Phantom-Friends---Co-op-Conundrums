@@ -1,11 +1,9 @@
 using Assets.Scripts.Dungeon;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class RandomWalkDungeonGenerator : DungeonGeneratorStrategy
+public class RandomWalkDungeonGenerator : DungeonGeneratorStrategyExperiment
 {
     private Vector3Int start = Vector3Int.zero;
 

@@ -1,11 +1,9 @@
-using System;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 public class SettingsScreen : UIScreen
 {
     Button m_BackButton;
-    
+
     private Slider m_MasterVolumeSlider;
     private Slider m_MusicVolumeSlider;
     private Slider m_SFXVolumeSlider;

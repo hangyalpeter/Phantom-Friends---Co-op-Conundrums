@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyName: AngryPig
   enemyPrefab: {fileID: 1713941996223979251, guid: 3ab086f1f3ca4af43a9132c1e861046e, type: 3}
-  health: 100
+  health: 1000
   speed: 3
-  damage: 30
+  damage: 50
   projectilePrefab: {fileID: 145729832598270974, guid: 2c50824df4accf748844d98e9037b71e, type: 3}
   shootInterval: 1
   projectileSpeed: 10

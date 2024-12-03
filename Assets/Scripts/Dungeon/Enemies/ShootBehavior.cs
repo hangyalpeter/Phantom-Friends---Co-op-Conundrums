@@ -18,6 +18,12 @@ public class ShootBehavior : MonoBehaviour
 
     public event Action OnShoot;
 
+    private ProjectileSpawner projectileSpawner;
+
+    private void Start()
+    {
+        projectileSpawner = GetComponent<ProjectileSpawner>();
+    }
     void Update()
     {
         UpdateShootingDirection();
@@ -31,10 +37,10 @@ public class ShootBehavior : MonoBehaviour
 
     private void Shoot()
     {
-        if (projectilePrefab != null && shootingPoint != null)
+        if (projectilePrefab != null && shootingPoint != null && target != null)
         {
             var direction = GetComponent<FollowPlayerBehavior>() == null ? (target.position - transform.position) : lastMovementDirection;
-            ProjectileFactory.Instance.GetProjectile(projectilePrefab, shootingPoint.position, direction, speed, damage, "Enemy");
+            projectileSpawner.GetProjectile(shootingPoint.position, direction, speed, damage, "Enemy");
 
             OnShoot?.Invoke();
         }
@@ -42,9 +48,7 @@ public class ShootBehavior : MonoBehaviour
         {
             Debug.LogWarning("Projectile prefab or shooting point not set!");
         }
-
     }
-    
 
     private void UpdateShootingDirection()
     {
@@ -55,7 +59,6 @@ public class ShootBehavior : MonoBehaviour
         {
             lastMovementDirection = direction.normalized;
         }
-
 
         previousPosition = currentPosition;
     }

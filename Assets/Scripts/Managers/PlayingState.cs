@@ -12,17 +12,18 @@ public class PlayingState : IGameState
 
     public void EnterState()
     {
-        Debug.Log("Entered Playing State");
-        if (context.ElapsedTime <= 0 )
+        PlayerChildLife.OnPlayerChildDeath += OnPlayerChildDeath;
+        UIScreenEvents.HideAllScreens?.Invoke();
+        if (context.ElapsedTime <= 0)
         {
-            context.ElapsedTime = 0f;
+            context.UpdateElapsedTimeSync(0, false);
         }
         Time.timeScale = 1f;
     }
 
     public void UpdateState()
     {
-        context.ElapsedTime += Time.deltaTime;
+        context.UpdateElapsedTimeSync(Time.deltaTime);
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -30,8 +31,13 @@ public class PlayingState : IGameState
         }
     }
 
+    private void OnPlayerChildDeath()
+    {
+        context.TransitionToState(context.PausedState);
+    }
+
     public void ExitState()
     {
-        Debug.Log("Exiting Playing State");
+        PlayerChildLife.OnPlayerChildDeath -= OnPlayerChildDeath;
     }
 }
