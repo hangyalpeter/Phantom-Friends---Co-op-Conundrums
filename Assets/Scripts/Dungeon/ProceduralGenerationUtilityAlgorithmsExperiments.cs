@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BinaryTreeNode
 {
-    public Room room; 
+    public Room room;
 
     public BinaryTreeNode left;
     public BinaryTreeNode right;
@@ -15,7 +15,6 @@ public static class ProceduralGenerationUtilityAlgorithmsExperiments
     public static Dictionary<Vector3Int, List<Vector3Int>> roomGraph = new Dictionary<Vector3Int, List<Vector3Int>>();
     private static Vector3Int firstRoomCenter;
 
-    //private static HashSet<Room> rooms = new HashSet<Room>();
     public static HashSet<Vector3Int> RandomWalk(Vector3Int start, int length)
     {
         HashSet<Vector3Int> path = new HashSet<Vector3Int>();
@@ -94,7 +93,6 @@ public static class ProceduralGenerationUtilityAlgorithmsExperiments
 
     private static void SplitVertically(Queue<BoundsInt> roomsQueue, BoundsInt room, int minHeight)
     {
-        //var split = UnityEngine.Random.Range(minHeight, room.size.y - minHeight);
         var split = UnityEngine.Random.Range(1, room.size.x);
 
         BoundsInt room1 = new BoundsInt(room.min, new Vector3Int(split, room.size.y, room.size.z));
@@ -106,7 +104,6 @@ public static class ProceduralGenerationUtilityAlgorithmsExperiments
 
     private static void SplitHorizontally(Queue<BoundsInt> roomsQueue, BoundsInt room, int minWidth)
     {
-        //var split = UnityEngine.Random.Range(minWidth, room.size.x - minWidth);
         var split = UnityEngine.Random.Range(1, room.size.y);
         BoundsInt room1 = new BoundsInt(room.min, new Vector3Int(room.size.x, split, room.size.z));
         BoundsInt room2 = new BoundsInt(new Vector3Int(room.min.x, room.min.y + split, room.min.z), new Vector3Int(room.size.x, room.size.y - split, room.size.z));
@@ -166,7 +163,6 @@ public static class ProceduralGenerationUtilityAlgorithmsExperiments
 
     private static void SplitVertically(BoundsInt room, int minWidth, int minHeight, HashSet<Room> rooms)
     {
-        //int split = UnityEngine.Random.Range(minWidth, room.size.x - minWidth);
         var split = UnityEngine.Random.Range(1, room.size.x);
 
         BoundsInt room1 = new BoundsInt(room.min, new Vector3Int(split, room.size.y, room.size.z));
@@ -178,7 +174,6 @@ public static class ProceduralGenerationUtilityAlgorithmsExperiments
 
     private static void SplitHorizontally(BoundsInt room, int minWidth, int minHeight, HashSet<Room> rooms)
     {
-        //int split = UnityEngine.Random.Range(minHeight, room.size.y - minHeight);
         var split = UnityEngine.Random.Range(1, room.size.y);
 
         BoundsInt room1 = new BoundsInt(room.min, new Vector3Int(room.size.x, split, room.size.z));
@@ -206,7 +201,6 @@ public static class ProceduralGenerationUtilityAlgorithmsExperiments
 
 
     // Binary tree solution
-
     private static BinaryTreeNode SplitSpaceRecursively(BoundsInt room, int minWidth, int minHeight)
     {
         if (room.size.x >= minWidth && room.size.y >= minHeight)
@@ -245,7 +239,7 @@ public static class ProceduralGenerationUtilityAlgorithmsExperiments
         }
         else
         {
-            return new BinaryTreeNode { room = new Room(room) }; 
+            return new BinaryTreeNode { room = new Room(room) };
         }
     }
 
@@ -303,7 +297,7 @@ public static class ProceduralGenerationUtilityAlgorithmsExperiments
     public static HashSet<Vector3Int> ConnectSiblings(BinaryTreeNode node)
     {
         HashSet<Vector3Int> siblingCorridors = new HashSet<Vector3Int>();
-   
+
 
         if (node == null) return siblingCorridors;
 
@@ -314,8 +308,6 @@ public static class ProceduralGenerationUtilityAlgorithmsExperiments
                 Vector3Int.RoundToInt(node.left.room.bounds.center),
                 Vector3Int.RoundToInt(node.right.room.bounds.center)
             );
-            //node.left.room.corridorTilePositions.UnionWith(siblingCorridor);
-            //node.right.room.corridorTilePositions.UnionWith(siblingCorridor);
 
             siblingCorridors.UnionWith(siblingCorridor);
         }
@@ -325,8 +317,6 @@ public static class ProceduralGenerationUtilityAlgorithmsExperiments
 
         return siblingCorridors;
     }
-
-
 
     private static HashSet<Vector3Int> CreateCorridor(Vector3Int current, Vector3Int destination)
     {
@@ -343,6 +333,7 @@ public static class ProceduralGenerationUtilityAlgorithmsExperiments
             {
                 position += Vector3Int.left;
             }
+            // widen corridor
             corridor.Add(position);
             corridor.Add(position + Vector3Int.up);
             corridor.Add(position + Vector3Int.up + Vector3Int.up);
@@ -360,6 +351,7 @@ public static class ProceduralGenerationUtilityAlgorithmsExperiments
             {
                 position += Vector3Int.down;
             }
+            // widen corridor
             corridor.Add(position);
             corridor.Add(position + Vector3Int.left);
             corridor.Add(position + Vector3Int.left + Vector3Int.left);

@@ -11,18 +11,16 @@ public class GameOverState : IGameState
     }
     public void EnterState()
     {
-        Debug.Log("Entered Game Over State");
         Time.timeScale = 0f;
 
         int minutes = (int)(context.ElapsedTime / 60);
         int seconds = (int)(context.ElapsedTime % 60);
-        //int milliseconds = (int)((context.ElapsedTime * 1000) % 1000);
         float hundreth = (float)((context.ElapsedTime - Mathf.Floor(context.ElapsedTime)) * 100);
 
 
         var currentLevelName = SceneManager.GetActiveScene().name;
         if (PlayerPrefs.HasKey(currentLevelName + "_BestCompletionTime"))
-       {
+        {
             var bestCompletionTime = PlayerPrefs.GetFloat(currentLevelName + "_BestCompletionTime");
             if (context.ElapsedTime < bestCompletionTime)
             {
@@ -49,7 +47,6 @@ public class GameOverState : IGameState
 
     public void ExitState()
     {
-        Debug.Log("Exiting Game Over State");
         Time.timeScale = 1f;
     }
 }

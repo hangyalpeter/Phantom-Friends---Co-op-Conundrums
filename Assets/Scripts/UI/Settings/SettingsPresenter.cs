@@ -1,12 +1,7 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SettingsPresenter : MonoBehaviour
 {
-    
-
     private void Start()
     {
         Initialize();
@@ -19,8 +14,6 @@ public class SettingsPresenter : MonoBehaviour
         SettingsEvents.SoundEffectsVolumeSliderChanged += SettingsEvents_SoundEffectsVolumeSliderChanged;
         SettingsEvents.FullScreenToggleChanged += SettingsEvents_FullScreenToggleChanged;
     }
-
-
     private void OnDisable()
     {
         SettingsEvents.ResolutionDropdownChanged -= SettingsEvents_ResolutionDropdownChanged;
@@ -29,8 +22,6 @@ public class SettingsPresenter : MonoBehaviour
         SettingsEvents.SoundEffectsVolumeSliderChanged -= SettingsEvents_SoundEffectsVolumeSliderChanged;
         SettingsEvents.FullScreenToggleChanged -= SettingsEvents_FullScreenToggleChanged;
     }
-
-  
     private void Initialize()
     {
         InitializeResolution();

@@ -1,5 +1,4 @@
 ﻿using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PossessMediator : NetworkBehaviour
@@ -76,7 +75,7 @@ public class PossessMediator : NetworkBehaviour
         }
     }
 
-  [ServerRpc(RequireOwnership = false)]
+    [ServerRpc(RequireOwnership = false)]
     private void StopTimerServerRpc()
     {
         StopTimerClientRpc();
@@ -106,4 +105,4 @@ public class PossessMediator : NetworkBehaviour
             yield return new WaitForSeconds(0.5f);
         }
     }
-  }
+}

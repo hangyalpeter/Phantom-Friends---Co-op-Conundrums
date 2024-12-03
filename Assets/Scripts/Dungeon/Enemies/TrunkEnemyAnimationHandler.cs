@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class TrunkEnemyAnimationHandler : NetworkBehaviour
 {
-    private enum MovementState { idle, run}
+    private enum MovementState { idle, run }
     private Animator anim;
     private Vector3 lastPosition;
     private ShootBehavior shootBehavior;
@@ -61,7 +61,7 @@ public class TrunkEnemyAnimationHandler : NetworkBehaviour
 
     void Update()
     {
-        if (!transform.position.Equals(lastPosition) || rb.velocity.magnitude > 0 )
+        if (!transform.position.Equals(lastPosition) || rb.velocity.magnitude > 0)
         {
             currentState = MovementState.run;
 

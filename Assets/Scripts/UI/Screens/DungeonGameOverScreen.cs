@@ -1,5 +1,3 @@
-using System;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 public class DungeonGameOverScreen : UIScreen
@@ -18,7 +16,6 @@ public class DungeonGameOverScreen : UIScreen
         SubscribeToEvents();
         RegisterCallbacks();
     }
-
     private void SetupButtons()
     {
         m_GameOverLabel = m_RootElement.Q<Label>("game-over-label");
@@ -33,7 +30,6 @@ public class DungeonGameOverScreen : UIScreen
         m_ElapsedTimeLabel = m_RootElement.Q<Label>("elapsed-time-label");
 
     }
-
     private void SubscribeToEvents()
     {
         DungeonManager.OnDungeonFinish += UpdateLabels;
@@ -41,7 +37,6 @@ public class DungeonGameOverScreen : UIScreen
         GameEvents.LevelFinishedWithTime += OnLevelFinish;
         StartingSceneController.PlayModeChanged += StartingSceneController_PlaymodeChanged;
     }
-
     private void StartingSceneController_PlaymodeChanged(StartingSceneController.PlayMode mode)
     {
         if (mode == StartingSceneController.PlayMode.Client)
@@ -65,7 +60,6 @@ public class DungeonGameOverScreen : UIScreen
             m_MainMenuButton.style.display = DisplayStyle.Flex;
         }
     }
-
     public override void Disable()
     {
         base.Disable();
@@ -77,7 +71,6 @@ public class DungeonGameOverScreen : UIScreen
         DungeonManager.OnDungeonFinish -= UpdateLabels;
         GameEvents.LevelFinishedWithTime -= OnLevelFinish;
     }
-
     private void UpdateLabels(int roomsCleared, int enemiesKilled, string title, string restartLabel)
     {
         m_GameOverLabel.text = title;
@@ -101,18 +94,15 @@ public class DungeonGameOverScreen : UIScreen
             }
         }
     }
-
     private void OnLevelFinish(string time)
     {
         m_ElapsedTimeLabel.text = "Elapsed time: " + time;
     }
 
-    private void RegisterCallbacks() 
+    private void RegisterCallbacks()
     {
         m_EventRegistry.RegisterCallback<ClickEvent>(m_RestartButton, evt => UIScreenEvents.OnLevelRestart?.Invoke());
         m_EventRegistry.RegisterCallback<ClickEvent>(m_NewDungeonButton, evt => GameEvents.OnNewDungeon?.Invoke());
         m_EventRegistry.RegisterCallback<ClickEvent>(m_MainMenuButton, evt => UIScreenEvents.MainMenuClicked?.Invoke());
     }
-
-
 }

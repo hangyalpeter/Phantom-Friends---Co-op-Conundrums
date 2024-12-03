@@ -3,7 +3,6 @@ using UnityEngine.SceneManagement;
 
 public class LoadToFirstScene : MonoBehaviour
 {
-
     private void Start()
     {
         UIScreenEvents.HideAllScreens?.Invoke();

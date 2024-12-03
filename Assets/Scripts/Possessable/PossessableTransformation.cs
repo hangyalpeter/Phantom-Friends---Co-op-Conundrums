@@ -7,7 +7,6 @@ public class PossessableTransformation : NetworkBehaviour
     [SerializeField] private float possessionDuration = 15f;
 
     private PossessMediator mediator;
-    private IState currentState;
 
     public float PossessionDuration => possessionDuration;
     public Rigidbody2D Rb { get; private set; }
@@ -18,7 +17,7 @@ public class PossessableTransformation : NetworkBehaviour
     {
         mediator = FindObjectOfType<PossessMediator>();
     }
-    
+
     public bool IsWithinTransformationRange(GameObject ghost)
     {
         return Vector2.Distance(transform.position, ghost.transform.position) < distanceOffset;

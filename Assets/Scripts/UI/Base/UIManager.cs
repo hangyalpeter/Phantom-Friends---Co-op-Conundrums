@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -55,7 +54,6 @@ public class UIManager : MonoBehaviour
         RegisterUIScreens();
         HideScreens();
 
-        Debug.Log("UI Manager Initialized");
         Show(m_MainMenuScreen);
     }
 
@@ -175,7 +173,7 @@ public class UIManager : MonoBehaviour
         m_CurrentScreen = screen;
     }
 
-   private void UIScreenEvents_PauseShown()
+    private void UIScreenEvents_PauseShown()
     {
         Show(m_PauseScreen);
     }

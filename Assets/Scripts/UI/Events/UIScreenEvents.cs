@@ -1,6 +1,6 @@
 using System;
 
-public static class UIScreenEvents 
+public static class UIScreenEvents
 {
 
     public static Action HideAllScreens;
@@ -29,5 +29,5 @@ public static class UIScreenEvents
     public static Action OnLevelRestart;
     public static Action MainMenuClicked;
 
-  
+
 }

@@ -21,7 +21,6 @@ public class DungeonManager : NetworkBehaviour
 
     public BinarySpacePartitioningDungeonGenerator DungeonGenerator => dungeonGenerator;
 
-
     private void OnEnable()
     {
         GameEvents.OnNewDungeon += GenerateNewDungeonAfterWin;
@@ -41,10 +40,6 @@ public class DungeonManager : NetworkBehaviour
     {
         if (IsServer)
         {
-            // TODO: uncomment below for the seed, 0 is for testing
-            //int seed = 0;
-            //TODO: set int maybe for restart or no?
-            //int seed = PlayerPrefs.HasKey("DungeonSeed") ? PlayerPrefs.GetInt("DungeonSeed") : System.DateTime.Now.GetHashCode();
             int seed = System.DateTime.Now.GetHashCode();
             GenerateNewDungeonAtStartClientRpc(seed);
             Debug.Log("seed: " + seed);
@@ -105,17 +100,13 @@ public class DungeonManager : NetworkBehaviour
     }
     public void HandleDungeonWin()
     {
-        Debug.Log("Player won the dungeon!");
         dungeonGenerator.useStoredSeed = false;
-        //PlayerPrefs.DeleteKey("DungeonSeed");
 
         var roomsCleared = rooms.Where(x => x.isFinished).Count();
-        //OnDungeonFinish?.Invoke(roomsCleared, enemiesKilled, "You won!", "New Dungeon");
 
         HandleDungeonWinClientRpc(roomsCleared, enemiesKilled);
         enemiesKilled = 0;
 
-        //UIScreenEvents.DungeonGameOverShown?.Invoke();
         GameEvents.DungeonFinished?.Invoke();
     }
 

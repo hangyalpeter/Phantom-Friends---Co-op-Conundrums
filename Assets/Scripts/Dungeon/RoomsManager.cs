@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
@@ -11,7 +10,7 @@ public class RoomsManager : NetworkBehaviour
     private List<EnemyData> roomEnemiesData = new List<EnemyData>();
     private List<EnemyData> clonedEnemiesData = new List<EnemyData>();
 
-    private int numberOfEnemiesToGenerate = 4;
+    private int numberOfEnemiesToGenerate = 2;
 
     [SerializeField]
     private List<EnemyData> bossEnemiesData = new List<EnemyData>();
@@ -66,7 +65,7 @@ public class RoomsManager : NetworkBehaviour
         while (GameObject.FindGameObjectWithTag("Player_Child") == null || GameObject.FindGameObjectWithTag("Player_Ghost") == null)
         {
             yield return null;
-       }
+        }
 
         rooms = mediator.GetManager<DungeonManager>().Rooms;
         dungeonGenerator = mediator.GetManager<DungeonManager>().DungeonGenerator;
@@ -104,7 +103,6 @@ public class RoomsManager : NetworkBehaviour
 
     private bool CheckDungeonWin()
     {
-        Debug.Log("all room finished: " + rooms.All(r => r.isFinished));
         return rooms.All(r => r.isFinished);
     }
 
@@ -208,10 +206,9 @@ public class RoomsManager : NetworkBehaviour
         IEnumerable<Vector3Int> potentialSwawnPositions = CalculatePotentialSpawnPositions(room, wallAndNeighborPositions);
 
         int i = 0;
-        while(i < numberOfEnemiesToGenerate)
+        while (i < numberOfEnemiesToGenerate)
         {
-            //var randomEnemy = clonedEnemiesData[UnityEngine.Random.Range(0, clonedEnemiesData.Count)];
-            var randomEnemy = clonedEnemiesData[i];
+            var randomEnemy = clonedEnemiesData[UnityEngine.Random.Range(0, clonedEnemiesData.Count)];
             Vector3 position = potentialSwawnPositions.ElementAt(UnityEngine.Random.Range(0, potentialSwawnPositions.Count()));
             room.enemies.Add(spawner.SpawnEnemy(randomEnemy, position));
             i++;
@@ -299,7 +296,7 @@ public class RoomsManager : NetworkBehaviour
             {
                 validPositions.Add(item);
             }
-            
+
         }
 
         const int offsetRange = 2;
@@ -337,7 +334,7 @@ public class RoomsManager : NetworkBehaviour
     }
     private void CloseRoomWithDoors(Vector3 currentPlayerRoomCenter)
     {
-        var room = rooms.First(r => r.bounds.center ==  currentPlayerRoomCenter);
+        var room = rooms.First(r => r.bounds.center == currentPlayerRoomCenter);
         foreach (var door in room.doorTilesPositions)
         {
             dungeonGenerator.TilemapVisualizer.PaintDoorTile(door, Color.red);
@@ -346,16 +343,17 @@ public class RoomsManager : NetworkBehaviour
 
     private bool CheckIsRoomCleared(Room room)
     {
-        return room.enemies.All(e => {
+        return room.enemies.All(e =>
+        {
             if (e != null)
             {
                 return e.GetComponent<HealthBase>().CurrentHealth <= 0;
-            } else
+            }
+            else
             {
                 return true;
             }
         });
-        //return !room.enemies.Any(e => e != null);
     }
 
     private void NotifyDungeonWin()
@@ -381,7 +379,5 @@ public class RoomsManager : NetworkBehaviour
     private void DungeonWinClientRpc()
     {
         Destroy(GameObject.FindGameObjectWithTag("BossHealthBar"));
-
     }
-
 }

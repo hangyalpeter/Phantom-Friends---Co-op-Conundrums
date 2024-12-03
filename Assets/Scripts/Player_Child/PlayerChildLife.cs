@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,14 +12,14 @@ public class PlayerChildLife : NetworkBehaviour
     public static event Action OnPlayerChildDeath;
     void Start()
     {
-       animator = GetComponent<Animator>();
-       rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (!IsOwner) return;
-       if (collision.gameObject.CompareTag("Trap"))
+        if (collision.gameObject.CompareTag("Trap"))
         {
             DieServerRpc();
         }
@@ -43,7 +42,7 @@ public class PlayerChildLife : NetworkBehaviour
     [ServerRpc]
     private void DieServerRpc()
     {
-       DieClientRpc();
+        DieClientRpc();
     }
 
     [ClientRpc]
@@ -51,8 +50,6 @@ public class PlayerChildLife : NetworkBehaviour
     {
         Die();
     }
-
-
 
     private void Reset()
     {

@@ -42,7 +42,7 @@ public class FollowPlayerBehavior : MonoBehaviour
         {
             yield return new WaitForSeconds(5);
 
-            float randomValue = Random.Range(0f, 1f); // Generate a random float between 0 and 1
+            float randomValue = Random.Range(0f, 1f);
 
             if (randomValue <= 0.6f)
             {
@@ -68,5 +68,5 @@ public class FollowPlayerBehavior : MonoBehaviour
         }
     }
 
-  }
+}
 

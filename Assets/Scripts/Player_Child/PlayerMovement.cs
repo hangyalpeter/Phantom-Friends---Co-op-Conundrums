@@ -18,20 +18,20 @@ public class PlayerMovement : NetworkBehaviour
 
     private bool jumpRequested = false;
 
-    private enum MovementState { idle, running, jumping, falling}
+    private enum MovementState { idle, running, jumping, falling }
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
         isFlipped.OnValueChanged += (oldValue, newValue) =>
         {
-           sr.flipX = newValue;
+            sr.flipX = newValue;
         };
 
         isSpriteEnabled.OnValueChanged += (oldValue, newValue) =>
         {
             sr.enabled = newValue;
-        };       
+        };
     }
     void Start()
     {
@@ -58,7 +58,7 @@ public class PlayerMovement : NetworkBehaviour
         {
             return;
         }
-        dirX= Input.GetAxisRaw("Horizontal_Child");
+        dirX = Input.GetAxisRaw("Horizontal_Child");
         rb.velocity = new Vector2(dirX * moveSpeed, rb.velocity.y);
         if (jumpRequested)
         {
@@ -66,7 +66,7 @@ public class PlayerMovement : NetworkBehaviour
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
             jumpRequested = false;
         }
-       
+
         UpdateAnimationState();
     }
 
@@ -113,10 +113,10 @@ public class PlayerMovement : NetworkBehaviour
         }
 
         anim.SetInteger("state", (int)state);
- 
+
     }
 
-     private void UpdateFlipX(bool flipX)
+    private void UpdateFlipX(bool flipX)
     {
         if (IsServer)
         {
@@ -128,7 +128,7 @@ public class PlayerMovement : NetworkBehaviour
         }
     }
 
-       [ServerRpc]
+    [ServerRpc]
     private void UpdateFlipXServerRpc(bool flipX)
     {
         isFlipped.Value = flipX;
@@ -145,5 +145,5 @@ public class PlayerMovement : NetworkBehaviour
         {
             Physics2D.IgnoreCollision(collision.collider, bc);
         }
-    }   
+    }
 }

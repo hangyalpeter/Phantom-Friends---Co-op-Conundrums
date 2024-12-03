@@ -49,7 +49,7 @@ public class ShootBehavior : MonoBehaviour
             Debug.LogWarning("Projectile prefab or shooting point not set!");
         }
     }
-    
+
     private void UpdateShootingDirection()
     {
         currentPosition = transform.position;

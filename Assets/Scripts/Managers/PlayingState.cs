@@ -12,10 +12,9 @@ public class PlayingState : IGameState
 
     public void EnterState()
     {
-        Debug.Log("Entered Playing State");
         PlayerChildLife.OnPlayerChildDeath += OnPlayerChildDeath;
         UIScreenEvents.HideAllScreens?.Invoke();
-        if (context.ElapsedTime <= 0 )
+        if (context.ElapsedTime <= 0)
         {
             context.UpdateElapsedTimeSync(0, false);
         }
@@ -40,6 +39,5 @@ public class PlayingState : IGameState
     public void ExitState()
     {
         PlayerChildLife.OnPlayerChildDeath -= OnPlayerChildDeath;
-        Debug.Log("Exiting Playing State");
     }
 }

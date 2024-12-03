@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine.UIElements;
+﻿using UnityEngine.UIElements;
 
 public class DisconnectMessageScreen : UIScreen
 {
@@ -11,12 +10,10 @@ public class DisconnectMessageScreen : UIScreen
         RegisterCallbacks();
         SubscribeToEvents();
     }
-
     private void UIScreenEvents_DisconnectMessageShown(string obj)
     {
         m_MessageLabel.text = obj;
     }
-
     private void SetUpButtons()
     {
         m_OkButton = m_RootElement.Q<Button>("ok-button");
@@ -39,8 +36,6 @@ public class DisconnectMessageScreen : UIScreen
         base.Disable();
         UnsubscribeFromEvents();
     }
-
-
 }
 
 

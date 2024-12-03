@@ -1,6 +1,3 @@
-using Unity.Netcode;
-using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public class MainMenuScreen : UIScreen

@@ -4,7 +4,7 @@ using UnityEngine;
 public class GhostController : NetworkBehaviour
 {
     private PossessMediator mediator;
-    
+
     private Rigidbody2D rb;
     private SpriteRenderer sr;
     private Animator anim;
@@ -17,7 +17,7 @@ public class GhostController : NetworkBehaviour
 
     private bool possessRequested = false;
     private bool dePossessRequested = false;
-    private enum MovementState { idle, moving}
+    private enum MovementState { idle, moving }
 
     private NetworkVariable<bool> isFlipped = new NetworkVariable<bool>(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<bool> isSpriteEnabled = new NetworkVariable<bool>(true, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -41,8 +41,6 @@ public class GhostController : NetworkBehaviour
         {
             IsPossessed = newValue;
         };
-
-
     }
 
     private void Start()
@@ -102,12 +100,12 @@ public class GhostController : NetworkBehaviour
         dirX = Input.GetAxisRaw("Horizontal_Ghost");
         dirY = Input.GetAxisRaw("Vertical_Ghost");
         rb.velocity = new Vector2(dirX * moveSpeed, dirY * moveSpeed);
-        
+
         UpdateAnimationState();
 
     }
 
-     [ServerRpc(RequireOwnership = false)]
+    [ServerRpc(RequireOwnership = false)]
     private void RequestOwnershipServerRpc(ulong targetNetworkObjectId, ServerRpcParams rpcParams = default)
     {
 
@@ -142,16 +140,16 @@ public class GhostController : NetworkBehaviour
         }
 
         anim.SetInteger("state", (int)state);
- 
+
     }
 
-     private void UpdateFlipX(bool flipX)
+    private void UpdateFlipX(bool flipX)
     {
-        if (IsServer) 
+        if (IsServer)
         {
             isFlipped.Value = flipX;
         }
-        else if (IsOwner) 
+        else if (IsOwner)
         {
             UpdateFlipXServerRpc(flipX);
         }

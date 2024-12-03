@@ -35,7 +35,7 @@ public class EnemyBuilder
             shootBehavior.speed = enemyData.projectileSpeed;
             shootBehavior.spawnInterval = enemyData.shootInterval;
         }
-       return this;
+        return this;
     }
 
     public EnemyBuilder withPossessable()

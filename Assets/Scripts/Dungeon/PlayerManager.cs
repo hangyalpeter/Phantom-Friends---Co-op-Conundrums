@@ -16,7 +16,7 @@ public class PlayerManager : NetworkBehaviour
 
     private GameObject playerGO;
 
-    private PlayerMovementDungeon playerMovement1;
+    private PlayerMovementDungeon playerMovementDungeon;
     public void SetMediator(IDungeonMediator mediator)
     {
         this.mediator = mediator;
@@ -36,7 +36,7 @@ public class PlayerManager : NetworkBehaviour
         }
 
         playerGO = GameObject.FindGameObjectWithTag("Player_Child");
-        playerMovement1 = playerGO.GetComponent<PlayerMovementDungeon>();
+        playerMovementDungeon = playerGO.GetComponent<PlayerMovementDungeon>();
         GameObject ghostGO = GameObject.FindGameObjectWithTag("Player_Ghost");
         player = playerGO.transform;
         ghost = ghostGO.transform;
@@ -64,7 +64,7 @@ public class PlayerManager : NetworkBehaviour
 
     public void IncreaseDamage(float damage)
     {
-        playerMovement1.Damage = playerMovement1.Damage * damage;
+        playerMovementDungeon.Damage = playerMovementDungeon.Damage * damage;
 
     }
 

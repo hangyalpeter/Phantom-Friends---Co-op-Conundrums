@@ -3,7 +3,8 @@
 public class MovementRestriction : MonoBehaviour
 {
     [SerializeField]
-    private BoxCollider2D boundary; // Reference to the 2D boundary collider
+    private BoxCollider2D boundary; 
+
     private Vector2 minBoundary;
     private Vector2 maxBoundary;
 
@@ -20,7 +21,7 @@ public class MovementRestriction : MonoBehaviour
         transform.position = new Vector3(
             Mathf.Clamp(transform.position.x, minBoundary.x, maxBoundary.x),
             Mathf.Clamp(transform.position.y, minBoundary.y, maxBoundary.y),
-            transform.position.z 
+            transform.position.z
         );
     }
 
@@ -31,5 +32,6 @@ public class MovementRestriction : MonoBehaviour
             Gizmos.color = Color.green;
             Gizmos.DrawWireCube(boundary.bounds.center, boundary.bounds.size);
         }
-    }}
+    }
+}
 

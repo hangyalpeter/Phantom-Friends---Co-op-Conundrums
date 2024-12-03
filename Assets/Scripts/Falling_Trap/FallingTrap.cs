@@ -9,8 +9,8 @@ public class FallingTrap : MonoBehaviour
     private BoxCollider2D bc;
     void Start()
     {
-       rb = GetComponent<Rigidbody2D>();
-       bc = GetComponent<BoxCollider2D>();
+        rb = GetComponent<Rigidbody2D>();
+        bc = GetComponent<BoxCollider2D>();
     }
     private IEnumerator FallingTrapCoroutine()
     {
@@ -21,7 +21,7 @@ public class FallingTrap : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        
+
         if (collision.gameObject.CompareTag("Player_Child"))
         {
             if (isAlreadyTriggered)

@@ -19,7 +19,6 @@ public class HealthBar : NetworkBehaviour
     private bool maxhealthInitialized = false;
 
     private NetworkVariable<float> networkHealth = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -39,7 +38,6 @@ public class HealthBar : NetworkBehaviour
             }
         }
     }
-
     private void Update()
     {
         if (IsClient)
@@ -60,12 +58,10 @@ public class HealthBar : NetworkBehaviour
             networkHealth.OnValueChanged -= OnNetworkHealthChanged;
         }
     }
-
     private void SetHealthOnServer(float health)
     {
         networkHealth.Value = health;
     }
-
     private void OnNetworkHealthChanged(float oldHealth, float newHealth)
     {
         if (healthSlider != null)
@@ -78,7 +74,6 @@ public class HealthBar : NetworkBehaviour
             SetHealth(newHealth);
         }
     }
-
     private void SetupHealthBar()
     {
         if (healthSlider == null)
@@ -91,7 +86,6 @@ public class HealthBar : NetworkBehaviour
             SetMaxHealth(healthComponent.MaxHealth);
         }
     }
-
     private void SetMaxHealth(float maxHealth)
     {
         if (healthSlider != null)
@@ -100,7 +94,6 @@ public class HealthBar : NetworkBehaviour
             healthSlider.value = maxHealth;
         }
     }
-
     private void SetHealth(float health)
     {
         if (healthSlider != null)

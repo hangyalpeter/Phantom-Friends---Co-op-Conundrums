@@ -1,8 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public class PauseScreen : UIScreen
@@ -77,7 +72,5 @@ public class PauseScreen : UIScreen
         base.Disable();
         GameEvents.GamePaused -= GameEvents_GamePaused;
         StartingSceneController.PlayModeChanged -= StartingSceneController_PlaymodeChanged;
-
     }
-
 }

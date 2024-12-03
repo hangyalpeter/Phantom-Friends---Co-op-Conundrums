@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -34,7 +32,7 @@ public static class ProceduralGenerationUtilityAlgorithms
         return path;
     }
 
-    public static HashSet<Room>BinarySpacePartitioning(BoundsInt space, int minWidth, int minHeight)
+    public static HashSet<Room> BinarySpacePartitioning(BoundsInt space, int minWidth, int minHeight)
     {
         Queue<BoundsInt> roomsQueue = new Queue<BoundsInt>();
         HashSet<Room> rooms = new HashSet<Room>();
@@ -82,9 +80,8 @@ public static class ProceduralGenerationUtilityAlgorithms
 
     private static void SplitVertically(Queue<BoundsInt> roomsQueue, BoundsInt room, int minHeight)
     {
-        //var split = UnityEngine.Random.Range(minHeight, room.size.y - minHeight);
         var split = UnityEngine.Random.Range(1, room.size.x);
-        
+
         BoundsInt room1 = new BoundsInt(room.min, new Vector3Int(split, room.size.y, room.size.z));
         BoundsInt room2 = new BoundsInt(new Vector3Int(room.min.x + split, room.min.y, room.min.z), new Vector3Int(room.size.x - split, room.size.y, room.size.z));
         roomsQueue.Enqueue(room1);
@@ -94,15 +91,12 @@ public static class ProceduralGenerationUtilityAlgorithms
 
     private static void SplitHorizontally(Queue<BoundsInt> roomsQueue, BoundsInt room, int minWidth)
     {
-        //var split = UnityEngine.Random.Range(minWidth, room.size.x - minWidth);
         var split = UnityEngine.Random.Range(1, room.size.y);
-        BoundsInt room1 = new BoundsInt(room.min, new Vector3Int(room.size.x,split, room.size.z));
+        BoundsInt room1 = new BoundsInt(room.min, new Vector3Int(room.size.x, split, room.size.z));
         BoundsInt room2 = new BoundsInt(new Vector3Int(room.min.x, room.min.y + split, room.min.z), new Vector3Int(room.size.x, room.size.y - split, room.size.z));
         roomsQueue.Enqueue(room1);
         roomsQueue.Enqueue(room2);
     }
-
-
 
 
 
@@ -187,7 +181,7 @@ public static class ProceduralGenerationUtilityAlgorithms
             Vector3Int.right
         };
         return directions[UnityEngine.Random.Range(0, directions.Length)];
-        
+
     }
 }
 

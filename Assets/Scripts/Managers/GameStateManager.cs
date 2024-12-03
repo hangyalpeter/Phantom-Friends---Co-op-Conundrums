@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Netcode;
-using UnityEngine;
 
 public enum GameStateType
 {
@@ -163,7 +162,7 @@ public class GameStateManager : NetworkBehaviour
         playerReadyDictionary[serverRpcParams.Receive.SenderClientId] = false;
     }
 
-    public void UpdateElapsedTimeSync(float elapsedTime, bool update=true)
+    public void UpdateElapsedTimeSync(float elapsedTime, bool update = true)
     {
         if (IsServer)
         {
@@ -246,7 +245,7 @@ public class GameStateManager : NetworkBehaviour
         else if (state is GameOverState)
             return GameStateType.GameOver;
 
-        return GameStateType.MainMenu; 
+        return GameStateType.MainMenu;
     }
 
     private IGameState GetStateFromType(GameStateType type)

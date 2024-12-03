@@ -37,7 +37,7 @@ public class RotateShootingBehavior : MonoBehaviour
         while (true)
         {
             SpawnProjectileInCircle();
-            yield return new WaitForSeconds(spawnInterval); 
+            yield return new WaitForSeconds(spawnInterval);
         }
     }
 
@@ -50,7 +50,7 @@ public class RotateShootingBehavior : MonoBehaviour
         Vector3 spawnPoint = transform.position + spawnDirection * spawnRadius;
 
         projectileSpawner.GetProjectile(spawnPoint, spawnDirection, projectileSpeed, damage, collisionTag);
-        
+
         float angleInDegrees = Mathf.Atan2(spawnDirection.y, spawnDirection.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angleInDegrees);
 

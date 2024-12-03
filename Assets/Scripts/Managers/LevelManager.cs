@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Netcode;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public enum Scene {First, Main_Menu, Level_1, Level_2, Dungeon_Crawler };
+public enum Scene { First, Main_Menu, Level_1, Level_2, Dungeon_Crawler };
 public class LevelManager : NetworkBehaviour
 {
     public static LevelManager Instance { get; private set; }

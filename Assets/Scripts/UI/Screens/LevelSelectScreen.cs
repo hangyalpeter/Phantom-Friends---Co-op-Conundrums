@@ -116,5 +116,5 @@ public class LevelSelectScreen : UIScreen
         m_StarsLevel2 = m_RootElement.Q<VisualElement>("stars-level-2").Children().ToArray();
     }
 
-   
+
 }

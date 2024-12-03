@@ -1,20 +1,16 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
 public class LevelFinish : NetworkBehaviour
 {
     [SerializeField] private AudioSource levelFinishSound;
-    
-     private void OnTriggerEnter2D(Collider2D collision)
+
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Player_Child"))
         {
             LevelFinishServerRpc();
         }
-
     }
 
     private void LevelFinishActions()

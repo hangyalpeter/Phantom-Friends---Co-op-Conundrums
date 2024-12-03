@@ -68,7 +68,7 @@ public class PosessableMovement : NetworkBehaviour
         velocity.Value = velocityNew;
     }
 
-    [ServerRpc (RequireOwnership = false)]
+    [ServerRpc(RequireOwnership = false)]
     private void TogglePossessedServerRpc(bool possessed)
     {
         isPossessedNetwork.Value = possessed;
@@ -80,7 +80,8 @@ public class PosessableMovement : NetworkBehaviour
         if (IsServer)
         {
             isPossessedNetwork.Value = true;
-        } else 
+        }
+        else
         {
             TogglePossessedServerRpc(true);
         }
@@ -91,7 +92,8 @@ public class PosessableMovement : NetworkBehaviour
         {
             isPossessedNetwork.Value = false;
             velocity.Value = Vector2.zero;
-        } else
+        }
+        else
         {
             TogglePossessedServerRpc(false);
             UpdateVelocityServerRpc(Vector2.zero);

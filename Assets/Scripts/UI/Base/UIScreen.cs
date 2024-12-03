@@ -109,7 +109,6 @@ public abstract class UIScreen
 
         if (m_UseTransition)
         {
-            // TODO: add classes in UI builder
             m_RootElement.AddToClassList(k_HiddenClass); // Add hidden class
             m_RootElement.RemoveFromClassList(k_VisibleClass); // Remove visible class
         }

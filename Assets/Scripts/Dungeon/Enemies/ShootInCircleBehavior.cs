@@ -9,7 +9,6 @@ public class ShootInCircleBehavior : MonoBehaviour
 
     private int numberOfProjectiles = 10;
 
-    // TODO maybe make it a parameter for enemydata
     private float spawnInterval = 3f;
 
     private string collisionTag = "Enemy";

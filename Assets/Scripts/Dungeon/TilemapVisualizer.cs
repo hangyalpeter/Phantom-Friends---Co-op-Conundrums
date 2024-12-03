@@ -37,18 +37,15 @@ public class TilemapVisualizer : MonoBehaviour
     {
         foreach (var position in positions)
         {
-            //var tilePosition2 = tilemap.WorldToCell((Vector3Int)position);
             PaintSingleTile(tilemap, tile, position, color);
         }
     }
-
     private void PaintSingleTile(Tilemap tilemap, TileBase tile, Vector3Int position, Color? color)
     {
 
         var tilePosition = tilemap.WorldToCell(Vector3Int.RoundToInt(position));
 
         var tilePosition2 = position;
-        //tilemap.SetTile(tilePosition, tile);
 
         tilemap.SetTile(tilePosition, tile);
         if (color != null)
@@ -69,12 +66,10 @@ public class TilemapVisualizer : MonoBehaviour
         floorTilemap.ClearAllTiles();
         wallTilemap.ClearAllTiles();
     }
-
     internal void PaintSingleWall(Vector3Int wallPosition, Color? color)
     {
         PaintSingleTile(wallTilemap, wallTop, wallPosition, color);
     }
-
     internal void PaintDoorTile(Vector3Int position, Color? color)
     {
         PaintSingleTile(wallTilemap, doorTile, position, color);

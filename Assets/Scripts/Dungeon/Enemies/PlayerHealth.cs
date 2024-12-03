@@ -6,7 +6,6 @@ public class PlayerHealth : HealthBase
     {
         dieInvoked = true;
         OnDied?.Invoke();
-        Debug.Log("Player has died.");
         DespawnDeadObject(NetworkObjectId);
     }
 }

@@ -44,7 +44,7 @@ public class NetworkPlayerSpawner : NetworkBehaviour
         {
             playerPrefabToSpawn = playerGhostPrefab; // Host gets playerChildPrefab
         }
-        else 
+        else
         {
             playerPrefabToSpawn = playerChildPrefab; // Clients get playerGhostPrefab
         }
@@ -62,9 +62,9 @@ public class NetworkPlayerSpawner : NetworkBehaviour
         NetworkObject player1NetworkObject = player1Instance.GetComponent<NetworkObject>();
         player1NetworkObject.SpawnAsPlayerObject(NetworkManager.Singleton.LocalClientId, destroyWithScene: true);
 
-        GameObject player2Instance = Instantiate(playerGhostPrefab, new Vector3(2, 0, 0), Quaternion.identity); 
+        GameObject player2Instance = Instantiate(playerGhostPrefab, new Vector3(2, 0, 0), Quaternion.identity);
         NetworkObject player2NetworkObject = player2Instance.GetComponent<NetworkObject>();
         player2NetworkObject.SpawnAsPlayerObject(NetworkManager.Singleton.LocalClientId, destroyWithScene: true);
     }
-   
+
 }

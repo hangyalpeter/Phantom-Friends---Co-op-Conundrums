@@ -1,7 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
 
-// TODO remove class in the future
 public class PossessableBehavior : NetworkBehaviour
 {
     private Vector2 lastMovementDirection;
@@ -13,7 +12,7 @@ public class PossessableBehavior : NetworkBehaviour
     private Vector2 previousPosition;
 
     private GameObject bulletPrefab;
-    
+
 
     private ShootBehavior sb;
     private PosessableMovement pm;
@@ -25,7 +24,7 @@ public class PossessableBehavior : NetworkBehaviour
     void Start()
     {
         projectileSpawner = GetComponent<ProjectileSpawner>();
-        sb = GetComponent<ShootBehavior>(); 
+        sb = GetComponent<ShootBehavior>();
         pm = GetComponent<PosessableMovement>();
 
         bulletPrefab = sb.projectilePrefab;
@@ -38,7 +37,7 @@ public class PossessableBehavior : NetworkBehaviour
 
     }
 
-    
+
     void Update()
     {
         if (!IsOwner) return;
@@ -80,7 +79,7 @@ public class PossessableBehavior : NetworkBehaviour
     public void OnDePossess()
     {
         gameObject.tag = "Enemy";
-        
+
         sb.enabled = true;
         followPlayerBehavior.enabled = true;
         isPossessed = false;

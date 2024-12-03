@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PausedState : IGameState
 {
@@ -22,9 +21,7 @@ public class PausedState : IGameState
 
         int minutes = (int)(context.ElapsedTime / 60);
         int seconds = (int)(context.ElapsedTime % 60);
-        float hundreth = (float)((context.ElapsedTime - Mathf.Floor(context.ElapsedTime)) * 100); 
-
-        //int milliseconds = (int)((context.ElapsedTime * 1000) % 1000);
+        float hundreth = (float)((context.ElapsedTime - Mathf.Floor(context.ElapsedTime)) * 100);
 
         GameEvents.GamePaused?.Invoke(string.Format("{0:00}:{1:00}:{2:00}", minutes, seconds, hundreth));
 
@@ -57,7 +54,6 @@ public class PausedState : IGameState
         UIScreenEvents.SettingsShown -= SettingsShown;
         UIScreenEvents.ScreenClosed -= ScreenClosed;
 
-        Debug.Log("Exiting Paused State");
         Time.timeScale = 1f;
         UIScreenEvents.ScreenClosed?.Invoke();
     }

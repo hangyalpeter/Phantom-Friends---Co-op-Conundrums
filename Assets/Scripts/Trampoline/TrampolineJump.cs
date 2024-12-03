@@ -1,4 +1,3 @@
-using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -19,7 +18,7 @@ public class TrampolineJump : NetworkBehaviour
             RequestTrampolineActionServerRpc(collision.gameObject.GetComponent<NetworkObject>());
         }
     }
- 
+
     [ServerRpc(RequireOwnership = false)]
     private void RequestTrampolineActionServerRpc(NetworkObjectReference player)
     {

@@ -23,7 +23,6 @@ public class EnemyData : ScriptableObject
         GameObject enemy = Instantiate(enemyPrefab, position, Quaternion.identity);
 
         NetworkObject networkObject = enemy.GetComponent<NetworkObject>();
-        //networkObject.Spawn(destroyWithScene: true);
         enemy.name = enemyName;
         // the builder checks if it can add the corresponding components
         EnemyBuilder builder = new EnemyBuilder(enemy, this);

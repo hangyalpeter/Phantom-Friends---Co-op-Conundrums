@@ -1,9 +1,6 @@
 ﻿using Assets.Scripts.Dungeon;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Unity.Netcode;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -33,8 +30,6 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
     public TilemapVisualizer TilemapVisualizer => tilemapVisualizer;
 
     public bool useStoredSeed = true;
-    private int seed;
-
 
     private Vector3Int firstRoomCenter;
     private Vector3Int bossRoomCenter = Vector3Int.zero;
@@ -46,6 +41,21 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
     {
         Random.InitState(1);
     }
+
+
+    // visualizes the graph in the editor view
+    /*    void OnDrawGizmos()
+        {
+            Gizmos.color = Color.green;
+            foreach (var kvp in roomGraph)
+            {
+                foreach (var neighbor in kvp.Value)
+                {
+                    Gizmos.DrawLine(kvp.Key, neighbor);
+                }
+            }
+        }*/
+
 
     public override void RunProceduralGeneration()
     {
@@ -61,7 +71,6 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
             CreateRooms();
         }
 
-        //TODO: remove print methods when before final turn in
         PrintGraph(roomGraph);
 
         return rooms;
@@ -101,11 +110,11 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
 
         RemoveCorridorTilesFromRoomTiles();
 
-        foreach (var tile in corridorPositions) {
+        foreach (var tile in corridorPositions)
+        {
             Debug.Log(tile);
         }
 
-        //this is needed to connect the corridors to the rooms
         floorPositions.UnionWith(corridorPositions);
 
 
@@ -121,7 +130,6 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
             if (!floorPositions.Contains(corridor))
             {
                 tilemapVisualizer.PaintFloorTiles(new HashSet<Vector3Int> { corridor }, Color.black);
-                //tilemapVisualizer.PaintFloorTiles(new HashSet<Vector3Int> { corridor }, null);
             }
             else
             {
@@ -139,7 +147,6 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
             var color = GenerateRandomColor();
 
             tilemapVisualizer.PaintFloorTiles(GetActualRoomFloorPositions(new List<BoundsInt> { room.bounds }), color);
-            //tilemapVisualizer.PaintFloorTiles(GetActualRoomFloorPositions(new List<BoundsInt> { room.Value }), null);
 
             floorPositions.UnionWith(GetActualRoomFloorPositions(new List<BoundsInt> { room.bounds }));
 
@@ -188,9 +195,7 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
         {
             tilemapVisualizer.PaintFloorTiles(GetActualRoomFloorPositions(new List<BoundsInt> { room.bounds }), Color.black);
             break;
-
         }
-
 
         foreach (var roomCenter in rooms.Select(x => Vector3Int.RoundToInt(x.bounds.center)))
         {
@@ -218,7 +223,6 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
         {
             rooms.FirstOrDefault(room => room.floorTilesPositions.Contains(current)).isBossRoom = true;
         }
-
 
         return corridors;
     }
@@ -264,20 +268,6 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
         return clone;
     }
 
-    private List<Vector3Int> GetNonCutVertices3()
-    {
-        var bossroomPositions = new List<Vector3Int>();
-        bool bossroom = false;
-        foreach (var room in rooms)
-        {
-            bossroom = FindBossRoomHelper(room);
-            if (bossroom)
-            {
-                bossroomPositions.Add(Vector3Int.RoundToInt(room.bounds.center));
-            }
-        }
-        return bossroomPositions;
-    }
     private List<Vector3Int> GetNonCutVertices()
     {
         List<Vector3Int> nonCutVertices = new List<Vector3Int>();
@@ -304,6 +294,7 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
 
 
 
+    // linear dungeon solution for building the graph, not relevant anymore, left it in for reference
     private Dictionary<Vector3Int, List<Vector3Int>> GetRemainingGraphFromCuttingVertex(Dictionary<Vector3Int, List<Vector3Int>> graph, Vector3Int vertex)
     {
         var roomToCheck = rooms.Where(r => r.floorTilesPositions.Contains(vertex)).First();
@@ -378,14 +369,6 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
         var bossroom = false;
         var bossroomPosition = new HashSet<Room>();
 
-        //bossroom = FindBossRoomHelper3(rooms.First());
-
-        //BuildRoomGraph(rooms, corridorPositions);
-
-        //BuildGraphFromCorridors(corridorPositions, rooms);
-        //MarkBossRoom();
-
-
         foreach (var room in rooms)
         {
             bossroom = FindBossRoomHelper(room);
@@ -400,66 +383,26 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
         //var bossroomPositions = new ConcurrentBag<Room>();
 
         // Parallelize the check for each room
-      /*  Parallel.ForEach(rooms, room =>
-        {
-            if (FindBossRoomHelper(room))
-            {
-                bossroomPositions.Add(room);
-            }
-        });
+        /*  Parallel.ForEach(rooms, room =>
+          {
+              if (FindBossRoomHelper(room))
+              {
+                  bossroomPositions.Add(room);
+              }
+          });
 
-        // Mark the last room in the result as the boss room
-        if (bossroomPositions.Any())
-        {
-            bossroomPositions.Last().isBossRoom = true;
-            if (firstRoomCenter == bossroomPositions.Last().bounds.center)
-            {
-                firstRoomCenter = Vector3Int.RoundToInt(rooms.First(r => !r.isBossRoom).bounds.center);
+          // Mark the last room in the result as the boss room
+          if (bossroomPositions.Any())
+          {
+              bossroomPositions.Last().isBossRoom = true;
+              if (firstRoomCenter == bossroomPositions.Last().bounds.center)
+              {
+                  firstRoomCenter = Vector3Int.RoundToInt(rooms.First(r => !r.isBossRoom).bounds.center);
 
-            }
-        }*/
+              }
+          }*/
 
     }
-
-    bool FindBossRoomHelper2(Room roomToExclude)
-    {
-        var visited = new HashSet<Vector3Int>();
-        var queue = new Queue<Vector3Int>();
-        var visitedRooms = new HashSet<Room>();
-
-        var copiedRooms = rooms.Where(r => r != roomToExclude);
-        var start = copiedRooms.First();
-
-        var corridorsss = new HashSet<Vector3Int>();
-        foreach (var tile in roomToExclude.floorTilesPositions) {
-            foreach (var neighbour in GetNeighbors(tile)) { 
-                if (corridorPositions.Contains(neighbour))
-                {
-                    corridorsss.Add(neighbour);
-                }
-            }
-        }
-        BuildGraphFromCorridors(corridorPositions.Except(corridorsss).ToHashSet(), copiedRooms.ToHashSet());
-
-        queue.Enqueue(Vector3Int.RoundToInt(start.bounds.center));
-        visited.Add(Vector3Int.RoundToInt(start.bounds.center));
-
-        while (queue.Count > 0)
-        {
-            var current = queue.Dequeue();
-
-            foreach (var neighbor in roomGraph[current])
-            {
-                if (!visited.Contains(neighbor))
-                {
-                    visited.Add(neighbor);
-                    queue.Enqueue(neighbor);
-                }
-            }
-        }
-        return visitedRooms.Count() == copiedRooms.Count();
-    }
-
 
 
     bool FindBossRoomHelper(Room roomToExclude)
@@ -468,29 +411,14 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
         var queue = new Queue<Vector3Int>();
         var visitedRooms = new HashSet<Room>();
 
-        var corridorsss = new HashSet<Vector3Int>();
-
         var copiedRooms = rooms.Where(r => r != roomToExclude);
 
-        /*  foreach (var tile in roomToExclude.floorTilesPositions)
-          {
-              foreach (var neighbour in GetNeighbors(tile))
-              {
-                  if (corridorPositions.Contains(neighbour))
-                  {
-                      corridorsss.Add(neighbour);
-                  }
-              }
-          }*/
-
-        var copiedFloorpos = floorPositions.Except(roomToExclude.floorTilesPositions);/*.Except(corridorsss);*/
+        var copiedFloorpos = floorPositions.Except(roomToExclude.floorTilesPositions);
 
         Debug.Log("floorPoscount: " + copiedFloorpos.Count());
         Debug.Log("copiedRoomsCount: " + copiedRooms.Count());
 
-
         var startPosition = copiedFloorpos.First();
-
 
         queue.Enqueue(startPosition);
         visited.Add(startPosition);
@@ -515,20 +443,6 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
         }
         return visitedRooms.Count() == copiedRooms.Count();
     }
-
-/*    void OnDrawGizmos()
-    {
-        Gizmos.color = Color.green;
-        foreach (var kvp in roomGraph)
-        {
-            foreach (var neighbor in kvp.Value)
-            {
-                Gizmos.DrawLine(kvp.Key, neighbor);
-            }
-        }
-    }*/
-
-
 
     void BuildGraphFromCorridors(HashSet<Vector3Int> corridorPositions, HashSet<Room> rooms)
     {

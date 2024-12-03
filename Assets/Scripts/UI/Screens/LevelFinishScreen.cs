@@ -1,7 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 public class LevelFinishScreen : UIScreen
@@ -42,17 +38,16 @@ public class LevelFinishScreen : UIScreen
         {
             m_RestartButton.style.display = DisplayStyle.Flex;
             m_MainMenuButton.style.display = DisplayStyle.Flex;
-            m_NextLevelButton.style.display= DisplayStyle.Flex;
+            m_NextLevelButton.style.display = DisplayStyle.Flex;
         }
 
         if (mode == StartingSceneController.PlayMode.CouchCoop)
         {
             m_RestartButton.style.display = DisplayStyle.Flex;
             m_MainMenuButton.style.display = DisplayStyle.Flex;
-            m_NextLevelButton.style.display= DisplayStyle.Flex;
+            m_NextLevelButton.style.display = DisplayStyle.Flex;
         }
     }
-
     private void UnsubscribeFromEvents()
     {
         GameEvents.LevelFinishedWithTime -= GameEvents_LevelFinishedWithTime;
@@ -63,14 +58,12 @@ public class LevelFinishScreen : UIScreen
     {
         m_ElapsedTimeLabel.text = "Elapsed time: " + time;
     }
-
     private void RegisterCallbacks()
     {
         m_EventRegistry.RegisterCallback<ClickEvent>(m_RestartButton, evt => UIScreenEvents.OnLevelRestart?.Invoke());
         m_EventRegistry.RegisterCallback<ClickEvent>(m_MainMenuButton, evt => UIScreenEvents.MainMenuClicked?.Invoke());
         m_EventRegistry.RegisterCallback<ClickEvent>(m_NextLevelButton, evt => UIScreenEvents.OnNextLevel?.Invoke());
     }
-
     private void SetupButtons()
     {
         m_NextLevelButton = m_RootElement.Q<Button>("next-level-button");

@@ -70,7 +70,7 @@ public class StartingSceneController : NetworkBehaviour
             NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackHost;
             NetworkManager.Singleton.ConnectionApprovalCallback -= NetworkManager_ConnectionApprovalCallbackCouchCoop;
             NetworkManager.Singleton.ConnectionApprovalCallback += NetworkManager_ConnectionApprovalCallbackHost;
-           
+
             NetworkManager.Singleton.StartHost();
             NetworkManager.Singleton.SceneManager.LoadScene(Scene.Main_Menu.ToString(), LoadSceneMode.Single);
         });
@@ -164,7 +164,7 @@ public class StartingSceneController : NetworkBehaviour
         {
             if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
             {
-                return ip.ToString(); 
+                return ip.ToString();
             }
         }
         throw new System.Exception("No network adapters with an IPv4 address in the system!");
@@ -185,7 +185,8 @@ public class StartingSceneController : NetworkBehaviour
         if (ipAddressInputField.text.Length == 0)
         {
             requiredErrorText.gameObject.SetActive(true);
-        } else
+        }
+        else
         {
 
             requiredErrorText.gameObject.SetActive(false);
@@ -193,7 +194,8 @@ public class StartingSceneController : NetworkBehaviour
         if (!Regex.IsMatch(ipAddressInputField.text, ipPattern))
         {
             invalidErrorText.gameObject.SetActive(true);
-        } else
+        }
+        else
         {
             invalidErrorText.gameObject.SetActive(false);
         }

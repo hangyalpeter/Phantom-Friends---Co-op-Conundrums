@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 public class EnemyHealth : HealthBase
 {
@@ -13,7 +12,6 @@ public class EnemyHealth : HealthBase
             PossessableHealth.OnPossessedObjectDies?.Invoke();
         }
         OnEnemyDied?.Invoke();
-        Debug.Log("Enemy has died.");
         DespawnDeadObject(NetworkObjectId);
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -148,7 +147,8 @@ public class PlayerMovementDungeon : NetworkBehaviour
         isFlipped.Value = flipX;
     }
 
-    private void TriggerHitAnimation(float _) {
+    private void TriggerHitAnimation(float _)
+    {
         anim.SetTrigger("hit");
     }
 
@@ -158,5 +158,5 @@ public class PlayerMovementDungeon : NetworkBehaviour
         {
             Physics2D.IgnoreCollision(collision.collider, bc);
         }
-    }   
+    }
 }

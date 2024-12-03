@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -6,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class ItemCollector : MonoBehaviour
 {
-
     public static ItemCollector Instance { get; private set; }
 
     private int appplesCount = 0;
@@ -43,7 +41,7 @@ public class ItemCollector : MonoBehaviour
         {
             stars = 1;
         }
-        if (stars > PlayerPrefs.GetInt(currentLevelName) )
+        if (stars > PlayerPrefs.GetInt(currentLevelName))
         {
             PlayerPrefs.SetInt(currentLevelName, stars);
             PlayerPrefs.Save();
@@ -74,8 +72,5 @@ public class ItemCollector : MonoBehaviour
     {
         totalApplesCount = GameObject.FindGameObjectsWithTag("Apple").Count();
     }
-
-
-
 }
 

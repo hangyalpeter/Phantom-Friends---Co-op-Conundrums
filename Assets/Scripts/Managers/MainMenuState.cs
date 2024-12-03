@@ -11,7 +11,6 @@ public class MainMenuState : IGameState
 
     public void EnterState()
     {
-        Debug.Log("Enter Main Menu state");
     }
     public void UpdateState()
     {
