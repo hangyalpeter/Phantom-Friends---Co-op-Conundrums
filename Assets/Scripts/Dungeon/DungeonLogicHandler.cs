@@ -45,7 +45,7 @@ public class DungeonLogicHandler : MonoBehaviour
 
     void Start()
     {
-        rooms = dungeonGenerator.GenerateDungeon(false, PlayerPrefs.GetInt("DungeonSeed"));
+        //rooms = dungeonGenerator.GenerateDungeon(false, PlayerPrefs.GetInt("DungeonSeed"));
         spawner = gameObject.GetComponent<EnemySpawner>();
         playerHealthComponent = player.GetComponent<HealthComponent>();
         playerHealthComponent.OnDied += HandlePlayerDeath;
@@ -264,7 +264,7 @@ public class DungeonLogicHandler : MonoBehaviour
         Debug.Log("Player won the dungeon!");
         dungeonGenerator.useStoredSeed = false;
         useSeed = false;
-        PlayerPrefs.DeleteKey("DungeonSeed");
+        //PlayerPrefs.DeleteKey("DungeonSeed");
 
         var roomsCleared = rooms.Where(x => x.isFinished).Count();
         //OnDungeonFinish?.Invoke(roomsCleared, enemiesKilled, "You won!", "New Dungeon");

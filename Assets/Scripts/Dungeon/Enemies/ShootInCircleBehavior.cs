@@ -33,14 +33,9 @@ public class ShootInCircleBehavior : MonoBehaviour
         {
             float angleInRadians = currentAngle * Mathf.Deg2Rad;
             Vector2 spawnDirection = new Vector2(Mathf.Cos(angleInRadians), Mathf.Sin(angleInRadians)).normalized;
-
             Vector2 spawnPoint = (Vector2)transform.position + spawnDirection * spawnRadius;
 
-
-            if (ProjectileFactory.Instance != null)
-            {
-                projectileSpawner.GetProjectile(spawnPoint, spawnDirection, projectileSpeed, damage, collisionTag);
-            }
+            projectileSpawner.GetProjectile(spawnPoint, spawnDirection, projectileSpeed, damage, collisionTag);
 
             currentAngle += angleStep;
         }

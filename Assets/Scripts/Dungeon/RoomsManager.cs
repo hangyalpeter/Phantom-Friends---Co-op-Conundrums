@@ -11,7 +11,7 @@ public class RoomsManager : NetworkBehaviour
     private List<EnemyData> roomEnemiesData = new List<EnemyData>();
     private List<EnemyData> clonedEnemiesData = new List<EnemyData>();
 
-    private int numberOfEnemiesToGenerate = 1;
+    private int numberOfEnemiesToGenerate = 4;
 
     [SerializeField]
     private List<EnemyData> bossEnemiesData = new List<EnemyData>();
@@ -80,36 +80,31 @@ public class RoomsManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        if (player != null)
+        if (player != null && ghost != null)
         {
-
             CheckPlayerEnteredRoom();
-            foreach (var room in rooms)
+            var currentActualRoompos = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { currentRoom.bounds });
+            var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.transform.position);
+            if (currentActualRoompos.Contains(playerPosition) && isClosed)
             {
-                var actualRooms = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { room.bounds });
-                var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.transform.position);
-                if (actualRooms.Contains(playerPosition) && isClosed)
+                if (CheckIsRoomCleared(currentRoom))
                 {
-                    if (CheckIsRoomCleared(room))
-                    {
-                        room.isFinished = true;
-                        isClosed = false;
-                        OpenAllFinishedRooms();
+                    currentRoom.isFinished = true;
+                    isClosed = false;
+                    OpenAllFinishedRooms();
 
-                        if (CheckDungeonWin())
-                        {
-                            NotifyDungeonWin();
-                        }
+                    if (CheckDungeonWin())
+                    {
+                        NotifyDungeonWin();
                     }
                 }
             }
-
         }
-
     }
 
     private bool CheckDungeonWin()
     {
+        Debug.Log("all room finished: " + rooms.All(r => r.isFinished));
         return rooms.All(r => r.isFinished);
     }
 
@@ -215,7 +210,8 @@ public class RoomsManager : NetworkBehaviour
         int i = 0;
         while(i < numberOfEnemiesToGenerate)
         {
-            var randomEnemy = clonedEnemiesData[UnityEngine.Random.Range(0, clonedEnemiesData.Count)];
+            //var randomEnemy = clonedEnemiesData[UnityEngine.Random.Range(0, clonedEnemiesData.Count)];
+            var randomEnemy = clonedEnemiesData[i];
             Vector3 position = potentialSwawnPositions.ElementAt(UnityEngine.Random.Range(0, potentialSwawnPositions.Count()));
             room.enemies.Add(spawner.SpawnEnemy(randomEnemy, position));
             i++;
@@ -350,16 +346,21 @@ public class RoomsManager : NetworkBehaviour
 
     private bool CheckIsRoomCleared(Room room)
     {
-        return !room.enemies.Any(e => e != null);
+        return room.enemies.All(e => {
+            if (e != null)
+            {
+                return e.GetComponent<HealthBase>().CurrentHealth <= 0;
+            } else
+            {
+                return true;
+            }
+        });
+        //return !room.enemies.Any(e => e != null);
     }
 
     private void NotifyDungeonWin()
     {
         mediator.Notify(this, DungeonEvents.DungeonWin);
-
-        // TODO come up with a different solution for this
-        // because this modifies the scriptable object's properties
-        // so it remains after play seession is over
 
         clonedBossEnemiesData.ForEach(b =>
         {

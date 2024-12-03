@@ -45,7 +45,6 @@ public class RotateShootingBehavior : MonoBehaviour
     {
         float angleInRadians = currentAngle * Mathf.Deg2Rad;
 
-        float angle = Time.time * rotationSpeed;
         Vector3 spawnDirection = new Vector2(Mathf.Cos(angleInRadians), Mathf.Sin(angleInRadians)).normalized;
 
         Vector3 spawnPoint = transform.position + spawnDirection * spawnRadius;

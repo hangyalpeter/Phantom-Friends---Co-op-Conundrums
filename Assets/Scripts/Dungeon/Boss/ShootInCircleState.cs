@@ -16,7 +16,7 @@
 
     public IBossState GetNextState()
     {
-        return new FollowPlayerAndShootState(); // Transition to DefensiveState after this state
+        return new FollowPlayerAndShootState();
     }
 }
 

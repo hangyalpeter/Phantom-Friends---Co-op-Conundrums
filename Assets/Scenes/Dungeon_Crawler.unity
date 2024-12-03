@@ -1005,8 +1005,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minWidth: 20
   minHeight: 20
-  dungeonWidth: 50
-  dungeonHeight: 50
+  dungeonWidth: 65
+  dungeonHeight: 65
   roomWidthOffset: 5
   tilemapVisualizer: {fileID: 1030782645}
   player: {fileID: 0}
@@ -1574,6 +1574,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1e93461fd07f3d640b36bc53838d474d, type: 2}
   - {fileID: 11400000, guid: b40ec3858137a3745a5c4a029937d228, type: 2}
   - {fileID: 11400000, guid: 5eef44e209c25064d83adfa166f3e954, type: 2}
+  - {fileID: 11400000, guid: 100d9fc5d09b6e54488f9aa09256351d, type: 2}
   bossEnemiesData:
   - {fileID: 11400000, guid: 215f96d49cfb9624a976e01deb4261c0, type: 2}
   possessableObjects:

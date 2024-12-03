@@ -45,7 +45,6 @@ public class BossController : MonoBehaviour
         if (behavior != null)
         {
             Destroy(behavior);
-            //behavior.gameObject.SetActive(false);
         }
     }
 }

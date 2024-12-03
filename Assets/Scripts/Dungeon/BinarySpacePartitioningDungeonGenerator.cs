@@ -51,7 +51,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
     [SerializeField]
     private GameObject playerChildPrefab;
 
-    void OnDrawGizmos()
+    /*void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
         foreach (var kvp in roomGraph)
@@ -61,7 +61,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
                 Gizmos.DrawLine(kvp.Key, neighbor);
             }
         }
-    }
+    }*/
 
 
     public override void RunProceduralGeneration()
@@ -71,6 +71,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
 
     public HashSet<Room> GenerateDungeon(bool alreadySpawned, int seed)
     {
+        Random.InitState(seed);
         InitializeMap();
 
         CreateRooms();
@@ -341,7 +342,7 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
         var copiedRooms = rooms.Where(r => r != roomToExclude);
 
         // remove potential corridors that would pass through the excluded room
-        foreach (var tile in roomToExclude.floorTilesPositions)
+  /*      foreach (var tile in roomToExclude.floorTilesPositions)
         {
             foreach (var neighbour in GetNeighbors(tile))
             {
@@ -351,8 +352,8 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
                 }
             }
         }
-
-        var copiedFloorpos = floorPositions.Except(roomToExclude.floorTilesPositions).Except(corridorsss);
+*/
+        var copiedFloorpos = floorPositions.Except(roomToExclude.floorTilesPositions)/*.Except(corridorsss)*/;
 
         var startPosition = copiedFloorpos.First();
 
@@ -583,7 +584,6 @@ public class BinarySpacePartitioningDungeonGenerator : DungeonGeneratorStrategy
                 }
             }
         }
-
     }
     void AddEdge(Dictionary<Vector3Int, List<Vector3Int>> graph, Vector3Int room1, Vector3Int room2)
     {

@@ -9,7 +9,7 @@ public abstract class HealthBase : NetworkBehaviour
     public float MaxHealth => maxHealth;
 
     public Action OnDied;
-    public Action<float> OnHealthChanged;
+    public event Action<float> OnHealthChanged;
 
     protected bool dieInvoked = false;
     protected NetworkVariable<float> currentHealthNetwork = new NetworkVariable<float>();

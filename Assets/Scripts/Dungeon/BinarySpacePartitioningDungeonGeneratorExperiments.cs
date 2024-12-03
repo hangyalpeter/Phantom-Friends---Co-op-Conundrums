@@ -101,6 +101,10 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
 
         RemoveCorridorTilesFromRoomTiles();
 
+        foreach (var tile in corridorPositions) {
+            Debug.Log(tile);
+        }
+
         //this is needed to connect the corridors to the rooms
         floorPositions.UnionWith(corridorPositions);
 
@@ -382,18 +386,18 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
         //MarkBossRoom();
 
 
-        /* foreach (var room in rooms)
-         {
-             bossroom = FindBossRoomHelper(room);
-             if (bossroom)
-             {
-                 bossroomPosition.Add(room);
-             }
-         }
-         bossroomPosition.Last().isBossRoom = true;*/
+        foreach (var room in rooms)
+        {
+            bossroom = FindBossRoomHelper(room);
+            if (bossroom)
+            {
+                bossroomPosition.Add(room);
+            }
+        }
+        bossroomPosition.Last().isBossRoom = true;
 
 
-        var bossroomPositions = new ConcurrentBag<Room>();
+        //var bossroomPositions = new ConcurrentBag<Room>();
 
         // Parallelize the check for each room
       /*  Parallel.ForEach(rooms, room =>
@@ -467,21 +471,22 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
         var corridorsss = new HashSet<Vector3Int>();
 
         var copiedRooms = rooms.Where(r => r != roomToExclude);
-        Debug.Log("copiedFloorpos: " + copiedRooms.Count());
-        Debug.Log("originalFloorpos: " + rooms.Count());
 
-        foreach (var tile in roomToExclude.floorTilesPositions)
-        {
-            foreach (var neighbour in GetNeighbors(tile))
-            {
-                if (corridorPositions.Contains(neighbour))
-                {
-                    corridorsss.Add(neighbour);
-                }
-            }
-        }
+        /*  foreach (var tile in roomToExclude.floorTilesPositions)
+          {
+              foreach (var neighbour in GetNeighbors(tile))
+              {
+                  if (corridorPositions.Contains(neighbour))
+                  {
+                      corridorsss.Add(neighbour);
+                  }
+              }
+          }*/
 
-        var copiedFloorpos = floorPositions.Except(roomToExclude.floorTilesPositions).Except(corridorsss);
+        var copiedFloorpos = floorPositions.Except(roomToExclude.floorTilesPositions);/*.Except(corridorsss);*/
+
+        Debug.Log("floorPoscount: " + copiedFloorpos.Count());
+        Debug.Log("copiedRoomsCount: " + copiedRooms.Count());
 
 
         var startPosition = copiedFloorpos.First();
@@ -511,7 +516,7 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
         return visitedRooms.Count() == copiedRooms.Count();
     }
 
-    void OnDrawGizmos()
+/*    void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
         foreach (var kvp in roomGraph)
@@ -521,7 +526,7 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
                 Gizmos.DrawLine(kvp.Key, neighbor);
             }
         }
-    }
+    }*/
 
 
 
@@ -597,6 +602,7 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
     void PlaceDoors()
     {
         var visited = new HashSet<Vector3Int>();
+        var visitedRooms = new HashSet<Room>();
         var queue = new Queue<Vector3Int>();
 
         var startPosition = floorPositions.First();
@@ -609,7 +615,6 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
 
         }
 
-
         queue.Enqueue(startPosition);
         visited.Add(startPosition);
 
@@ -617,6 +622,10 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
         {
             var current = queue.Dequeue();
             var currentRoom = rooms.FirstOrDefault(x => x.floorTilesPositions.Contains(current));
+            if (currentRoom != null)
+            {
+                visitedRooms.Add(currentRoom);
+            }
             //this is just the check for the doors, not strictly part of the bfs
             if (IsRoomPosition(current))
             {
@@ -651,6 +660,14 @@ public class BinarySpacePartitioningDungeonGeneratorExperiments : DungeonGenerat
                     queue.Enqueue(neighbor);
                 }
             }
+        }
+        if (visitedRooms.Count == rooms.Count)
+        {
+            Debug.Log("All rooms have doors");
+        }
+        else
+        {
+            Debug.LogError("Not all rooms have doors, something is wrong!");
         }
     }
 
