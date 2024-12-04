@@ -1012,7 +1012,7 @@ MonoBehaviour:
   player: {fileID: 0}
   ghost: {fileID: 0}
   useStoredSeed: 1
-  playerGhostPrefab: {fileID: 7039017418748102765, guid: a05b6d8607c3a984e8ad728a52873f33, type: 3}
+  playerGhostPrefab: {fileID: 7039017418748102765, guid: ddb1201a3b70a664fb1a51c8c7466161, type: 3}
   playerChildPrefab: {fileID: 540280608441340586, guid: 65ed9484e490e2b46ad4028156241c82, type: 3}
 --- !u!4 &849193266
 Transform:
@@ -1568,6 +1568,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5eef44e209c25064d83adfa166f3e954, type: 2}
   - {fileID: 11400000, guid: 100d9fc5d09b6e54488f9aa09256351d, type: 2}
   - {fileID: 11400000, guid: 0f7e77353b714264e92c8fa7333cfe4c, type: 2}
+  - {fileID: 11400000, guid: af9100b38c36705449b4a375406b0321, type: 2}
   bossEnemiesData:
   - {fileID: 11400000, guid: 215f96d49cfb9624a976e01deb4261c0, type: 2}
   possessableObjects:

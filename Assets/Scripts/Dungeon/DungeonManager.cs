@@ -60,6 +60,7 @@ public class DungeonManager : NetworkBehaviour
         rooms.Clear();
         rooms.UnionWith(dungeonGenerator.GenerateDungeon(true, seed));
 
+        mediator.Notify(this, DungeonEvents.ResetDungeonWinCondition);
         GenerateNewDungeonAfterWinClientRpc(seed);
     }
     [ClientRpc]
