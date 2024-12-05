@@ -37,6 +37,9 @@ public class DungeonMediator : MonoBehaviour, IDungeonMediator
                 playerManager.ResetHealth();
                 playerManager.IncreaseDamage(1.1f);
                 break;
+            case DungeonEvents.ResetDungeonWinCondition:
+                roomManager.IsWon = false;
+                break;
         }
     }
 
@@ -56,6 +59,7 @@ public enum DungeonEvents
     PlayerEnteredRoom,
     PlayerEnteredBossRoom,
     DungeonWin,
-    RoomCleared
+    RoomCleared,
+    ResetDungeonWinCondition
 }
 

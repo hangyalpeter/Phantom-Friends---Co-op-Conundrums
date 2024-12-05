@@ -33,6 +33,8 @@ public class RoomsManager : NetworkBehaviour
     private bool isClosed = false;
     private bool isClosingRoom = false;
 
+    public bool IsWon { get; set; }
+
     public void SetMediator(IDungeonMediator mediator)
     {
         this.mediator = mediator;
@@ -82,22 +84,25 @@ public class RoomsManager : NetworkBehaviour
         if (player != null && ghost != null)
         {
             CheckPlayerEnteredRoom();
-            var currentActualRoompos = dungeonGenerator.GetActualRoomFloorPositions(new List<BoundsInt>() { currentRoom.bounds });
-            var playerPosition = dungeonGenerator.TilemapVisualizer.FloorTilemap.WorldToCell(player.transform.position);
-            if (currentActualRoompos.Contains(playerPosition) && isClosed)
-            {
-                if (CheckIsRoomCleared(currentRoom))
-                {
-                    currentRoom.isFinished = true;
-                    isClosed = false;
-                    OpenAllFinishedRooms();
+        }
+    }
 
-                    if (CheckDungeonWin())
-                    {
-                        NotifyDungeonWin();
-                    }
-                }
-            }
+    private void LateUpdate()
+    {
+        if (!IsServer) return;
+
+        if (player == null || ghost == null) return;
+
+        if (CheckDungeonWin() && !IsWon)
+        {
+            IsWon = true;
+            NotifyDungeonWin();
+        }
+        if (CheckIsRoomCleared(currentRoom))
+        {
+            currentRoom.isFinished = true;
+            isClosed = false;
+            OpenAllFinishedRooms();
         }
     }
 
@@ -343,17 +348,7 @@ public class RoomsManager : NetworkBehaviour
 
     private bool CheckIsRoomCleared(Room room)
     {
-        return room.enemies.All(e =>
-        {
-            if (e != null)
-            {
-                return e.GetComponent<HealthBase>().CurrentHealth <= 0;
-            }
-            else
-            {
-                return true;
-            }
-        });
+        return room.enemies.All(e => e == null) && room.spawned;
     }
 
     private void NotifyDungeonWin()
